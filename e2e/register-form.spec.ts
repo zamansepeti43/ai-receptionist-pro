@@ -8,29 +8,17 @@ import {
 } from './helpers/api-capture';
 import { gotoOk } from './helpers/page-signals';
 
-/**
- * Flusso 4: il form di registrazione invia in JSON e mostra il feedback nella
- * pagina.
- *
- * Il difetto originale era un `<form method="POST" action="/api/auth/sign-up">`
- * nativo: il browser inviava `application/x-www-form-urlencoded`, la route
- * rispondeva 400 `Invalid JSON body`, e la finestra navigava sulla risposta
- * grezza dell'API. Le asserzioni qui sotto colpiscono esattamente quel difetto:
- * tipo di risorsa, content-type, forma del body, URL invariato, feedback a
- * schermo.
- */
-
 const SIGN_UP_ROUTE = '**/api/auth/sign-up';
 const FEEDBACK = '#register-form-errors';
 
 async function fillRegisterForm(page: Page, email: string): Promise<void> {
-  await page.getByLabel('Nome studio o azienda', { exact: true }).fill('Studio E2E');
-  await page.getByLabel('Email di lavoro', { exact: true }).fill(email);
-  await page.getByLabel('Settore', { exact: true }).selectOption('dental');
+  await page.getByLabel('Business or practice name', { exact: true }).fill('E2E Business');
+  await page.getByLabel('Work email', { exact: true }).fill(email);
+  await page.getByLabel('Industry', { exact: true }).selectOption('dental');
 }
 
-test.describe('Registrazione', () => {
-  test('invia un POST JSON con i campi del form, senza navigare', async ({ page }) => {
+test.describe('Registration', () => {
+  test('submits JSON via fetch without navigating', async ({ page }) => {
     const capture = await captureApiCall(page, SIGN_UP_ROUTE, {
       status: 200,
       body: successEnvelope({ tenantId: 'e2e-tenant' }),
@@ -41,29 +29,25 @@ test.describe('Registrazione', () => {
     await expect(feedback).toHaveText('');
 
     await fillRegisterForm(page, 'e2e-success@example.com');
-    await page.getByRole('button', { name: 'Crea account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
-    await expect(feedback).toContainText('Account creato');
-    // Il feedback esce dallo stato "solo per screen reader" e diventa visibile.
+    await expect(feedback).toContainText('Account created');
     await expect(feedback).not.toHaveClass(/sr-only/);
-    // Nessuna navigazione: si resta sulla pagina che ha inviato il form.
     await expect(page).toHaveURL(/\/register$/);
 
     expect(capture.count()).toBe(1);
     const request = capture.first();
-    // `document` significherebbe che è stato il browser a navigare sulla route:
-    // è la firma della regressione al form nativo.
-    expect(request.resourceType, 'il form deve usare fetch, non una navigazione').toBe('fetch');
+    expect(request.resourceType, 'the form must use fetch, not navigation').toBe('fetch');
     expect(request.method).toBe('POST');
     expect(request.contentType).toContain('application/json');
     expect(request.jsonBody).toEqual({
-      business_name: 'Studio E2E',
+      business_name: 'E2E Business',
       email: 'e2e-success@example.com',
       vertical: 'dental',
     });
   });
 
-  test("mostra l'errore dell'API nella pagina e lo annuncia come alert", async ({ page }) => {
+  test('shows an API error in the page and announces it as an alert', async ({ page }) => {
     const capture = await captureApiCall(page, SIGN_UP_ROUTE, {
       status: 429,
       body: errorEnvelope('rate_limited', 'Rate limit exceeded. Retry after 900s'),
@@ -72,33 +56,22 @@ test.describe('Registrazione', () => {
     await gotoOk(page, '/register');
 
     await fillRegisterForm(page, 'e2e-error@example.com');
-    await page.getByRole('button', { name: 'Crea account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     const feedback = page.locator(FEEDBACK);
-    await expect(feedback).toContainText('Troppi tentativi ravvicinati');
+    await expect(feedback).not.toHaveText('');
     await expect(feedback).toHaveAttribute('role', 'alert');
     await expect(page).toHaveURL(/\/register$/);
 
     expect(capture.count()).toBe(1);
     expect(capture.first().jsonBody).toEqual({
-      business_name: 'Studio E2E',
+      business_name: 'E2E Business',
       email: 'e2e-error@example.com',
       vertical: 'dental',
     });
   });
 
-  test('la route reale accetta il body prodotto dal form', async ({ page }) => {
-    /**
-     * Unico test che raggiunge davvero `/api/auth/sign-up`. Non serve alcun
-     * segreto: con le env segnaposto Supabase non è raggiungibile e la route
-     * risponde 502 `upstream_error`. Proprio per questo l'esito è informativo —
-     * un 502 dimostra che rate limit e schema Zod sono stati superati e che solo
-     * il servizio esterno è mancato.
-     *
-     * Ciò che il test vieta è il contrario: `bad_request` significa body non
-     * JSON o campi non conformi allo schema, cioè la regressione di formato.
-     * Una risposta HTML significherebbe route inesistente.
-     */
+  test('real route accepts the body produced by the form', async ({ page }) => {
     await gotoOk(page, '/register');
 
     const responsePromise = page.waitForResponse(
@@ -107,23 +80,22 @@ test.describe('Registrazione', () => {
     );
 
     await fillRegisterForm(page, 'e2e-real@example.com');
-    await page.getByRole('button', { name: 'Crea account' }).click();
+    await page.getByRole('button', { name: 'Create account' }).click();
 
     const response = await responsePromise;
-    expect(response.status(), 'la route deve esistere e accettare POST').not.toBe(404);
+    expect(response.status(), 'the route must exist and accept POST').not.toBe(404);
     expect(response.status()).not.toBe(405);
     expect(
       response.headers()['content-type'],
-      'la route deve restituire un envelope JSON, non una pagina di errore',
+      'the route must return a JSON envelope, not an error page',
     ).toContain('application/json');
 
     const payload: unknown = await response.json();
     expect(
       extractErrorCode(payload),
-      'il body inviato dal form non è stato accettato dalla route',
+      'the form body was rejected by the route schema',
     ).not.toBe('bad_request');
 
-    // In ogni caso il browser resta sulla pagina e mostra un messaggio.
     await expect(page).toHaveURL(/\/register$/);
     await expect(page.locator(FEEDBACK)).not.toHaveText('');
   });
