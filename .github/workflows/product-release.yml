@@ -67,3 +67,5 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: ''
           INTERNAL_JOB_SECRET: placeholder
           WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
+
+# Final release gate: dependency, secret, build, and browser checks.
