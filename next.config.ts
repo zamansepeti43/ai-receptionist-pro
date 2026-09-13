@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import type { NextConfig } from 'next';
 
 /**
@@ -37,7 +39,9 @@ const nextConfig: NextConfig = {
   // Enables Docker standalone output: copies only required files into .next/standalone
   // Required by the Dockerfile. See: https://nextjs.org/docs/app/api-reference/next-config-js/output
   output: 'standalone',
-  outputFileTracingRoot: new URL('.', import.meta.url).pathname,
+  // Resolve the tracing root to an absolute filesystem path instead of a file URL.
+  // This avoids malformed parent-directory traversal on Windows during build tracing.
+  outputFileTracingRoot: path.resolve(__dirname),
   eslint: {
     ignoreDuringBuilds: false,
   },
