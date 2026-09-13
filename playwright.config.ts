@@ -55,7 +55,7 @@ export default defineConfig({
   ...(EXTERNAL_BASE_URL === undefined
     ? {
         webServer: {
-          command: `npm run build && node .next/standalone/server.js`,
+          command: `npm run build && node scripts/start-e2e-standalone.mjs`,
           url: `${BASE_URL}/`,
           env: {
             ...PLACEHOLDER_ENV,
