@@ -4,25 +4,23 @@ import { FormFeedback } from '@/components/forms/FormFeedback';
 import { useApiForm } from '@/components/forms/useApiForm';
 
 const TOPICS = [
-  { value: 'sales', label: 'Voglio provare Ambrogio' },
-  { value: 'support', label: 'Ho bisogno di supporto' },
-  { value: 'agency', label: "Sono un'agenzia / partner" },
-  { value: 'press', label: 'Stampa / media' },
-  { value: 'other', label: 'Altro' },
+  { value: 'sales', label: 'I want to try AI Receptionist Pro' },
+  { value: 'support', label: 'I need support' },
+  { value: 'agency', label: "I'm an agency / partner" },
+  { value: 'press', label: 'Press / media' },
+  { value: 'other', label: 'Other' },
 ] as const;
 
 export function ContactForm() {
   const { state, onSubmit } = useApiForm({
     endpoint: '/api/contact',
-    successMessage: 'Messaggio inviato. Ti rispondiamo entro un giorno lavorativo.',
+    successMessage: 'Message sent. We will get back to you within one business day.',
     buildBody: (formData) => ({
       name: String(formData.get('name') ?? ''),
       email: String(formData.get('email') ?? ''),
-      // Lo schema accetta `null`, non la stringa vuota che il form invierebbe.
       company: formData.get('company') ? String(formData.get('company')) : null,
       topic: String(formData.get('topic') ?? ''),
       message: String(formData.get('message') ?? ''),
-      // Una checkbox invia la stringa "on"; lo schema pretende `z.literal(true)`.
       consent: formData.get('consent') === 'on',
     }),
   });
@@ -42,7 +40,7 @@ export function ContactForm() {
       >
         <div className="field">
           <label htmlFor="name" className="label">
-            Nome
+            Name
           </label>
           <input
             id="name"
@@ -68,7 +66,7 @@ export function ContactForm() {
             maxLength={254}
             autoComplete="email"
             className="input"
-            placeholder="mario@studio.it"
+            placeholder="mario@company.com"
             disabled={isSubmitting}
           />
         </div>
@@ -76,7 +74,7 @@ export function ContactForm() {
 
       <div className="field">
         <label htmlFor="company" className="label">
-          Studio o azienda
+          Company or practice
         </label>
         <input
           id="company"
@@ -91,7 +89,7 @@ export function ContactForm() {
 
       <div className="field">
         <label htmlFor="topic" className="label">
-          Di cosa vuoi parlare?
+          What can we help with?
         </label>
         <select
           id="topic"
@@ -102,7 +100,7 @@ export function ContactForm() {
           disabled={isSubmitting}
         >
           <option value="" disabled>
-            Seleziona
+            Select a topic
           </option>
           {TOPICS.map((topic) => (
             <option key={topic.value} value={topic.value}>
@@ -114,7 +112,7 @@ export function ContactForm() {
 
       <div className="field">
         <label htmlFor="message" className="label">
-          Messaggio
+          Message
         </label>
         <textarea
           id="message"
@@ -123,7 +121,7 @@ export function ContactForm() {
           maxLength={5000}
           rows={6}
           className="textarea"
-          placeholder="Raccontaci."
+          placeholder="Tell us how we can help."
           disabled={isSubmitting}
         />
       </div>
@@ -135,7 +133,7 @@ export function ContactForm() {
           className="muted"
           style={{ fontSize: 'var(--text-sm)', lineHeight: 1.5 }}
         >
-          Acconsento al trattamento dei dati per finalità di contatto come descritto nella{' '}
+          I consent to the processing of my data for contact purposes as described in the{' '}
           <a href="/legal/privacy" className="btn-link">
             privacy policy
           </a>
@@ -144,7 +142,7 @@ export function ContactForm() {
       </div>
 
       <button type="submit" className="btn btn-primary btn-lg" disabled={isSubmitting}>
-        {isSubmitting ? 'Invio in corso…' : 'Invia messaggio'}
+        {isSubmitting ? 'Sending…' : 'Send message'}
       </button>
     </form>
   );
