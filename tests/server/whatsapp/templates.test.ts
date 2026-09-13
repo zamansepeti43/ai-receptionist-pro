@@ -53,7 +53,7 @@ describe('WhatsAppTemplateMessageService', () => {
       languageCode: 'it',
     });
     expect(repository.outboundMessages[0]).toMatchObject({
-      externalId: 'template:appointment_reminder_24h:appointment_123:reminder_24h',
+      externalId: 'template:appointment_reminder_24h:appt-test-001-reminder-24h',
       content: 'Promemoria per Mario Rossi: appuntamento domani alle 10:00 presso Studio Ambrogio.',
       metadata: {
         source: 'whatsapp_template',
@@ -143,7 +143,7 @@ describe('WhatsAppTemplateMessageService', () => {
       category: 'utility',
     });
     repository.duplicateExternalIds.add(
-      'template:appointment_reminder_1h:appointment_123:reminder_1h',
+      'template:appointment_reminder_1h:appt-test-004-reminder-1h',
     );
     const service = new WhatsAppTemplateMessageService(repository);
 
