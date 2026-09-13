@@ -12,11 +12,16 @@ const PLACEHOLDER_ENV: Record<string, string> = {
   NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
   NEXT_PUBLIC_SUPABASE_ANON_KEY: 'placeholder',
   SUPABASE_SERVICE_ROLE_KEY: 'placeholder',
+  ANTHROPIC_API_KEY: 'placeholder',
+  ANTHROPIC_MODEL_PRIMARY: 'placeholder',
+  ANTHROPIC_MODEL_FAST: 'placeholder',
   STRIPE_SECRET_KEY: 'placeholder',
   STRIPE_WEBHOOK_SECRET: 'placeholder',
   DIALOG360_API_KEY: 'placeholder',
   DIALOG360_WEBHOOK_SECRET: 'placeholder',
   ELEVENLABS_API_KEY: 'placeholder',
+  UPSTASH_REDIS_REST_URL: 'https://placeholder.upstash.io',
+  UPSTASH_REDIS_REST_TOKEN: 'placeholder',
   INTERNAL_JOB_SECRET: 'placeholder',
   CRON_SECRET: 'placeholder',
 };
@@ -50,9 +55,13 @@ export default defineConfig({
   ...(EXTERNAL_BASE_URL === undefined
     ? {
         webServer: {
-          command: `npm run build && npm run start -- --hostname 127.0.0.1 --port ${PORT}`,
+          command: `npm run build && node .next/standalone/server.js`,
           url: `${BASE_URL}/`,
-          env: PLACEHOLDER_ENV,
+          env: {
+            ...PLACEHOLDER_ENV,
+            PORT: String(PORT),
+            HOSTNAME: '127.0.0.1',
+          },
           reuseExistingServer: !isCI,
           timeout: 420_000,
           stdout: 'pipe' as const,
