@@ -13,22 +13,20 @@ import { PricingTeaser } from '@/components/marketing/PricingTeaser';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
 import { VerticalsSection } from '@/components/marketing/VerticalsSection';
+import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
 export const metadata: Metadata = {
-  title: 'AI Receptionist Italia per studi e PMI',
+  title: `${PRODUCT_IDENTITY.name} — ${PRODUCT_IDENTITY.tagline}`,
   description:
-    'Reception AI sempre attiva su WhatsApp e voce: prenota appuntamenti, filtra urgenze e libera la segretaria. Setup in 24h, trial 14 giorni.',
+    'A white-label AI receptionist for WhatsApp customer conversations, appointment booking, calendar synchronization, and human handoff.',
   openGraph: {
-    title: 'Ambrogio.ai — AI Receptionist Italia sempre attivo',
-    description:
-      'AI Receptionist su WhatsApp e voce per studi dentistici, centri estetici, palestre e studi professionali. Hosting EU, GDPR ready.',
-    locale: 'it_IT',
+    title: PRODUCT_IDENTITY.name,
+    description: PRODUCT_IDENTITY.tagline,
+    locale: 'en_US',
     type: 'website',
     url: '/',
   },
-  alternates: {
-    canonical: '/',
-  },
+  alternates: { canonical: '/' },
 };
 
 export default async function HomePage() {
