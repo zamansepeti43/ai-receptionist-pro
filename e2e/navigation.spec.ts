@@ -44,12 +44,12 @@ test.describe('Landing and primary navigation', () => {
 
     await header.getByRole('link', { name: 'Get started' }).click();
     await expect(page).toHaveURL(/\/register$/);
-    await expect(page.getByRole('button', { name: 'Crea account' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible();
 
     await gotoOk(page, '/');
     await header.getByRole('link', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByRole('button', { name: 'Invia link di accesso' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Send sign-in link' })).toBeVisible();
   });
 
   test('logo returns to home from an internal page', async ({ page }) => {
