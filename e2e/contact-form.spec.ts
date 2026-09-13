@@ -8,17 +8,6 @@ import {
 } from './helpers/api-capture';
 import { gotoOk } from './helpers/page-signals';
 
-/**
- * Flusso 5: il form di contatto si comporta come quello di registrazione —
- * POST JSON, nessuna navigazione, feedback nella pagina.
- *
- * Qui la forma del body è più insidiosa di quanto sembri: `consent` è una
- * checkbox, che un form nativo invierebbe come stringa `"on"`, mentre lo schema
- * pretende `z.literal(true)`; `company` vuoto va inviato come `null`, non come
- * stringa vuota. Le asserzioni confrontano il body intero, quindi qualunque
- * ritorno a una serializzazione ingenua fa fallire il test.
- */
-
 const CONTACT_ROUTE = '**/api/contact';
 const FEEDBACK = '#contact-form-errors';
 
@@ -34,14 +23,20 @@ async function fillContactForm(page: Page, input: ContactInput): Promise<void> {
     await page.getByLabel('Studio o azienda', { exact: true }).fill(input.company);
   }
   await page.getByLabel('Di cosa vuoi parlare?', { exact: true }).selectOption('sales');
-  await page
-    .getByLabel('Messaggio', { exact: true })
-    .fill('Vorrei provare Ambrogio nel mio studio.');
+  await page.getByLabel('Messaggio', { exact: true }).fill('Vorrei provare Ambrogio nel mio studio.');
   await page.getByLabel(/Acconsento al trattamento dei dati/).check();
 }
 
-test.describe('Form di contatto', () => {
-  test('normalizza i campi nel body JSON atteso dallo schema', async ({ page }) => {
+async function submitAndWaitForRequest(page: Page): Promise<void> {
+  const requestPromise = page.waitForRequest(
+    (request) => request.url().includes('/api/contact') && request.method() === 'POST',
+  );
+  await page.getByRole('button', { name: 'Invia messaggio' }).click();
+  await requestPromise;
+}
+
+test.describe('Contact form', () => {
+  test('normalizes fields into the JSON body expected by the schema', async ({ page }) => {
     const capture = await captureApiCall(page, CONTACT_ROUTE, {
       status: 200,
       body: successEnvelope({ submissionId: 'e2e-submission' }),
@@ -52,7 +47,7 @@ test.describe('Form di contatto', () => {
     await expect(feedback).toHaveText('');
 
     await fillContactForm(page, { email: 'e2e-contact@example.com', company: null });
-    await page.getByRole('button', { name: 'Invia messaggio' }).click();
+    await submitAndWaitForRequest(page);
 
     await expect(feedback).toContainText('Messaggio inviato');
     await expect(feedback).not.toHaveClass(/sr-only/);
@@ -60,22 +55,20 @@ test.describe('Form di contatto', () => {
 
     expect(capture.count()).toBe(1);
     const request = capture.first();
-    expect(request.resourceType, 'il form deve usare fetch, non una navigazione').toBe('fetch');
+    expect(request.resourceType, 'the form must use fetch, not navigation').toBe('fetch');
     expect(request.method).toBe('POST');
     expect(request.contentType).toContain('application/json');
     expect(request.jsonBody).toEqual({
       name: 'Mario Rossi',
       email: 'e2e-contact@example.com',
-      // Campo lasciato vuoto: lo schema accetta `null`, non la stringa vuota.
       company: null,
       topic: 'sales',
       message: 'Vorrei provare Ambrogio nel mio studio.',
-      // Checkbox: booleano `true`, non la stringa "on" di un form nativo.
       consent: true,
     });
   });
 
-  test('invia la ragione sociale quando è compilata', async ({ page }) => {
+  test('sends the company name when provided', async ({ page }) => {
     const capture = await captureApiCall(page, CONTACT_ROUTE, {
       status: 200,
       body: successEnvelope({ submissionId: 'e2e-submission' }),
@@ -83,13 +76,13 @@ test.describe('Form di contatto', () => {
 
     await gotoOk(page, '/contact');
     await fillContactForm(page, { email: 'e2e-company@example.com', company: 'Studio Rossi' });
-    await page.getByRole('button', { name: 'Invia messaggio' }).click();
+    await submitAndWaitForRequest(page);
 
     await expect(page.locator(FEEDBACK)).toContainText('Messaggio inviato');
     expect(capture.first().jsonBody).toMatchObject({ company: 'Studio Rossi' });
   });
 
-  test("mostra l'errore dell'API nella pagina e lo annuncia come alert", async ({ page }) => {
+  test('shows an API error in the page and announces it as an alert', async ({ page }) => {
     await captureApiCall(page, CONTACT_ROUTE, {
       status: 500,
       body: errorEnvelope('internal_error', 'Internal server error'),
@@ -97,7 +90,7 @@ test.describe('Form di contatto', () => {
 
     await gotoOk(page, '/contact');
     await fillContactForm(page, { email: 'e2e-fail@example.com', company: null });
-    await page.getByRole('button', { name: 'Invia messaggio' }).click();
+    await submitAndWaitForRequest(page);
 
     const feedback = page.locator(FEEDBACK);
     await expect(feedback).toContainText('Il servizio non è raggiungibile');
@@ -105,13 +98,7 @@ test.describe('Form di contatto', () => {
     await expect(page).toHaveURL(/\/contact$/);
   });
 
-  test('la route reale accetta il body prodotto dal form', async ({ page }) => {
-    /**
-     * Unico test che raggiunge davvero `/api/contact`. Con le env segnaposto la
-     * persistenza non è disponibile e la route risponde 502 `upstream_error`:
-     * è la prova che rate limit e schema Zod sono stati superati. Il test vieta
-     * `bad_request`, che è invece la firma del body nel formato sbagliato.
-     */
+  test('real route accepts the body produced by the form', async ({ page }) => {
     await gotoOk(page, '/contact');
 
     const responsePromise = page.waitForResponse(
@@ -123,17 +110,17 @@ test.describe('Form di contatto', () => {
     await page.getByRole('button', { name: 'Invia messaggio' }).click();
 
     const response = await responsePromise;
-    expect(response.status(), 'la route deve esistere e accettare POST').not.toBe(404);
+    expect(response.status(), 'the route must exist and accept POST').not.toBe(404);
     expect(response.status()).not.toBe(405);
     expect(
       response.headers()['content-type'],
-      'la route deve restituire un envelope JSON, non una pagina di errore',
+      'the route must return a JSON envelope, not an error page',
     ).toContain('application/json');
 
     const payload: unknown = await response.json();
     expect(
       extractErrorCode(payload),
-      'il body inviato dal form non è stato accettato dalla route',
+      'the form body was rejected by the route schema',
     ).not.toBe('bad_request');
 
     await expect(page).toHaveURL(/\/contact$/);
