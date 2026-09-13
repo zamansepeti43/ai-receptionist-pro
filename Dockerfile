@@ -1,6 +1,6 @@
 # ============================================================
-# whatsapp-receptionist — Multi-stage Dockerfile
-# Build: docker build -t whatsapp-receptionist .
+# AI Receptionist Pro — Multi-stage Dockerfile
+# Build: docker build -t ai-receptionist-pro .
 # Run:   docker compose up  (see docker-compose.yml)
 # ============================================================
 
@@ -36,7 +36,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Build args for public env vars that must be baked at build time.
 # Pass these via --build-arg or docker compose build args.
 ARG NEXT_PUBLIC_APP_URL=https://your-domain.com
-ARG NEXT_PUBLIC_APP_NAME=Ambrogio.ai
+ARG NEXT_PUBLIC_APP_NAME=AI Receptionist Pro
 ARG NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder
 ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=placeholder
