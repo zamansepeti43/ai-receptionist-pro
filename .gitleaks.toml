@@ -1,0 +1,7 @@
+title = "AI Receptionist Pro Gitleaks Configuration"
+
+[allowlist]
+description = "Deterministic test fixture fields are not credentials."
+paths = [
+  '''tests/server/whatsapp/templates\.test\.ts''',
+]
