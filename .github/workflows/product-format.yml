@@ -19,25 +19,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Format productized files
+      - name: Auto-fix lint and formatting
         run: |
+          npx eslint . --fix
           npx prettier --write \
             package.json \
             .github/workflows/product-release.yml \
-            src/components/marketing/HeroSection.tsx \
-            src/components/marketing/FeaturesSection.tsx \
-            src/components/marketing/HowItWorksSection.tsx \
-            src/components/marketing/VerticalsSection.tsx \
-            src/components/marketing/CtaSection.tsx \
-            src/components/marketing/JsonLd.tsx \
-            src/components/marketing/PricingTeaser.tsx \
-            src/components/marketing/SiteHeader.tsx \
-            src/app/pricing/page.tsx \
-            src/app/verticali/page.tsx \
-            'src/app/verticali/[slug]/page.tsx' \
-            'src/app/verticali/[slug]/verticals-data.ts' \
-            'src/app/(dashboard)/settings/page.tsx' \
-            src/components/onboarding/OnboardingForm.tsx
+            .github/workflows/product-format.yml \
+            src
       - name: Commit formatting changes
         run: |
           if git diff --quiet; then
@@ -46,6 +35,6 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package.json .github/workflows/product-release.yml src
-          git commit -m 'Format productized source files'
+          git add package.json .github/workflows src
+          git commit -m 'Format and auto-fix source files'
           git push
