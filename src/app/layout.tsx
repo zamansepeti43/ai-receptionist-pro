@@ -4,138 +4,59 @@ import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
+import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  display: 'swap',
-  preload: true,
-  variable: '--font-inter',
-});
-
-const fraunces = Fraunces({
-  subsets: ['latin', 'latin-ext'],
-  display: 'swap',
-  preload: true,
-  variable: '--font-fraunces',
-  axes: ['opsz', 'SOFT'],
-});
-
-const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'https://ambrogio.ai';
+const inter = Inter({ subsets: ['latin', 'latin-ext'], display: 'swap', preload: true, variable: '--font-inter' });
+const fraunces = Fraunces({ subsets: ['latin', 'latin-ext'], display: 'swap', preload: true, variable: '--font-fraunces', axes: ['opsz', 'SOFT'] });
+const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'Ambrogio.ai — AI Receptionist Italia per studi e PMI',
-    template: '%s · Ambrogio.ai',
-  },
-  description:
-    'WhatsApp, voce, prenotazioni automatiche. Niente più chiamate perse, niente clienti persi. Setup in 24h.',
-  applicationName: 'Ambrogio.ai',
-  authors: [{ name: 'Ambrogio.ai Team', url: SITE_URL }],
-  creator: 'Ambrogio.ai Team',
-  publisher: 'Ambrogio.ai',
+  title: { default: PRODUCT_IDENTITY.name, template: `%s · ${PRODUCT_IDENTITY.name}` },
+  description: PRODUCT_IDENTITY.tagline,
+  applicationName: PRODUCT_IDENTITY.name,
+  creator: PRODUCT_IDENTITY.name,
+  publisher: PRODUCT_IDENTITY.name,
   generator: 'Next.js',
-  keywords: [
-    'AI receptionist Italia',
-    'reception virtuale',
-    'WhatsApp business automatico',
-    'prenotazioni automatiche',
-    'AI per studi dentistici',
-    'AI per estetisti',
-    'AI per palestre',
-    'studi professionali',
-    'Italia',
-    'GDPR',
-  ],
+  keywords: ['AI receptionist', 'WhatsApp booking', 'appointment automation', 'white label SaaS', 'customer service automation'],
   formatDetection: { telephone: false, email: false, address: false },
-  openGraph: {
-    type: 'website',
-    locale: 'it_IT',
-    url: SITE_URL,
-    siteName: 'Ambrogio.ai',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@ambrogio_ai',
-    creator: '@ambrogio_ai',
-  },
-  alternates: {
-    canonical: '/',
-    languages: {
-      'it-IT': SITE_URL,
-      'x-default': SITE_URL,
-    },
-    types: {
-      'application/rss+xml': `${SITE_URL}/changelog/feed.xml`,
-    },
-  },
-  appleWebApp: {
-    capable: true,
-    title: 'Ambrogio.ai',
-    statusBarStyle: 'default',
-  },
-  other: {
-    'msapplication-TileColor': '#0d766e',
-  },
+  openGraph: { type: 'website', locale: 'en_US', url: SITE_URL, siteName: PRODUCT_IDENTITY.name },
+  alternates: { canonical: '/', languages: { 'en-US': SITE_URL, 'tr-TR': `${SITE_URL}?lang=tr`, 'x-default': SITE_URL } },
+  appleWebApp: { capable: true, title: PRODUCT_IDENTITY.name, statusBarStyle: 'default' },
+  other: { 'msapplication-TileColor': '#0d766e' },
 };
 
-export const viewport: Viewport = {
-  themeColor: '#0d766e',
-  colorScheme: 'light',
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-};
+export const viewport: Viewport = { themeColor: '#0d766e', colorScheme: 'light', width: 'device-width', initialScale: 1, maximumScale: 5 };
 
 const websiteSchema = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  '@id': `${SITE_URL}#website`,
-  name: 'Ambrogio.ai',
+  '@type': 'SoftwareApplication',
+  name: PRODUCT_IDENTITY.name,
+  description: PRODUCT_IDENTITY.tagline,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
   url: SITE_URL,
-  inLanguage: 'it-IT',
-  publisher: { '@id': `${SITE_URL}#organization` },
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/help?q={search_term_string}`,
-    },
-    'query-input': 'required name=search_term_string',
-  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const headerList = await headers();
   const nonce = headerList.get('x-nonce') ?? undefined;
-
   return (
-    <html lang="it" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
         <link rel="preconnect" href="https://api.anthropic.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
         <link rel="dns-prefetch" href="https://api.elevenlabs.io" />
         <link rel="dns-prefetch" href="https://graph.facebook.com" />
-        <link rel="me" href="https://twitter.com/ambrogio_ai" />
-        <link rel="me" href="https://linkedin.com/company/ambrogio-ai" />
-        <link rel="alternate" hrefLang="it-IT" href={SITE_URL} />
-        <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
-        <meta name="author" content="Ambrogio.ai Team" />
-        <meta name="application-name" content="Ambrogio.ai" />
-        <meta name="apple-mobile-web-app-title" content="Ambrogio.ai" />
+        <meta name="author" content={PRODUCT_IDENTITY.name} />
+        <meta name="application-name" content={PRODUCT_IDENTITY.name} />
+        <meta name="apple-mobile-web-app-title" content={PRODUCT_IDENTITY.name} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#0d766e" />
         <meta name="format-detection" content="telephone=no" />
-        <script
-          type="application/ld+json"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
+        <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       </head>
       <body data-csp-nonce={nonce}>
-        <a href="#main" className="skip-link">
-          Salta al contenuto
-        </a>
+        <a href="#main" className="skip-link">Skip to content</a>
         {children}
       </body>
     </html>
