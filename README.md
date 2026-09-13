@@ -1,336 +1,72 @@
 <div align="center">
-  <img src="docs/screenshots/hero-banner.svg" alt="WhatsApp Receptionist — open-source AI receptionist that books real appointments on WhatsApp" width="100%" />
 
-# WhatsApp Receptionist
+# AI Receptionist Pro
 
-### The open-source AI receptionist that books real appointments on WhatsApp
+### White-label AI receptionist for service businesses
 
-**Crafted in Italy 🇮🇹 · GDPR-first · Self-hostable · MIT**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Built with Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-149eca?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9_strict-3178c6?logo=typescript)](https://www.typescriptlang.org/)
-[![Anthropic Claude](https://img.shields.io/badge/Anthropic-Claude-D97757?logo=anthropic)](https://anthropic.com)
-[![Tests](https://img.shields.io/badge/tests-544%20+%2056%20E2E-brightgreen)](#quality-gate)
-[![Production vulnerabilities](https://img.shields.io/badge/prod%20vulnerabilities-0-brightgreen)](docs/SECURITY-AUDIT-NOTES.md)
-[![GDPR](https://img.shields.io/badge/GDPR-first-2563eb)](#gdpr--security)
-[![Stars](https://img.shields.io/github/stars/Hiberius/whatsapp-receptionist?style=social)](https://github.com/Hiberius/whatsapp-receptionist/stargazers)
-
-[Project status](docs/PROJECT-STATUS.md) · [Quickstart](#quickstart) · [Documentation](docs/) · [Roadmap](docs/ROADMAP.md) · [Italiano 🇮🇹](README.it.md)
+**WhatsApp-first · Appointment automation · Human handoff · Self-hostable · MIT upstream**
 
 </div>
 
 ---
 
-## What it does
+## Product
 
-A customer sends a WhatsApp message — text or voice note — at 22:40 on a Sunday. The AI understands
-what they want, checks the real availability on your calendar, books the appointment, and confirms
-it. When the message needs a person instead, it escalates to you and tells the customer someone is
-coming.
+AI Receptionist Pro is a configurable receptionist application for businesses that receive appointment and customer-service requests through WhatsApp. It is designed to answer common questions, collect missing booking details, check real availability, create or change appointments, and escalate conversations to a human when automation should stop.
 
-- **Receives WhatsApp messages and voice notes**, around the clock
-- **Understands intent and books real appointments** on Google Calendar, with confirmations and reminders
-- **Hands off to a human** when a guardrail fires or the customer asks — the conversation flips state, you get an email, the customer is told
-- **Multi-tenant**: each tenant connects its own WhatsApp number and configures its own hours, services, knowledge base and assistant persona
+### Launch sectors
 
-<img src="docs/screenshots/landing-1280.png" alt="Landing page" width="100%" />
+- Salon & Barber
+- Beauty & Wellness
+- Dental & Clinic — administrative scheduling only
+- Veterinary
+- Gym & Fitness
+- Auto Service
+- Consultant / Professional Services
 
-> The screenshots in this README are captured from the running application with
-> `node scripts/capture-screenshots.mjs`. They are not mockups.
+One application serves all sectors. Each tenant can override the preset with its own services, hours, assistant identity, knowledge base and business rules.
 
----
+## Core capabilities
 
-## Honest state of play
+- WhatsApp text and voice-message handling
+- AI intent classification and customer conversation context
+- Real appointment availability and conflict protection
+- Google Calendar integration
+- Human escalation with conversation context
+- Tenant-specific configuration and integrations
+- Knowledge-base retrieval
+- Stripe billing support
+- GDPR export/delete workflows
+- Docker, hosted deployment and environment configuration
 
-Most open-source READMEs describe the best version of the project. This one describes the actual
-one. The full breakdown, with the commands to reproduce every number, is in
-**[docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md)**.
+## Productization layer
 
-| Layer | State |
-|---|---|
-| Domain services (`src/server/`) | **Real.** Booking with availability and a GiST constraint against double-booking, Stripe subscription lifecycle, WhatsApp outbox with `FOR UPDATE SKIP LOCKED`, retry/backoff and dead-letter, webhook idempotency, Google Calendar OAuth, pgvector RAG, GDPR Art. 15/17. |
-| Database (`supabase/migrations/`) | **Real.** 22 tables, RLS on every one, `timestamptz` throughout, money as integer cents. |
-| Security primitives | **Real.** Stripe signature over the raw body, timing-safe secret comparison, HMAC-signed OAuth state bound to the tenant, AES-256-GCM for stored credentials, nonce-based CSP. |
-| Self-service signup | **Working.** Register → magic link → `/auth/callback` → onboarding → dashboard, with auth guards on every authenticated segment. |
-| Tenant dashboard | **Working.** Dashboard, conversations inbox with operator reply, calendar, billing, WhatsApp settings, business hours, services, AI persona, knowledge base — all reading live tenant data. |
-| Multi-tenant WhatsApp | **Working.** Each tenant connects its own number. The API key is encrypted at rest and resolved per tenant at send time; a number cannot be claimed by a second tenant. |
-| Human escalation | **Working.** Status change, operator email with context and a deep link, and an acknowledgement to the customer. |
-| Background jobs | **Working.** Seven cron jobs, with a regression test tying `vercel.json` to the exported route handlers. |
-| Data retention | **Working.** A daily job enforcing exactly the thresholds the privacy policy states, with a dry-run mode and a test that fails if code and policy diverge. |
-| Alerting | **Partial.** A watchdog emails an alert when the outbound queue stops draining. No Sentry yet, so individual exceptions are logged but not aggregated. |
-| Tenant isolation | **Partly proven.** Repository filters are covered by regression tests that fail when a `tenant_id` filter is deleted. RLS itself is still never exercised at runtime. **The most important open item.** |
-| Cross-tenant admin panel | **Not wired.** Those reads bypass RLS and need a dedicated service with isolation tests. The screens say so rather than showing invented data. |
+This repository adds product identity, sector presets, white-label configuration contracts, buyer documentation, release gates and additional booking/usage utilities around the upstream application.
 
-**41 frontend pages · 41 API routes · 22 tables · 544 unit and integration tests · 56 Playwright E2E
-tests · production build verified · zero vulnerabilities in production dependencies.**
+Customer-facing defaults must never depend on the seller's third-party accounts. Buyers connect their own providers and credentials.
 
----
+## Quality standard
 
-## Quickstart
+A release candidate is not considered ready until type checking, linting, unit/integration tests, database migration checks, production build, security/secret scanning and the buyer-style end-to-end walkthrough pass. See `docs/QA-GATE.md`, `docs/FINAL-QA.md` and `docs/BUYER-TEST.md`.
+
+## Development
 
 ```bash
-git clone https://github.com/Hiberius/whatsapp-receptionist.git
-cd whatsapp-receptionist
 cp .env.example .env.local
 npm ci
 npm run dev
 ```
 
-Open <http://localhost:3000>.
-
-The marketing site, pricing, verticals, blog, help centre and legal pages render immediately with no
-credentials at all. To reach the dashboard you need a Supabase project (free tier is enough) — the
-rest of the integrations are optional and feature-gated: without an Anthropic key the AI simply does
-not reply, without Resend the mailer logs instead of sending, and so on. Nothing throws because a
-key is missing.
-
-`./scripts/setup.sh` walks through the variables interactively. The full reference is in
-[`.env.example`](.env.example), documented inline.
-
-For production, see [`docs/deployment.md`](docs/deployment.md).
-
----
-
-## Features
-
-|     |     |
-|-----|-----|
-| **WhatsApp + voice** | Text and voice notes through the 360dialog Business API (an official Meta BSP) plus ElevenLabs speech-to-text. No Baileys, no scraped clients. |
-| **Real bookings** | Google Calendar OAuth, availability from real business hours and services, database-level protection against double-booking, confirmations and reminders. |
-| **Human escalation** | Guardrails on sensitive topics, explicit handoff requests, operator notification, and an acknowledgement to the customer so silence is never the answer. |
-| **Editable AI persona** | Each tenant can rewrite the assistant's personality. Safety and output rules are composed around it and cannot be overridden. |
-| **Knowledge base with RAG** | pgvector semantic retrieval over documents the tenant uploads — prices, cancellation policy, directions, FAQs. |
-| **GDPR-native** | Art. 15 export and Art. 17 deletion endpoints, audit logging, automatic PII redaction in logs, EU hosting, and a retention job that enforces the published policy. |
-| **Stripe + Italian SDI** | Subscriptions and Customer Portal, plus electronic invoicing for Italian B2B through Fatture in Cloud. |
-| **Multi-tenant by construction** | Row Level Security on all 22 tables, per-tenant WhatsApp credentials, tenant-scoped everything. |
-
----
-
-## Tech stack
-
-| Layer | Choice | Why |
-|---|---|---|
-| Framework | **Next.js 15.5** App Router | Server Components, Route Handlers, middleware |
-| Runtime | **React 19** + Node 22 | Async server components, concurrent rendering |
-| Language | **TypeScript 5.9 strict** | `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, no `any` in `src/` |
-| Database | **Supabase Postgres (EU)** | Managed Postgres, RLS native, pgvector. Migrations are hand-written SQL — deliberately, so the policies are readable. |
-| Auth | **Supabase Auth** | httpOnly + secure + sameSite cookies, SSR-aware session |
-| AI | **Anthropic Claude** | Model IDs are configuration (`ANTHROPIC_MODEL_PRIMARY` / `_FAST`), not hardcoded |
-| Voice | **ElevenLabs** | Italian speech-to-text quality |
-| Messaging | **360dialog Business API** | Official Meta BSP (`waba-v2.360dialog.io`) |
-| Calendar | **Google Calendar OAuth** | Encrypted token storage, conflict detection |
-| Billing | **Stripe** + **Fatture in Cloud** | Subscriptions, Customer Portal, Italian SDI invoicing |
-| Rate limit | **Upstash Redis (EU)** | Named policies per endpoint |
-| Logging | **Pino** | Structured JSON with automatic PII redaction |
-| Testing | **Vitest 4** + **Playwright** | 544 unit/integration + 56 E2E |
-| Tooling | **ESLint 9 flat** + **Prettier 3** + **Husky** | Pre-commit lint-staged, gitleaks in CI |
-
----
-
-## Architecture
-
-```
-src/
-├── app/
-│   ├── (admin)/              super-admin cross-tenant panel
-│   ├── (auth)/               login, register
-│   ├── (dashboard)/          tenant dashboard — auth guard lives in the layout
-│   ├── auth/callback/        magic-link landing, with open-redirect validation
-│   ├── api/                  41 route handlers
-│   ├── legal/                privacy, terms, DPA, cookie, security
-│   ├── verticali/            marketing pages per vertical
-│   └── page.tsx              landing
-├── components/
-│   ├── marketing/            Hero, Features, Verticals, Pricing, CTA
-│   ├── dashboard/            shell, operator reply, knowledge documents
-│   ├── settings/             WhatsApp connection, business hours, services, AI persona
-│   └── forms/                useApiForm + FormFeedback, shared by every form
-├── lib/
-│   ├── api/                  jsonHandler, body parsing
-│   ├── auth/                 session, guards, cookies, safe redirect
-│   ├── health/               dependency probes, shared by /status and /api/health/deep
-│   ├── http/                 fetchWithTimeout
-│   ├── logging/              Pino with PII redaction
-│   ├── rate-limit/           Upstash policies
-│   ├── security/             CSP nonce, timing-safe comparisons, internal job auth
-│   └── supabase/             server + admin clients
-├── server/                   business logic — never imported by client components
-│   ├── ai/                   adapter, intent router, booking extractor, prompt composition
-│   ├── appointments/         booking, reminders
-│   ├── billing/              Stripe + Fatture in Cloud
-│   ├── conversations/        inbox, operator messages, escalation
-│   ├── gdpr/                 Art. 15 export, Art. 17 delete, retention
-│   ├── monitoring/           health watchdog
-│   ├── notifications/        mailer + templates
-│   └── whatsapp/             service, repository, outbox, provisioning, voice pipeline
-└── middleware.ts             CSP nonce + COEP/COOP/CORP
-
-supabase/migrations/          22 tables, RLS on every one
-tests/                        544 unit + integration tests
-e2e/                          56 Playwright tests
-```
-
----
-
-## GDPR & security
-
-Built for the European market, and the defaults reflect it.
-
-- **Row Level Security on all 22 tables**, verified by `npm run db:lint`, which derives the table list from the migrations themselves rather than a hand-maintained allowlist
-- **Webhook signature verification** with timing-safe comparison (Stripe over the raw body, WhatsApp shared secret)
-- **Credentials encrypted at rest** with AES-256-GCM — OAuth tokens and per-tenant WhatsApp API keys
-- **CSP nonce per request**, HSTS, COEP, COOP, CORP, `X-Frame-Options: DENY`
-- **Automatic PII redaction** in logs: email, phone, fiscal code, VAT number, IBAN, tokens
-- **Rate limiting** with named policies per endpoint
-- **GDPR Art. 15 export and Art. 17 deletion** with audit logging
-- **Data retention** enforced daily against the thresholds the privacy policy publishes
-- **Zero vulnerabilities in production dependencies**, enforced by a CI gate. One dev-only advisory is knowingly accepted, with its reopening condition written down in [`docs/SECURITY-AUDIT-NOTES.md`](docs/SECURITY-AUDIT-NOTES.md)
-
-**Known limitation, stated plainly:** server modules use the service-role client, which bypasses
-RLS. Isolation currently rests on hand-written `tenant_id` filters, now covered by regression tests
-that fail when a filter is removed — but the policies themselves are never exercised at runtime.
-Proving isolation against a real Postgres in CI is the top priority for v0.3.
-
----
-
-## Quality gate
+Verification:
 
 ```bash
-npm run verify   # typecheck + lint + 544 tests + RLS coverage
-npm run build    # production build
-npm run test:e2e # 56 Playwright tests, no credentials required
+npm run verify
+npm run build
+npm run test:e2e
 ```
 
-CI runs six jobs on every pull request: **verify**, **coverage**, **production build**,
-**E2E**, **secret scan (gitleaks)** and **production dependency audit**. The secret scan and the
-audit are blocking — a gate that cannot fail is not a gate.
+## Licensing and attribution
 
-A note on the build: `npm run verify` does **not** include it, and `next build` catches things
-`tsc --noEmit` cannot, such as invalid exports from a `route.ts`. Run both.
+This product contains code from the upstream **Hiberius/whatsapp-receptionist** project, released under the MIT license. The upstream MIT license and attribution notices are retained. Product documentation must not describe the upstream code as written from scratch.
 
----
-
-## Screenshots
-
-| | |
-|---|---|
-| Pricing | <img src="docs/screenshots/pricing-1280.png" alt="Pricing page" width="100%" /> |
-| Vertical (dental) | <img src="docs/screenshots/dental-1280.png" alt="Dental vertical page" width="100%" /> |
-| Service status | <img src="docs/screenshots/status-1280.png" alt="Status page with live dependency probes" width="100%" /> |
-| Landing (mobile) | <img src="docs/screenshots/landing-mobile.png" alt="Landing page on mobile" width="45%" /> |
-
-The status page runs real probes against Supabase, Upstash, Stripe and Anthropic at request time. It
-deliberately publishes no historical uptime percentage, because nothing measures one yet.
-
-Authenticated screens are not shown here: capturing them would need a tenant with real
-conversations, and filling them with invented data is exactly what this project spent a release
-removing.
-
----
-
-## A note on branding
-
-The repository is the generic **WhatsApp Receptionist**. The application still ships with the
-**Ambrogio.ai** brand — copy, logo and Italian marketing pages — because that is the product it was
-extracted from. Everything user-facing is yours to replace: strings live in the marketing components
-and `NEXT_PUBLIC_APP_NAME`, and the design tokens are in `src/styles/tokens.css`.
-
-The interface language is Italian. English translation is not done.
-
----
-
-## Is this for you?
-
-**A good fit if** you want to self-host an AI receptionist, you are building a booking SaaS and want
-a multi-tenant foundation with RLS and Stripe already wired, or you are looking for a substantial
-real-world Next.js 15 + Supabase codebase to learn from.
-
-**A poor fit if** you want something that works out of the box without configuring WhatsApp
-Business, if you need a language other than Italian today, or if you need cross-tenant
-administration — that panel is not wired.
-
----
-
-## Why this exists
-
-There are AI chatbots and there are booking systems. Nothing combined them with European GDPR rigour
-and Italian B2B fiscal compliance. This started as a real deployment for a clinic and became the
-thing that was missing.
-
-Version 0.2 was rebuilt with **Claude Opus 5 in ultracode mode** — Anthropic's multi-agent
-orchestration. An eight-dimension audit where every auditor was followed by an adversarial verifier
-instructed to refute its findings, then parallel implementation workflows. Roughly a third of the
-initial findings were refuted or downgraded once a second agent tried to disprove them by reading
-the actual files, which is precisely how single-pass AI review fails. The gravest findings were
-still verified by hand before anything changed.
-
-What that process found, and what it deliberately left alone, is published in full:
-[`docs/audit/2026-07-27-audit-prodotto.md`](docs/audit/2026-07-27-audit-prodotto.md).
-
-If you fork it commercially that is entirely fine — MIT means MIT. Just don't claim you wrote it
-from scratch.
-
----
-
-## Roadmap
-
-Next up, in priority order:
-
-1. **Tenant isolation proven against a real database** — seed two tenants in CI and assert A cannot read B through the RLS policies themselves
-2. **Sentry** with source maps and release tracking
-3. **Resource and team entities** — a practice with two chairs cannot be modelled today, and one tenant means one user forever
-4. **AI generation moved out of the webhook** into a dedicated outbox job
-5. **Prompt caching** and a per-tenant AI cost ceiling
-6. **Cross-tenant admin panel** on a tested service
-7. **Prompt injection defences** and a much larger AI evaluation set
-
-Full list, including longer-term bets: [`docs/ROADMAP.md`](docs/ROADMAP.md).
-
----
-
-## The skill behind it
-
-The reasoning in this codebase is packaged as an Agent Skill, so you can apply it on any
-stack rather than adopting this one:
-
-**[whatsapp-receptionist-builder](https://github.com/Hiberius/whatsapp-receptionist-builder)**
-— the webhook signature over the raw body, the 24-hour customer service window,
-idempotency against Meta retries, and double-booking prevention at the database. Plus
-offline tools for the two things you cannot test without a phone number.
-
-```
-npx skills add Hiberius/whatsapp-receptionist-builder
-```
-
-It is one of [ten](https://github.com/Hiberius/hiberius-skills) built the same way.
-
-## Contributing
-
-Pull requests welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
-
-The repository is primed for [Claude Code](https://claude.com/claude-code): `CLAUDE.md` and
-`AGENTS.md` carry the project's conventions, so an agent opening this repo starts with the right
-context.
-
-Two house rules worth knowing before you open a PR:
-
-1. **Run `npm run verify` and `npm run build`.** Verify does not include the build.
-2. **Don't add a claim the code cannot back.** If a number appears in the README or the UI, it must be reproducible. This project removed an entire layer of invented metrics in 0.2.0 and would rather not grow another.
-
----
-
-## License
-
-MIT © [Christian Calabrò](https://github.com/Hiberius) — see [`LICENSE`](LICENSE).
-
----
-
-<div align="center">
-
-Made in Italy by Christian Calabrò ([@Hiberius](https://github.com/Hiberius))
-
-If it saved you time, [star the repo](https://github.com/Hiberius/whatsapp-receptionist).
-
-</div>
+See `LICENSE` and `docs/UPSTREAM-ATTRIBUTION.md`.
