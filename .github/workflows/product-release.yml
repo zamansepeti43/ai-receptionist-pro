@@ -9,7 +9,7 @@ on:
 jobs:
   release-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,9 +20,17 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      - run: npm run db:lint
+      - run: npm audit --omit=dev --audit-level=high
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
           SUPABASE_SERVICE_ROLE_KEY: placeholder
@@ -35,5 +43,27 @@ jobs:
           ELEVENLABS_API_KEY: placeholder
           UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder
+          INTERNAL_JOB_SECRET: placeholder
+          WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke and E2E suite
+        run: npm run test:e2e
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          SUPABASE_SERVICE_ROLE_KEY: placeholder
+          ANTHROPIC_API_KEY: placeholder
+          STRIPE_SECRET_KEY: placeholder
+          STRIPE_WEBHOOK_SECRET: placeholder
+          WHATSAPP_VERIFY_TOKEN: placeholder
+          WHATSAPP_APP_SECRET: placeholder
+          WHATSAPP_ACCESS_TOKEN: placeholder
+          ELEVENLABS_API_KEY: placeholder
+          UPSTASH_REDIS_REST_URL: ''
+          UPSTASH_REDIS_REST_TOKEN: ''
           INTERNAL_JOB_SECRET: placeholder
           WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
