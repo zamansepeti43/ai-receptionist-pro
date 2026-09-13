@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 import type { NextConfig } from 'next';
 
 const staticSecurityHeaders = [
@@ -16,14 +14,11 @@ const staticSecurityHeaders = [
   },
 ];
 
-const projectRoot = path.resolve(process.cwd());
-
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
   output: 'standalone',
-  outputFileTracingRoot: projectRoot,
   eslint: {
     ignoreDuringBuilds: false,
   },
