@@ -51,7 +51,7 @@ export default defineConfig({
   ...(EXTERNAL_BASE_URL === undefined
     ? {
         webServer: {
-          command: isCI ? `npm run start -- --port ${PORT}` : `npm run build && npm run start -- --port ${PORT}`,
+          command: `npm run build && npm run start -- --port ${PORT}`,
           url: BASE_URL,
           env: PLACEHOLDER_ENV,
           reuseExistingServer: !isCI,
