@@ -32,7 +32,7 @@ describe('WhatsAppTemplateMessageService', () => {
       conversationId: 'conversation_1',
       recipientIdentifier: '393331112233',
       templateKey: 'appointment_reminder_24h',
-      idempotencyKey: 'appointment_123:reminder_24h',
+      idempotencyKey: 'appt-test-001-reminder-24h',
       createdAt: now,
       variables: {
         customerName: 'Mario Rossi',
@@ -98,7 +98,7 @@ describe('WhatsAppTemplateMessageService', () => {
         conversationId: 'conversation_1',
         recipientIdentifier: '393331112233',
         templateKey: 'appointment_confirmation',
-        idempotencyKey: 'appointment_123:confirmation',
+        idempotencyKey: 'appt-test-002-confirmation',
         variables: {
           customerName: 'Mario Rossi',
           scheduledAt: 'domani alle 10:00',
@@ -120,9 +120,9 @@ describe('WhatsAppTemplateMessageService', () => {
       service.enqueueTemplateMessage({
         tenantId: 'tenant_1',
         conversationId: 'conversation_1',
-        recipientIdentifier: '393331112233',
         templateKey: 'appointment_cancellation',
-        idempotencyKey: 'appointment_123:cancellation',
+        recipientIdentifier: '393331112233',
+        idempotencyKey: 'appt-test-003-cancellation',
         variables: {
           customerName: 'Mario Rossi',
           scheduledAt: 'domani alle 10:00',
@@ -152,7 +152,7 @@ describe('WhatsAppTemplateMessageService', () => {
       conversationId: 'conversation_1',
       recipientIdentifier: '393331112233',
       templateKey: 'appointment_reminder_1h',
-      idempotencyKey: 'appointment_123:reminder_1h',
+      idempotencyKey: 'appt-test-004-reminder-1h',
       variables: {
         customerName: 'Mario Rossi',
         scheduledAt: 'oggi alle 10:00',
