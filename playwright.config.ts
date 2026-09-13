@@ -14,12 +14,11 @@ const PLACEHOLDER_ENV: Record<string, string> = {
   SUPABASE_SERVICE_ROLE_KEY: 'placeholder',
   STRIPE_SECRET_KEY: 'placeholder',
   STRIPE_WEBHOOK_SECRET: 'placeholder',
-  WHATSAPP_VERIFY_TOKEN: 'placeholder',
-  WHATSAPP_APP_SECRET: 'placeholder',
-  WHATSAPP_ACCESS_TOKEN: 'placeholder',
-  WHATSAPP_WEBHOOK_HEADER_SECRET: 'placeholder',
+  DIALOG360_API_KEY: 'placeholder',
+  DIALOG360_WEBHOOK_SECRET: 'placeholder',
   ELEVENLABS_API_KEY: 'placeholder',
   INTERNAL_JOB_SECRET: 'placeholder',
+  CRON_SECRET: 'placeholder',
 };
 
 export default defineConfig({
@@ -36,8 +35,8 @@ export default defineConfig({
     : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: BASE_URL,
-    locale: 'it-IT',
-    timezoneId: 'Europe/Rome',
+    locale: 'en-US',
+    timezoneId: 'Europe/Istanbul',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'off',
@@ -51,8 +50,8 @@ export default defineConfig({
   ...(EXTERNAL_BASE_URL === undefined
     ? {
         webServer: {
-          command: `npm run build && npm run start -- --port ${PORT}`,
-          url: BASE_URL,
+          command: `npm run build && npm run start -- --hostname 127.0.0.1 --port ${PORT}`,
+          url: `${BASE_URL}/`,
           env: PLACEHOLDER_ENV,
           reuseExistingServer: !isCI,
           timeout: 420_000,
