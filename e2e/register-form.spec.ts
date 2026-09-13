@@ -29,7 +29,12 @@ test.describe('Registration', () => {
     await expect(feedback).toHaveText('');
 
     await fillRegisterForm(page, 'e2e-success@example.com');
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes('/api/auth/sign-up') && request.method() === 'POST',
+    );
     await page.getByRole('button', { name: 'Create account' }).click();
+    await requestPromise;
 
     await expect(feedback).toContainText('Account created');
     await expect(feedback).not.toHaveClass(/sr-only/);
@@ -56,7 +61,12 @@ test.describe('Registration', () => {
     await gotoOk(page, '/register');
 
     await fillRegisterForm(page, 'e2e-error@example.com');
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes('/api/auth/sign-up') && request.method() === 'POST',
+    );
     await page.getByRole('button', { name: 'Create account' }).click();
+    await requestPromise;
 
     const feedback = page.locator(FEEDBACK);
     await expect(feedback).not.toHaveText('');
