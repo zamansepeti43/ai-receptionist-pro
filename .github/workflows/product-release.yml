@@ -31,20 +31,22 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
           NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_APP_NAME: AI Receptionist Pro
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
           SUPABASE_SERVICE_ROLE_KEY: placeholder
           ANTHROPIC_API_KEY: placeholder
+          ANTHROPIC_MODEL_PRIMARY: placeholder
+          ANTHROPIC_MODEL_FAST: placeholder
           STRIPE_SECRET_KEY: placeholder
           STRIPE_WEBHOOK_SECRET: placeholder
-          WHATSAPP_VERIFY_TOKEN: placeholder
-          WHATSAPP_APP_SECRET: placeholder
-          WHATSAPP_ACCESS_TOKEN: placeholder
+          WHSEC_STRIPE_WEBHOOK: placeholder
+          WHATSAPP_WEBHOOK_VERIFY_TOKEN: placeholder
+          WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
           ELEVENLABS_API_KEY: placeholder
           UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder
           INTERNAL_JOB_SECRET: placeholder
-          WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and E2E suite
@@ -53,19 +55,19 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
           NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_APP_NAME: AI Receptionist Pro
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
           SUPABASE_SERVICE_ROLE_KEY: placeholder
           ANTHROPIC_API_KEY: placeholder
+          ANTHROPIC_MODEL_PRIMARY: placeholder
+          ANTHROPIC_MODEL_FAST: placeholder
           STRIPE_SECRET_KEY: placeholder
           STRIPE_WEBHOOK_SECRET: placeholder
-          WHATSAPP_VERIFY_TOKEN: placeholder
-          WHATSAPP_APP_SECRET: placeholder
-          WHATSAPP_ACCESS_TOKEN: placeholder
-          ELEVENLABS_API_KEY: placeholder
-          UPSTASH_REDIS_REST_URL: ''
-          UPSTASH_REDIS_REST_TOKEN: ''
-          INTERNAL_JOB_SECRET: placeholder
+          WHSEC_STRIPE_WEBHOOK: placeholder
+          WHATSAPP_WEBHOOK_VERIFY_TOKEN: placeholder
           WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
+          ELEVENLABS_API_KEY: placeholder
+          INTERNAL_JOB_SECRET: placeholder
 
 # Final release gate: dependency, secret, build, and browser checks.
