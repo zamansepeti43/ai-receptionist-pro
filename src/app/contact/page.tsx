@@ -6,17 +6,16 @@ import { SiteHeader } from '@/components/marketing/SiteHeader';
 import { ContactForm } from '@/components/forms/ContactForm';
 
 export const metadata: Metadata = {
-  title: 'Contatti · Parla con il team Ambrogio.ai',
+  title: 'Contact · Talk to the AI Receptionist Pro team',
   description:
-    'Contatta il team Ambrogio.ai per supporto tecnico, vendite, partnership o richieste stampa. Risposta entro 4 ore lavorative.',
+    'Contact the AI Receptionist Pro team for sales, support, partnerships or product questions.',
   alternates: { canonical: '/contact' },
   openGraph: {
-    title: 'Contatti · Ambrogio.ai',
-    description:
-      'Parla con il team. Vendite, supporto, partnership o stampa. Risposta entro 4 ore lavorative.',
+    title: 'Contact · AI Receptionist Pro',
+    description: 'Talk to the team about sales, support, partnerships or product questions.',
     url: '/contact',
     type: 'website',
-    locale: 'it_IT',
+    locale: 'en_US',
   },
 };
 
@@ -27,7 +26,7 @@ export default function ContactPage() {
       <JsonLd
         data={buildBreadcrumbSchema([
           { name: 'Home', url: '/' },
-          { name: 'Contatti', url: '/contact' },
+          { name: 'Contact', url: '/contact' },
         ])}
       />
       <SiteHeader />
@@ -44,12 +43,13 @@ export default function ContactPage() {
               }}
             >
               <div className="stack stack-4 text-center">
-                <span className="badge">Contatti</span>
-                <h1 className="display text-balance">Parliamone.</h1>
+                <span className="badge">Contact</span>
+                <h1 className="display text-balance">Let&apos;s talk.</h1>
                 <p className="lead text-pretty" style={{ margin: '0 auto' }}>
-                  Compila il form qui sotto. Per casi urgenti scrivi diretto:{' '}
-                  <a href="mailto:hello@ambrogio.ai" className="btn-link">
-                    hello@ambrogio.ai
+                  Fill out the form below and our team will get back to you. For urgent requests,
+                  use{' '}
+                  <a href="mailto:hello@yourdomain.com" className="btn-link">
+                    hello@yourdomain.com
                   </a>
                   .
                 </p>
@@ -66,23 +66,23 @@ export default function ContactPage() {
                   color: 'var(--color-text-secondary)',
                 }}
               >
-                <strong style={{ color: 'var(--color-text)' }}>Ambrogio.ai · Roma, Italia</strong>
+                <strong style={{ color: 'var(--color-text)' }}>AI Receptionist Pro</strong>
                 <p>
-                  <strong>Sales &amp; partnership:</strong>{' '}
-                  <a href="mailto:hello@ambrogio.ai" className="btn-link">
-                    hello@ambrogio.ai
+                  <strong>Sales &amp; partnerships:</strong>{' '}
+                  <a href="mailto:hello@yourdomain.com" className="btn-link">
+                    hello@yourdomain.com
                   </a>
                 </p>
                 <p>
-                  <strong>Supporto tecnico:</strong>{' '}
-                  <a href="mailto:support@ambrogio.ai" className="btn-link">
-                    support@ambrogio.ai
+                  <strong>Technical support:</strong>{' '}
+                  <a href="mailto:support@yourdomain.com" className="btn-link">
+                    support@yourdomain.com
                   </a>
                 </p>
                 <p>
-                  <strong>Data Protection Officer:</strong>{' '}
-                  <a href="mailto:dpo@ambrogio.ai" className="btn-link">
-                    dpo@ambrogio.ai
+                  <strong>Data protection:</strong>{' '}
+                  <a href="mailto:dpo@yourdomain.com" className="btn-link">
+                    dpo@yourdomain.com
                   </a>
                 </p>
               </address>
