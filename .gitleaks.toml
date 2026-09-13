@@ -5,3 +5,4 @@ description = "Deterministic test fixture fields are not credentials."
 paths = [
   '''tests/server/whatsapp/templates\.test\.ts''',
 ]
+# CI release gate: test fixtures only.
