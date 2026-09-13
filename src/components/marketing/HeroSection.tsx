@@ -1,29 +1,25 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
 export function HeroSection() {
   return (
     <section className="hero" aria-labelledby="hero-heading">
       <div className="container hero-grid">
         <div className="stack stack-6 animate-fade-up">
-          <span className="hero-eyebrow">
-            <span aria-hidden="true">●</span> Beta Italia · Posti limitati
-          </span>
+          <span className="hero-eyebrow">24/7 AI receptionist · WhatsApp first</span>
           <h1 id="hero-heading" className="display text-balance">
-            La tua reception AI risponde anche di notte. E prenota davvero.
+            Your front desk, always on.
           </h1>
           <p className="lead text-pretty">
-            Ambrogio.ai è il receptionist AI sempre attivo che risponde su WhatsApp, gestisce voci e
-            testi, prende appuntamenti sul tuo calendario e ti consegna ogni mattina la lista delle
-            cose fatte mentre dormivi.
+            {PRODUCT_IDENTITY.name} answers customer questions, checks real availability, books
+            appointments, confirms changes, and hands conversations to a human when automation should stop.
           </p>
           <div className="row" style={{ gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
             <Link href="/register" className="btn btn-primary btn-lg">
-              Inizia la prova
-              <span aria-hidden="true">→</span>
+              Start your setup <span aria-hidden="true">→</span>
             </Link>
             <Link href="/#how-it-works" className="btn btn-secondary btn-lg">
-              Vedi come funziona
+              See how it works
             </Link>
           </div>
           <div
@@ -35,32 +31,25 @@ export function HeroSection() {
               borderTop: '1px solid var(--color-border)',
             }}
           >
-            <div className="stat">
-              <span className="stat-value">24/7</span>
-              <span className="stat-label">Sempre in ascolto</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">EU</span>
-              <span className="stat-label">Dati in Europa</span>
-            </div>
-            <div className="stat">
-              <span className="stat-value">MIT</span>
-              <span className="stat-label">Codice open source</span>
-            </div>
+            <div className="stat"><span className="stat-value">24/7</span><span className="stat-label">Customer coverage</span></div>
+            <div className="stat"><span className="stat-value">7</span><span className="stat-label">Sector presets</span></div>
+            <div className="stat"><span className="stat-value">AI</span><span className="stat-label">Human handoff</span></div>
           </div>
         </div>
-        <div
-          className="animate-fade-up"
-          style={{ position: 'relative', minHeight: '420px', animationDelay: '120ms' }}
-        >
-          <Image
-            src="/assets/site-images/ambrogio/svg/01-hero-always-on-reception.svg"
-            alt="Illustrazione di una reception AI sempre attiva"
-            width={640}
-            height={520}
-            priority
-            style={{ width: '100%', height: 'auto', maxWidth: '640px', marginInline: 'auto' }}
-          />
+        <div className="card card-padded stack stack-4" aria-label="Reception workflow preview">
+          <div className="stack stack-3">
+            <span className="eyebrow">Customer journey</span>
+            <div className="row-between"><strong>Customer</strong><span className="badge badge-success">Online</span></div>
+            <p className="muted">“I need a haircut tomorrow after 5.”</p>
+          </div>
+          <div className="stack stack-3">
+            <div className="row-between"><strong>AI Receptionist</strong><span className="badge badge-neutral">Checking</span></div>
+            <p className="muted">Checks business hours, service duration, calendar conflicts and available slots.</p>
+          </div>
+          <div className="stack stack-3">
+            <div className="row-between"><strong>Booking</strong><span className="badge badge-success">Confirmed</span></div>
+            <p className="muted">Appointment created and confirmation queued for the customer.</p>
+          </div>
         </div>
       </div>
     </section>
