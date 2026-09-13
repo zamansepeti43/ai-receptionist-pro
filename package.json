@@ -1,20 +1,19 @@
 {
-  "name": "whatsapp-receptionist",
-  "version": "0.2.1",
+  "name": "ai-receptionist-pro",
+  "version": "1.0.0",
   "private": false,
   "type": "module",
-  "description": "Open-source AI receptionist for WhatsApp. Books real appointments, transcribes voice messages, integrates with Google Calendar and Stripe. Multi-tenant SaaS starter kit. Crafted in Italy with GDPR built-in.",
+  "description": "White-label AI receptionist for service businesses. WhatsApp conversations, real appointment booking, calendar sync, knowledge base, and human handoff.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Hiberius/whatsapp-receptionist.git"
+    "url": "git+https://github.com/zamansepeti43/ai-receptionist-pro.git"
   },
-  "homepage": "https://github.com/Hiberius/whatsapp-receptionist#readme",
+  "homepage": "https://github.com/zamansepeti43/ai-receptionist-pro#readme",
   "bugs": {
-    "url": "https://github.com/Hiberius/whatsapp-receptionist/issues"
+    "url": "https://github.com/zamansepeti43/ai-receptionist-pro/issues"
   },
   "author": {
-    "name": "Christian Calabrò",
-    "url": "https://github.com/Hiberius"
+    "name": "AI Receptionist Pro contributors"
   },
   "license": "MIT",
   "keywords": [
@@ -22,19 +21,16 @@
     "ai",
     "receptionist",
     "chatbot",
-    "saas-starter",
+    "saas",
     "nextjs",
     "supabase",
     "anthropic",
-    "claude",
     "stripe",
     "elevenlabs",
     "google-calendar",
     "gdpr",
-    "italy",
     "multi-tenant",
-    "open-source",
-    "self-hosted",
+    "white-label",
     "appointments",
     "booking"
   ],
@@ -89,6 +85,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
+    "@types/react-dom": "^19.2.3",
     "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.39.4",
     "eslint-config-next": "15.5.22",
