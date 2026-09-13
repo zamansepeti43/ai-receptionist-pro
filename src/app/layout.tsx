@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const headerList = await headers();
   const nonce = headerList.get('x-nonce') ?? undefined;
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
         <link rel="preconnect" href="https://api.anthropic.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
@@ -93,4 +93,4 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </body>
     </html>
   );
-} 
+}
