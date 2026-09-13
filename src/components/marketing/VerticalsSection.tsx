@@ -1,35 +1,13 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 const VERTICALS = [
-  {
-    slug: 'dental',
-    title: 'Studi dentistici',
-    body: 'Igiene, urgenze, controlli. Gestisce richiami semestrali e capisce quando serve la dottoressa.',
-    icon: '/assets/site-images/ambrogio/svg/06-vertical-dental.svg',
-    accent: 'oklch(45% 0.12 175)',
-  },
-  {
-    slug: 'beauty',
-    title: 'Centri estetici',
-    body: 'Trattamenti, pacchetti, gift card. Ogni servizio ha il suo tempo e il suo prezzo, Ambrogio li sa.',
-    icon: '/assets/site-images/ambrogio/svg/07-vertical-beauty.svg',
-    accent: 'oklch(60% 0.13 350)',
-  },
-  {
-    slug: 'fitness',
-    title: 'Palestre e personal trainer',
-    body: 'Lezioni di gruppo, slot PT, abbonamenti. Riduce gli abbandoni con reminder umani.',
-    icon: '/assets/site-images/ambrogio/svg/08-vertical-fitness.svg',
-    accent: 'oklch(55% 0.15 30)',
-  },
-  {
-    slug: 'professional',
-    title: 'Studi professionali',
-    body: 'Avvocati, commercialisti, consulenti. Filtra le richieste, capisce le priorità, fissa gli incontri.',
-    icon: '/assets/site-images/ambrogio/svg/09-vertical-professional-office.svg',
-    accent: 'oklch(50% 0.10 250)',
-  },
+  { slug: 'salon', title: 'Salon & Barber', body: 'Appointments by service and duration, with business hours and optional staff-aware configuration.', icon: '✂️' },
+  { slug: 'beauty', title: 'Beauty & Wellness', body: 'Handle treatment questions, service durations and appointment requests from one workflow.', icon: '✨' },
+  { slug: 'dental', title: 'Dental & Clinic', body: 'Administrative scheduling and customer communication only — no diagnosis or treatment advice.', icon: '🦷' },
+  { slug: 'veterinary', title: 'Veterinary', body: 'Appointment intake, service information and human escalation for cases that need staff attention.', icon: '🐾' },
+  { slug: 'fitness', title: 'Gym & Fitness', body: 'Coordinate consultations, personal training and other bookable services around real availability.', icon: '🏋️' },
+  { slug: 'auto-service', title: 'Auto Service', body: 'Turn service requests into structured appointment requests with duration and resource-aware booking.', icon: '🚗' },
+  { slug: 'consulting', title: 'Consulting', body: 'Qualify meeting requests, answer approved FAQs and schedule consultations without double-booking.', icon: '💼' },
 ] as const;
 
 export function VerticalsSection() {
@@ -37,55 +15,19 @@ export function VerticalsSection() {
     <section className="section section-divider" aria-labelledby="verticals-heading">
       <div className="container stack stack-12">
         <div className="stack stack-4" style={{ maxWidth: '52ch' }}>
-          <span className="eyebrow">Verticali</span>
-          <h2 id="verticals-heading" className="text-balance">
-            Quattro mestieri, una stessa promessa: nessun cliente perso.
-          </h2>
-          <p className="lead">
-            Ambrogio capisce il linguaggio del tuo settore. Conosce i servizi, i tempi, le urgenze.
-            Nessuna risposta robotica.
-          </p>
+          <span className="eyebrow">Sector presets</span>
+          <h2 id="verticals-heading" className="text-balance">One core product. Seven starting points.</h2>
+          <p className="lead">Each preset gives the business a useful starting configuration. Services, hours, assistant behavior and branding remain editable.</p>
         </div>
-
         <div className="feature-grid stagger-children">
           {VERTICALS.map((v, index) => (
-            <Link
-              key={v.slug}
-              href={`/verticali/${v.slug}`}
-              className="card card-interactive stack stack-4 vertical-card"
-              style={
-                {
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  '--vertical-accent': v.accent,
-                  '--i': index,
-                } as React.CSSProperties
-              }
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-3)',
-                }}
-              >
-                <div className="vertical-icon-tile feature-icon-tile" aria-hidden="true">
-                  <Image src={v.icon} alt="" width={36} height={36} />
-                </div>
+            <Link key={v.slug} href={`/verticali/${v.slug}`} className="card card-interactive stack stack-4 vertical-card" style={{ textDecoration: 'none', color: 'inherit', '--i': index } as React.CSSProperties}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                <div className="vertical-icon-tile feature-icon-tile" aria-hidden="true" style={{ fontSize: '1.35rem' }}>{v.icon}</div>
                 <h3 style={{ fontSize: 'var(--text-lg)', margin: 0 }}>{v.title}</h3>
               </div>
               <p style={{ color: 'var(--color-text-secondary)' }}>{v.body}</p>
-              <span
-                className="row plan-card-actions"
-                style={{
-                  gap: 'var(--space-2)',
-                  color: v.accent,
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                }}
-              >
-                Scopri il caso d&apos;uso <span aria-hidden="true">→</span>
-              </span>
+              <span className="row plan-card-actions" style={{ gap: 'var(--space-2)', color: 'var(--color-accent-fg)', fontSize: 'var(--text-sm)', fontWeight: 600 }}>Explore preset <span aria-hidden="true">→</span></span>
             </Link>
           ))}
         </div>
