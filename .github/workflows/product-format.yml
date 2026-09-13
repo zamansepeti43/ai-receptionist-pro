@@ -1,15 +1,13 @@
 name: Product formatting
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   format-product-files:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -19,22 +17,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Auto-fix lint and formatting
-        run: |
-          npx eslint . --fix
-          npx prettier --write \
-            package.json \
-            .github/workflows/product-release.yml \
-            .github/workflows/product-format.yml \
-            src
-      - name: Commit formatting changes
-        run: |
-          if git diff --quiet; then
-            echo 'No formatting changes.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package.json .github/workflows src
-          git commit -m 'Format and auto-fix source files'
-          git push
+      - name: Check formatting
+        run: npm run format:check
