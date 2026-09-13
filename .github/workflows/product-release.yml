@@ -26,7 +26,8 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run build
+      - name: Production build
+        run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
@@ -40,21 +41,21 @@ jobs:
           ANTHROPIC_MODEL_FAST: placeholder
           STRIPE_SECRET_KEY: placeholder
           STRIPE_WEBHOOK_SECRET: placeholder
-          WHSEC_STRIPE_WEBHOOK: placeholder
-          WHATSAPP_WEBHOOK_VERIFY_TOKEN: placeholder
-          WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
+          DIALOG360_API_KEY: placeholder
+          DIALOG360_WEBHOOK_SECRET: placeholder
           ELEVENLABS_API_KEY: placeholder
           UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder
           INTERNAL_JOB_SECRET: placeholder
+          CRON_SECRET: placeholder
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and E2E suite
         run: npm run test:e2e
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
-          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3100
           NEXT_PUBLIC_APP_NAME: AI Receptionist Pro
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
@@ -64,10 +65,12 @@ jobs:
           ANTHROPIC_MODEL_FAST: placeholder
           STRIPE_SECRET_KEY: placeholder
           STRIPE_WEBHOOK_SECRET: placeholder
-          WHSEC_STRIPE_WEBHOOK: placeholder
-          WHATSAPP_WEBHOOK_VERIFY_TOKEN: placeholder
-          WHATSAPP_WEBHOOK_HEADER_SECRET: placeholder
+          DIALOG360_API_KEY: placeholder
+          DIALOG360_WEBHOOK_SECRET: placeholder
           ELEVENLABS_API_KEY: placeholder
+          UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: placeholder
           INTERNAL_JOB_SECRET: placeholder
+          CRON_SECRET: placeholder
 
 # Final release gate: dependency, secret, build, and browser checks.
