@@ -49,6 +49,8 @@ jobs:
           UPSTASH_REDIS_REST_TOKEN: placeholder
           INTERNAL_JOB_SECRET: placeholder
           CRON_SECRET: placeholder
+      - name: Docker build
+        run: docker build --tag ai-receptionist-pro:ci .
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser smoke and E2E suite
@@ -74,4 +76,4 @@ jobs:
           INTERNAL_JOB_SECRET: placeholder
           CRON_SECRET: placeholder
 
-# Final release gate: dependency, secret, build, and browser checks.
+# Final release gate: dependency, secret, build, Docker, and browser checks.
