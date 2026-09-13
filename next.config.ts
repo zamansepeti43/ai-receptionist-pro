@@ -6,9 +6,9 @@ import type { NextConfig } from 'next';
  * Security headers split between this file and `src/middleware.ts`:
  *
  * - **Here (next.config.ts)**: static headers that never depend on the
- *   request. They benefit from being set at the framework layer because they
- *   apply uniformly across edge AND serverless render paths and they work
- *   even when middleware short-circuits.
+ *   request. They benefit from being set at the framework layer because
+ *   they apply uniformly across edge AND serverless render paths and they
+ *   work even when middleware short-circuits.
  *
  * - **In middleware.ts**: per-request headers (CSP with nonce) and
  *   cross-origin isolation primitives that we may want to vary by route
@@ -32,16 +32,14 @@ const staticSecurityHeaders = [
   },
 ];
 
+const projectRoot = path.resolve(process.cwd());
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  // Enables Docker standalone output: copies only required files into .next/standalone
-  // Required by the Dockerfile. See: https://nextjs.org/docs/app/api-reference/next-config-js/output
   output: 'standalone',
-  // Resolve the tracing root to an absolute filesystem path instead of a file URL.
-  // This avoids malformed parent-directory traversal on Windows during build tracing.
-  outputFileTracingRoot: path.resolve(__dirname),
+  outputFileTracingRoot: projectRoot,
   eslint: {
     ignoreDuringBuilds: false,
   },
