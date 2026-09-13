@@ -3,63 +3,63 @@ import { expect, test } from '@playwright/test';
 import { gotoOk } from './helpers/page-signals';
 
 /**
- * Flusso 1: la landing risponde e la navigazione principale funziona.
+ * Flow 1: the landing responds and primary navigation works.
  *
- * Le asserzioni evitano di ricalcare le copy della landing (cambiano spesso):
- * verificano struttura e destinazione, non testo di marketing.
+ * Assertions avoid coupling the suite to marketing copy: they verify structure
+ * and destinations rather than transient wording.
  */
-test.describe('Landing e navigazione principale', () => {
-  test('la landing risponde 200 con una sola intestazione di primo livello', async ({ page }) => {
+test.describe('Landing and primary navigation', () => {
+  test('landing responds 200 with exactly one level-one heading', async ({ page }) => {
     await gotoOk(page, '/');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByRole('banner')).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Navigazione principale' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
   });
 
-  test('il menu principale raggiunge le pagine dichiarate', async ({ page }) => {
+  test('main navigation reaches the declared pages', async ({ page }) => {
     await gotoOk(page, '/');
 
-    const mainNav = page.getByRole('navigation', { name: 'Navigazione principale' });
+    const mainNav = page.getByRole('navigation', { name: 'Main navigation' });
 
-    await mainNav.getByRole('link', { name: 'Piani' }).click();
+    await mainNav.getByRole('link', { name: 'Pricing' }).click();
     await expect(page).toHaveURL(/\/pricing$/);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
     await page.goBack();
-    await mainNav.getByRole('link', { name: 'Verticali' }).click();
+    await mainNav.getByRole('link', { name: 'Sectors' }).click();
     await expect(page).toHaveURL(/\/verticali$/);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
     await page.goBack();
-    await mainNav.getByRole('link', { name: 'Blog' }).click();
-    await expect(page).toHaveURL(/\/blog$/);
+    await mainNav.getByRole('link', { name: 'Help' }).click();
+    await expect(page).toHaveURL(/\/help$/);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
-  test('le azioni di intestazione portano a registrazione e accesso', async ({ page }) => {
+  test('header actions lead to registration and sign-in', async ({ page }) => {
     await gotoOk(page, '/');
     const header = page.getByRole('banner');
 
-    await header.getByRole('link', { name: 'Prova gratis' }).click();
+    await header.getByRole('link', { name: 'Get started' }).click();
     await expect(page).toHaveURL(/\/register$/);
     await expect(page.getByRole('button', { name: 'Crea account' })).toBeVisible();
 
     await gotoOk(page, '/');
-    await header.getByRole('link', { name: 'Accedi' }).click();
+    await header.getByRole('link', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByRole('button', { name: 'Invia link di accesso' })).toBeVisible();
   });
 
-  test('il logo riporta alla home da una pagina interna', async ({ page }) => {
+  test('logo returns to home from an internal page', async ({ page }) => {
     await gotoOk(page, '/pricing');
 
     await page
       .getByRole('banner')
-      .getByRole('link', { name: /Ambrogio\.ai/ })
+      .getByRole('link', { name: /AI Receptionist Pro - homepage/ })
       .click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('navigation', { name: 'Navigazione principale' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
   });
 });
