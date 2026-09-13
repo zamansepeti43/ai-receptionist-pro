@@ -9,9 +9,12 @@ export function findAvailableResource(
 ): Resource | null {
   if (start >= end) return null;
   const active = resources.filter((resource) => resource.active);
-  return active.find((resource) =>
-    busy.every((interval) =>
-      interval.resourceId !== resource.id || interval.end <= start || interval.start >= end,
-    ),
-  ) ?? null;
+  return (
+    active.find((resource) =>
+      busy.every(
+        (interval) =>
+          interval.resourceId !== resource.id || interval.end <= start || interval.start >= end,
+      ),
+    ) ?? null
+  );
 }
