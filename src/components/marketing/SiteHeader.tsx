@@ -1,42 +1,32 @@
 import Link from 'next/link';
 
+import { PRODUCT_IDENTITY } from '@/config/product-identity';
+
 const NAV_LINKS = [
-  { href: '/#features', label: 'Funzionalità' },
-  { href: '/verticali', label: 'Verticali' },
-  { href: '/pricing', label: 'Piani' },
-  { href: '/blog', label: 'Blog' },
+  { href: '/#features', label: 'Features' },
+  { href: '/verticals', label: 'Sectors' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/help', label: 'Help' },
 ] as const;
 
 export function SiteHeader() {
   return (
     <header className="site-header" role="banner">
       <div className="container site-header-inner">
-        <Link href="/" className="site-logo" aria-label="Ambrogio.ai - homepage">
-          Ambrogio<span style={{ color: 'var(--color-accent)' }}>.ai</span>
+        <Link href="/" className="site-logo" aria-label={`${PRODUCT_IDENTITY.name} - homepage`}>
+          {PRODUCT_IDENTITY.name}
         </Link>
-        <nav aria-label="Navigazione principale">
+        <nav aria-label="Main navigation">
           <ul className="site-nav">
             {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href}>{link.label}</Link>
-              </li>
+              <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
             ))}
           </ul>
         </nav>
         <div className="row site-header-actions" style={{ gap: 'var(--space-3)' }}>
-          <Link
-            href="/pricing"
-            className="btn btn-ghost btn-sm site-header-mobile-link"
-            aria-label="Apri menu (vai a pricing)"
-          >
-            Menu
-          </Link>
-          <Link href="/login" className="btn btn-ghost btn-sm">
-            Accedi
-          </Link>
-          <Link href="/register" className="btn btn-primary btn-sm">
-            Prova gratis
-          </Link>
+          <Link href="/pricing" className="btn btn-ghost btn-sm site-header-mobile-link">Menu</Link>
+          <Link href="/login" className="btn btn-ghost btn-sm">Sign in</Link>
+          <Link href="/register" className="btn btn-primary btn-sm">Get started</Link>
         </div>
       </div>
     </header>
