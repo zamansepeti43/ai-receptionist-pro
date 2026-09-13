@@ -17,21 +17,21 @@ interface ContactInput {
 }
 
 async function fillContactForm(page: Page, input: ContactInput): Promise<void> {
-  await page.getByLabel('Nome', { exact: true }).fill('Mario Rossi');
+  await page.getByLabel('Name', { exact: true }).fill('Mario Rossi');
   await page.getByLabel('Email', { exact: true }).fill(input.email);
   if (input.company !== null) {
-    await page.getByLabel('Studio o azienda', { exact: true }).fill(input.company);
+    await page.getByLabel('Company or practice', { exact: true }).fill(input.company);
   }
-  await page.getByLabel('Di cosa vuoi parlare?', { exact: true }).selectOption('sales');
-  await page.getByLabel('Messaggio', { exact: true }).fill('Vorrei provare Ambrogio nel mio studio.');
-  await page.getByLabel(/Acconsento al trattamento dei dati/).check();
+  await page.getByLabel('What can we help with?', { exact: true }).selectOption('sales');
+  await page.getByLabel('Message', { exact: true }).fill('I would like to try AI Receptionist Pro.');
+  await page.getByLabel(/I consent to the processing of my data/).check();
 }
 
 async function submitAndWaitForRequest(page: Page): Promise<void> {
   const requestPromise = page.waitForRequest(
     (request) => request.url().includes('/api/contact') && request.method() === 'POST',
   );
-  await page.getByRole('button', { name: 'Invia messaggio' }).click();
+  await page.getByRole('button', { name: 'Send message' }).click();
   await requestPromise;
 }
 
@@ -49,7 +49,7 @@ test.describe('Contact form', () => {
     await fillContactForm(page, { email: 'e2e-contact@example.com', company: null });
     await submitAndWaitForRequest(page);
 
-    await expect(feedback).toContainText('Messaggio inviato');
+    await expect(feedback).toContainText('Message sent');
     await expect(feedback).not.toHaveClass(/sr-only/);
     await expect(page).toHaveURL(/\/contact$/);
 
@@ -63,7 +63,7 @@ test.describe('Contact form', () => {
       email: 'e2e-contact@example.com',
       company: null,
       topic: 'sales',
-      message: 'Vorrei provare Ambrogio nel mio studio.',
+      message: 'I would like to try AI Receptionist Pro.',
       consent: true,
     });
   });
@@ -78,7 +78,7 @@ test.describe('Contact form', () => {
     await fillContactForm(page, { email: 'e2e-company@example.com', company: 'Studio Rossi' });
     await submitAndWaitForRequest(page);
 
-    await expect(page.locator(FEEDBACK)).toContainText('Messaggio inviato');
+    await expect(page.locator(FEEDBACK)).toContainText('Message sent');
     expect(capture.first().jsonBody).toMatchObject({ company: 'Studio Rossi' });
   });
 
@@ -93,7 +93,7 @@ test.describe('Contact form', () => {
     await submitAndWaitForRequest(page);
 
     const feedback = page.locator(FEEDBACK);
-    await expect(feedback).toContainText('Il servizio non è raggiungibile');
+    await expect(feedback).toContainText('Service unavailable');
     await expect(feedback).toHaveAttribute('role', 'alert');
     await expect(page).toHaveURL(/\/contact$/);
   });
@@ -107,7 +107,7 @@ test.describe('Contact form', () => {
     );
 
     await fillContactForm(page, { email: 'e2e-real@example.com', company: null });
-    await page.getByRole('button', { name: 'Invia messaggio' }).click();
+    await page.getByRole('button', { name: 'Send message' }).click();
 
     const response = await responsePromise;
     expect(response.status(), 'the route must exist and accept POST').not.toBe(404);
