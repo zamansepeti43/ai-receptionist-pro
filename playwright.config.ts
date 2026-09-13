@@ -62,7 +62,7 @@ export default defineConfig({
             PORT: String(PORT),
             HOSTNAME: '127.0.0.1',
           },
-          reuseExistingServer: !isCI,
+          reuseExistingServer: false,
           timeout: 420_000,
           stdout: 'pipe' as const,
           stderr: 'pipe' as const,
