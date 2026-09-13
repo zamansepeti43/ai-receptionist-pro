@@ -32,7 +32,8 @@ export const softwareApplicationSchema = {
   applicationSubCategory: 'AI Receptionist / Booking',
   operatingSystem: 'Web',
   url: SITE_URL,
-  description: 'White-label AI receptionist for WhatsApp conversations, appointment workflows, calendar integration, knowledge-base answers and human handoff.',
+  description:
+    'White-label AI receptionist for WhatsApp conversations, appointment workflows, calendar integration, knowledge-base answers and human handoff.',
   inLanguage: ['en-US', 'tr-TR'],
   publisher: { '@id': `${SITE_URL}#organization` },
 } as const;
