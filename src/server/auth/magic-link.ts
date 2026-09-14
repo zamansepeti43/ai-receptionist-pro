@@ -1,13 +1,5 @@
-// Fatto da Claude Code l'8 maggio 2026.
-//
-// Magic-link login: l'utente inserisce l'email, riceviamo POST /api/auth/magic-link
-// e chiamiamo `supabase.auth.signInWithOtp`.
-//
-// Design anti-enumeration: la response e' sempre `{ ok: true }` indipendentemente
-// dall'esistenza dell'account. Eventuali errori upstream Supabase vengono loggati
-// ma NON propagati al client (altrimenti un attaccante puo' enumerare gli utenti).
-//
-// Pattern: factory + DI. Il sender e' iniettabile per i test.
+// Magic-link login service.
+// Uses Supabase OTP and keeps account-enumeration details masked from the client.
 
 import { logger } from '@/lib/logging/logger';
 import { env } from '@/lib/env';
@@ -16,6 +8,8 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 export type MagicLinkInput = {
   email: string;
   requestId: string;
+  /** Optional trusted redirect override, used by local development. */
+  redirectTo?: string;
 };
 
 export type MagicLinkResult = {
@@ -36,8 +30,6 @@ export class MagicLinkService {
     const email = normalizeEmail(input.email);
 
     if (!email) {
-      // Anti-enumeration: anche se l'email e' invalida, rispondiamo OK lato HTTP.
-      // Logghiamo per visibilita' interna.
       logger.info(
         { requestId: input.requestId },
         'Magic link request rejected: invalid email format',
@@ -45,23 +37,16 @@ export class MagicLinkService {
       return { ok: true };
     }
 
-    const { error } = await this.sender.send({ email, redirectTo: this.redirectTo });
+    const redirectTo = input.redirectTo ?? this.redirectTo;
+    const { error } = await this.sender.send({ email, redirectTo });
 
     if (error) {
       logger.warn(
-        {
-          requestId: input.requestId,
-          err: error,
-        },
+        { requestId: input.requestId, err: error },
         'Magic link sender returned error (response masked for anti-enumeration)',
       );
     } else {
-      logger.info(
-        {
-          requestId: input.requestId,
-        },
-        'Magic link dispatched',
-      );
+      logger.info({ requestId: input.requestId }, 'Magic link dispatched');
     }
 
     return { ok: true };
