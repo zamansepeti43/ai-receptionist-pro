@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', locale: 'en_US', url: SITE_URL, siteName: PRODUCT_IDENTITY.name },
   alternates: {
     canonical: '/',
-    languages: { 'en-US': SITE_URL, 'tr-TR': `${SITE_URL}?lang=tr`, 'x-default': SITE_URL },
+    languages: { 'en-US': SITE_URL, 'it-IT': `${SITE_URL}?lang=it`, 'x-default': SITE_URL },
   },
   appleWebApp: { capable: true, title: PRODUCT_IDENTITY.name, statusBarStyle: 'default' },
   other: { 'msapplication-TileColor': '#0d766e' },
@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const headerList = await headers();
   const nonce = headerList.get('x-nonce') ?? undefined;
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
         <link rel="preconnect" href="https://api.anthropic.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
