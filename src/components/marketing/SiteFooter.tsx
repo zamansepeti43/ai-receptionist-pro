@@ -7,7 +7,7 @@ const FOOTER_COLUMNS = [
     links: [
       { href: '/#features', label: 'Features' },
       { href: '/pricing', label: 'Pricing' },
-      { href: '/verticals', label: 'Sectors' },
+      { href: '/verticali', label: 'Sectors' },
     ],
   },
   {
