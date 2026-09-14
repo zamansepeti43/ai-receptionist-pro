@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
+import { LanguageSelector } from './LanguageSelector';
 
 const NAV_LINKS = [
   { href: '/#features', label: 'Features' },
@@ -25,6 +26,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="row site-header-actions" style={{ gap: 'var(--space-3)' }}>
+          <LanguageSelector />
           <Link href="/pricing" className="btn btn-ghost btn-sm site-header-mobile-link">
             Menu
           </Link>
