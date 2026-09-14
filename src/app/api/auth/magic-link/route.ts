@@ -1,6 +1,5 @@
-// Fatto da Claude Code l'8 maggio 2026.
-// POST /api/auth/magic-link — invia magic link via Supabase OTP.
-// Anti-enumeration: response sempre `{ ok: true }`.
+// POST /api/auth/magic-link — sends a Supabase magic link.
+// The response stays uniform to avoid account enumeration.
 
 import { type NextRequest } from 'next/server';
 import { z } from 'zod';
@@ -8,6 +7,7 @@ import { z } from 'zod';
 import { readJsonBody } from '@/lib/api/body';
 import { jsonHandler } from '@/lib/api/json';
 import { applyRateLimit } from '@/lib/rate-limit/apply';
+import { env } from '@/lib/env';
 import { createMagicLinkService, normalizeEmail } from '@/server/auth/magic-link';
 
 export const runtime = 'nodejs';
@@ -23,8 +23,6 @@ export async function POST(request: NextRequest): Promise<Response> {
     const parsed = MagicLinkBodySchema.parse(await readJsonBody(request));
     const normalized = normalizeEmail(parsed.email);
 
-    // Identifier per il rate limit: usiamo l'email normalizzata se valida,
-    // altrimenti l'IP cosi' un attaccante non puo' bypassare con email casuali.
     const identifier = normalized
       ? ({ kind: 'email', value: normalized } as const)
       : ({ kind: 'ip', value: context.ipAddress } as const);
@@ -35,10 +33,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     await service.request({
       email: parsed.email,
       requestId: context.requestId,
+      // In local development, use the actual browser origin. This prevents
+      // links from being generated for localhost:3000 while the app runs on 3002.
+      ...(env.NODE_ENV === 'development'
+        ? { redirectTo: `${request.nextUrl.origin}/auth/callback` }
+        : {}),
     });
 
-    // Risposta uniforme: anti-enumeration, niente differenze tra
-    // email esistente / inesistente / invalida.
     return { sent: true };
   }, request);
 }
