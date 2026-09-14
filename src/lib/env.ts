@@ -5,8 +5,8 @@ const optionalUrl = z.string().url().optional().or(z.literal(''));
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   APP_ENV: z.enum(['development', 'staging', 'production']).default('development'),
-  NEXT_PUBLIC_APP_URL: optionalUrl.default('http://localhost:3000'),
-  NEXT_PUBLIC_APP_NAME: z.string().default('Ambrogio.ai'),
+  NEXT_PUBLIC_APP_URL: optionalUrl.default('http://localhost:3002'),
+  NEXT_PUBLIC_APP_NAME: z.string().default('AI Receptionist Pro'),
   NEXT_PUBLIC_SUPABASE_URL: optionalUrl.default(''),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional().default(''),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().default(''),
@@ -51,14 +51,7 @@ const envSchema = z.object({
   WHATSAPP_WEBHOOK_HEADER_SECRET: z.string().optional().default(''),
   WHATSAPP_WEBHOOK_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
   WHATSAPP_WEBHOOK_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
-  /**
-   * Senza RESEND_API_KEY il mailer ricade sul NoopEmailSender (logga, non spedisce):
-   * un ambiente di sviluppo non deve rompersi per una email non configurata.
-   */
-  /**
-   * Destinatario degli allarmi operativi del watchdog (coda ferma, dead-letter).
-   * Senza, il watchdog osserva e registra nei log ma non avvisa nessuno.
-   */
+  /** Without RESEND_API_KEY the mailer uses a no-op sender for development. */
   OPS_ALERT_EMAIL: z.string().optional().default(''),
   RESEND_API_KEY: z.string().optional().default(''),
   RESEND_FROM_EMAIL: z.string().default('Ambrogio.ai <hello@ambrogio.ai>'),
@@ -89,12 +82,7 @@ const envSchema = z.object({
 
 export type AppEnv = z.infer<typeof envSchema>;
 
-/**
- * Parses runtime configuration once and exposes typed environment values.
- *
- * @returns Typed application environment values.
- * @throws ZodError when a configured value has an invalid shape.
- */
+/** Parses runtime configuration once and exposes typed environment values. */
 export function parseEnv(input: NodeJS.ProcessEnv = process.env): AppEnv {
   return envSchema.parse(input);
 }
