@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { CtaSection } from '@/components/marketing/CtaSection';
 import { FeaturesSection } from '@/components/marketing/FeaturesSection';
+import { HashScroll } from '@/components/marketing/HashScroll';
 import { HowItWorksSection } from '@/components/marketing/HowItWorksSection';
 import {
   JsonLd,
@@ -35,6 +36,7 @@ export default async function HomePage() {
       <JsonLd data={organizationSchema} />
       <JsonLd data={softwareApplicationSchema} />
       <SiteHeader />
+      <HashScroll />
       <main id="main">
         <ProductHero />
         <FeaturesSection />
