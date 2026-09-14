@@ -8,6 +8,7 @@ export function LoginForm() {
     endpoint: '/api/auth/magic-link',
     successMessage:
       'If the address is linked to an account, you will receive a sign-in link shortly. Check your spam folder too.',
+    redirectTo: '/login/check-email',
   });
 
   return (
