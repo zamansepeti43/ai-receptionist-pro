@@ -20,38 +20,34 @@ interface ApiSuccessEnvelope {
 }
 
 export interface UseApiFormOptions {
-  /** Route API che riceve il POST JSON. */
+  /** API route that receives the JSON POST body. */
   readonly endpoint: string;
-  /** Messaggio mostrato al successo, quando non si naviga altrove. */
+  /** Message shown on success when no redirect is configured. */
   readonly successMessage: string;
-  /** Se valorizzato, al successo naviga qui invece di mostrare il messaggio. */
+  /** If set, navigate here after success instead of showing a message. */
   readonly redirectTo?: string;
-  /**
-   * Trasforma i campi del form nel body JSON.
-   * Default: ogni campo diventa una stringa omonima.
-   */
+  /** Transform form fields into the JSON request body. */
   readonly buildBody?: (formData: FormData) => unknown;
 }
 
 /**
- * Messaggi utente per i codici d'errore dell'API.
+ * User-facing messages for API error codes.
  *
- * `jsonHandler` restituisce messaggi pensati per gli sviluppatori e, per gli
- * errori non esposti, il generico "Internal server error": nessuno dei due è
- * adatto a un utente finale.
+ * The API may return developer-oriented messages or the generic
+ * "Internal server error". Neither should be exposed directly to users.
  */
 const MESSAGE_BY_CODE: Record<string, string> = {
-  rate_limited: 'Troppi tentativi ravvicinati. Riprova tra qualche minuto.',
-  bad_request: 'Alcuni dati non sono validi. Controlla i campi e riprova.',
-  validation_error: 'Alcuni dati non sono validi. Controlla i campi e riprova.',
-  unauthorized: 'Sessione non valida. Effettua di nuovo l’accesso.',
-  forbidden: 'Non hai i permessi per completare questa operazione.',
-  not_found: 'Risorsa non trovata.',
-  conflict: 'Esiste già un account con questi dati.',
+  rate_limited: 'Too many attempts. Please try again in a few minutes.',
+  bad_request: 'Some information is invalid. Check the fields and try again.',
+  validation_error: 'Some information is invalid. Check the fields and try again.',
+  unauthorized: 'Your session is no longer valid. Please sign in again.',
+  forbidden: 'You do not have permission to complete this action.',
+  not_found: 'The requested resource was not found.',
+  conflict: 'An account with these details already exists.',
 };
 
 const FALLBACK_MESSAGE =
-  'Si è verificato un errore imprevisto. Riprova, e se persiste scrivici da /contact.';
+  'Something went wrong. Please try again, or contact us if the problem persists.';
 
 function defaultBuildBody(formData: FormData): Record<string, string> {
   const body: Record<string, string> = {};
@@ -71,28 +67,25 @@ function messageFor(payload: unknown, httpStatus: number): string {
     return MESSAGE_BY_CODE[code];
   }
 
-  // Un messaggio esposto dall'API è già stato giudicato mostrabile a monte:
-  // `jsonHandler` sostituisce con un generico tutto ciò che non è `expose`.
+  // An exposed API message has already been approved for user display.
   const exposed = envelope?.error?.message;
   if (exposed && exposed !== 'Internal server error') {
     return exposed;
   }
 
   if (httpStatus >= 500) {
-    return 'Il servizio non è raggiungibile in questo momento. Riprova tra poco.';
+    return 'The service is temporarily unavailable. Please try again shortly.';
   }
 
   return FALLBACK_MESSAGE;
 }
 
 /**
- * Invio di un form verso un'API JSON, con stato osservabile.
+ * Submit a form to a JSON API while exposing an observable UI state.
  *
- * Le route API del progetto accettano esclusivamente JSON (`readJsonBody` fa
- * `JSON.parse` del raw body): un `<form method="POST">` nativo invia
- * `application/x-www-form-urlencoded` e fallisce sempre. Questo hook mantiene
- * il contratto JSON dell'API e restituisce un errore mostrabile all'utente,
- * invece di far navigare il browser sulla risposta grezza dell'API.
+ * Project API routes accept JSON only. A native HTML POST form sends
+ * application/x-www-form-urlencoded, so this hook keeps the request contract
+ * explicit and returns a user-facing error instead of navigating to raw API output.
  */
 export function useApiForm(options: UseApiFormOptions): {
   state: ApiFormState;
@@ -118,10 +111,9 @@ export function useApiForm(options: UseApiFormOptions): {
           body: JSON.stringify(body),
         });
       } catch {
-        // Fallimento di rete: nessuna risposta, quindi nessun envelope da leggere.
         setState({
           status: 'error',
-          message: 'Connessione non riuscita. Controlla la rete e riprova.',
+          message: 'Connection failed. Check your network and try again.',
         });
         return;
       }
