@@ -9,22 +9,21 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const TRIAL_INCLUDES = [
-  '14-day trial, no card required',
-  '500 AI trial conversations',
-  'Guided onboarding',
-  'Cancel with one click',
+const SETUP_INCLUDES = [
+  'Connect your WhatsApp number',
+  'Connect your calendar',
+  'Configure business knowledge and FAQs',
+  'Set human handoff rules',
 ] as const;
 
 export default function RegisterPage() {
   return (
     <div className="stack stack-6">
       <div className="stack stack-2">
-        <span className="badge badge-success">14-day trial · No card required</span>
+        <span className="badge badge-success">Guided setup</span>
         <h1 style={{ fontSize: 'var(--text-3xl)' }}>Create your account</h1>
         <p className="muted">
-          It takes about 60 seconds. You can connect your WhatsApp number and calendar in the next
-          step.
+          It takes about 60 seconds. You can connect your WhatsApp number and calendar during setup.
         </p>
       </div>
 
@@ -39,7 +38,7 @@ export default function RegisterPage() {
           border: '1px solid oklch(85% 0.05 175)',
         }}
       >
-        {TRIAL_INCLUDES.map((item) => (
+        {SETUP_INCLUDES.map((item) => (
           <li
             key={item}
             style={{
