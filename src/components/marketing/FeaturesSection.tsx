@@ -60,7 +60,12 @@ const sizeClass = {
 
 export function FeaturesSection() {
   return (
-    <section className="section" id="features" aria-labelledby="features-heading">
+    <section
+      className="section"
+      id="features"
+      aria-labelledby="features-heading"
+      style={{ scrollMarginTop: 'var(--space-20)' }}
+    >
       <div className="container stack stack-12">
         <div className="stack stack-4" style={{ maxWidth: '52ch' }}>
           <span className="eyebrow">Core capabilities</span>
