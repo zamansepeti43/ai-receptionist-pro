@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { LanguageSelector } from '@/components/marketing/LanguageSelector';
+
 export default function AuthLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div
@@ -19,9 +21,19 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
           minHeight: '100vh',
         }}
       >
-        <Link href="/" className="site-logo" aria-label="Ambrogio.ai">
-          Ambrogio<span style={{ color: 'var(--color-accent)' }}>.ai</span>
-        </Link>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-4)',
+          }}
+        >
+          <Link href="/" className="site-logo" aria-label="AI Receptionist Pro">
+            AI Receptionist<span style={{ color: 'var(--color-accent)' }}> Pro</span>
+          </Link>
+          <LanguageSelector />
+        </div>
         <main
           id="main"
           style={{
@@ -34,11 +46,11 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
           <div style={{ width: '100%', maxWidth: '420px' }}>{children}</div>
         </main>
         <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-          © {new Date().getFullYear()} Ambrogio.ai. Hosted EU. GDPR ready.
+          AGTStudio ürünüdür.
         </p>
       </div>
       <aside
-        aria-label="Promo Ambrogio.ai"
+        aria-label="AI Receptionist Pro"
         style={{
           display: 'grid',
           placeItems: 'center',
@@ -91,8 +103,8 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
               color: 'oklch(95% 0.005 150)',
             }}
           >
-            Ogni giorno migliaia di chiamate vanno perse. Ambrogio risponde, prenota, conferma. Tu
-            fai il tuo lavoro.
+            AI Receptionist Pro risponde, raccoglie le richieste, gestisce le prenotazioni e passa la
+            conversazione a una persona quando serve.
           </p>
         </div>
       </aside>
