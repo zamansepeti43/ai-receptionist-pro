@@ -23,7 +23,9 @@ async function fillContactForm(page: Page, input: ContactInput): Promise<void> {
     await page.getByLabel('Company or practice', { exact: true }).fill(input.company);
   }
   await page.getByLabel('What can we help with?', { exact: true }).selectOption('sales');
-  await page.getByLabel('Message', { exact: true }).fill('I would like to try AI Receptionist Pro.');
+  await page
+    .getByLabel('Message', { exact: true })
+    .fill('I would like to try AI Receptionist Pro.');
   await page.getByLabel(/I consent to the processing of my data/).check();
 }
 
@@ -93,7 +95,7 @@ test.describe('Contact form', () => {
     await submitAndWaitForRequest(page);
 
     const feedback = page.locator(FEEDBACK);
-    await expect(feedback).toContainText('Service unavailable');
+    await expect(feedback).toContainText('temporarily unavailable');
     await expect(feedback).toHaveAttribute('role', 'alert');
     await expect(page).toHaveURL(/\/contact$/);
   });
@@ -118,10 +120,9 @@ test.describe('Contact form', () => {
     ).toContain('application/json');
 
     const payload: unknown = await response.json();
-    expect(
-      extractErrorCode(payload),
-      'the form body was rejected by the route schema',
-    ).not.toBe('bad_request');
+    expect(extractErrorCode(payload), 'the form body was rejected by the route schema').not.toBe(
+      'bad_request',
+    );
 
     await expect(page).toHaveURL(/\/contact$/);
     await expect(page.locator(FEEDBACK)).not.toHaveText('');
