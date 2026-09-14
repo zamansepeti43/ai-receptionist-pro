@@ -4,7 +4,6 @@ import Link from 'next/link';
 import {
   buildBreadcrumbSchema,
   buildFaqSchema,
-  buildProductOffersSchema,
   buildSpeakableSchema,
   JsonLd,
 } from '@/components/marketing/JsonLd';
@@ -15,10 +14,10 @@ import { SiteHeader } from '@/components/marketing/SiteHeader';
 export const metadata: Metadata = {
   title: 'Pricing — AI Receptionist Pro',
   description:
-    'Configurable SaaS pricing for AI Receptionist Pro. Adapt plans, limits and billing rules to your business model.',
+    'Example SaaS pricing models for AI Receptionist Pro. Configure plans, limits and billing rules before launch.',
   openGraph: {
     title: 'Pricing — AI Receptionist Pro',
-    description: 'Configurable SaaS pricing for the AI Receptionist Pro application.',
+    description: 'Example SaaS pricing models for the AI Receptionist Pro application.',
     url: '/pricing',
     locale: 'en_US',
     type: 'website',
@@ -27,6 +26,10 @@ export const metadata: Metadata = {
 };
 
 const FAQ = [
+  {
+    q: 'Are the prices shown here real commercial prices?',
+    a: 'No. The displayed 0 values are placeholders for example configurations. The actual commercial plans, limits and prices must be configured before launch.',
+  },
   {
     q: 'Can I change the plan structure?',
     a: 'Yes. The pricing layer is part of the application and is intended to be adapted before launch.',
@@ -53,27 +56,6 @@ const FAQ = [
   },
 ] as const;
 
-const PLAN_OFFERS = [
-  {
-    name: 'Starter',
-    price: '97',
-    description: 'Single-business starter plan.',
-    url: '/register?plan=starter',
-  },
-  {
-    name: 'Professional',
-    price: '297',
-    description: 'Higher-capacity operational plan.',
-    url: '/register?plan=professional',
-  },
-  {
-    name: 'Agency',
-    price: '897',
-    description: 'Multi-client white-label plan.',
-    url: '/contact?plan=agency',
-  },
-] as const;
-
 export default async function PricingPage() {
   return (
     <>
@@ -84,7 +66,6 @@ export default async function PricingPage() {
           { name: 'Pricing', url: '/pricing' },
         ])}
       />
-      <JsonLd data={buildProductOffersSchema(PLAN_OFFERS)} />
       <JsonLd
         data={buildSpeakableSchema({
           url: '/pricing',
@@ -104,11 +85,17 @@ export default async function PricingPage() {
             className="container stack stack-6 text-center"
             style={{ maxWidth: '720px', margin: '0 auto' }}
           >
-            <span className="badge">Configurable pricing</span>
+            <span
+              className="badge"
+              style={{ fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}
+            >
+              EXAMPLE PRICING — NOT A LIVE OFFER
+            </span>
             <h1 className="display text-balance">Choose a starting model. Make it yours.</h1>
             <p className="lead text-pretty" style={{ margin: '0 auto' }}>
-              The included plans are starter defaults for the application. Edit prices, limits,
-              features and billing rules to match the business before launch.
+              These plans are example defaults for the application. The <strong>0</strong> values are
+              intentional placeholders. Configure the actual prices, limits, features and billing
+              rules before presenting an offer to customers.
             </p>
           </div>
         </section>
