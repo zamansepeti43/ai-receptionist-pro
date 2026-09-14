@@ -3,10 +3,10 @@ import Link from 'next/link';
 const PLANS = [
   {
     name: 'Starter',
-    price: '€97',
-    period: '/month',
-    badge: 'Single business',
-    description: 'A practical starting point for one business and one calendar.',
+    price: '0',
+    period: '',
+    badge: 'Example plan',
+    description: 'Example starter configuration for one business and one calendar.',
     features: [
       '1 WhatsApp Business number',
       '1 Google Calendar',
@@ -14,16 +14,16 @@ const PLANS = [
       'Voice transcription',
       'Core dashboard',
     ],
-    cta: 'Start with Starter',
+    cta: 'Configure this model',
     href: '/register?plan=starter',
     highlight: false,
   },
   {
     name: 'Professional',
-    price: '€297',
-    period: '/month',
-    badge: 'Most popular',
-    description: 'More capacity and operational controls for growing businesses.',
+    price: '0',
+    period: '',
+    badge: 'Example plan',
+    description: 'Example higher-capacity configuration for growing businesses.',
     features: [
       'Multiple WhatsApp numbers',
       'Operator workflows',
@@ -32,16 +32,16 @@ const PLANS = [
       'Custom knowledge base',
       'Priority support',
     ],
-    cta: 'Start with Professional',
+    cta: 'Configure this model',
     href: '/register?plan=professional',
     highlight: true,
   },
   {
     name: 'Agency',
-    price: '€897',
-    period: '/month',
-    badge: 'White-label',
-    description: 'A multi-client operating model for agencies and service providers.',
+    price: '0',
+    period: '',
+    badge: 'Example plan',
+    description: 'Example white-label configuration for agencies and service providers.',
     features: [
       'Multi-client setup',
       'White-label dashboard',
@@ -50,7 +50,7 @@ const PLANS = [
       'Client onboarding tools',
       'Custom support',
     ],
-    cta: 'Talk to us',
+    cta: 'Discuss configuration',
     href: '/contact?plan=agency',
     highlight: false,
   },
@@ -61,13 +61,19 @@ export function PricingTeaser() {
     <section className="section" aria-labelledby="pricing-heading">
       <div className="container stack stack-12">
         <div className="stack stack-4" style={{ maxWidth: '52ch' }}>
-          <span className="eyebrow">Example SaaS plans</span>
+          <span
+            className="eyebrow"
+            style={{ fontSize: 'var(--text-sm)', fontWeight: 800, letterSpacing: '0.12em' }}
+          >
+            EXAMPLE SAAS PLANS
+          </span>
           <h2 id="pricing-heading" className="text-balance">
-            A pricing layer you can adapt to the business model.
+            Example models — configure your own commercial offer.
           </h2>
           <p className="lead">
-            These are starter defaults for the application. A buyer can change plans, limits, prices
-            and billing rules before launching.
+            The prices shown here are <strong>0</strong> because these are example configurations,
+            not live commercial offers. Before launch, the buyer defines the actual plans, limits,
+            prices and billing rules.
           </p>
         </div>
         <div
@@ -94,7 +100,7 @@ export function PricingTeaser() {
                   >
                     {plan.price}
                   </span>
-                  <span className="muted">{plan.period}</span>
+                  {plan.period ? <span className="muted">{plan.period}</span> : null}
                 </div>
                 <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
                   {plan.description}
