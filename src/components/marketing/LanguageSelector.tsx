@@ -8,12 +8,14 @@ const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
 ] as const;
 
-function normalizeLanguage(value: string | null) {
-  return LANGUAGES.find((item) => item.code === value)?.code ?? 'en';
+type LanguageCode = (typeof LANGUAGES)[number]['code'];
+
+function normalizeLanguage(value: string | null): LanguageCode {
+  return value === 'it' ? 'it' : 'en';
 }
 
 export function LanguageSelector() {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<LanguageCode>('en');
 
   useEffect(() => {
     const saved = normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
@@ -23,17 +25,25 @@ export function LanguageSelector() {
   }, []);
 
   function changeLanguage(code: string) {
-    const selected = LANGUAGES.find((item) => item.code === code) ?? LANGUAGES[1];
-    setLanguage(selected.code);
-    window.localStorage.setItem(STORAGE_KEY, selected.code);
+    const next = normalizeLanguage(code);
+    const selected = LANGUAGES.find((item) => item.code === next)!;
+
+    // Persist first, then reload so every route gets the same locale from a
+    // clean DOM. MarketingLocale reads this value during its initial effect.
+    window.localStorage.setItem(STORAGE_KEY, next);
     document.documentElement.lang = selected.htmlLang;
-    window.dispatchEvent(new CustomEvent('languagechange', { detail: selected.code }));
+    setLanguage(next);
+    window.location.reload();
   }
 
   return (
     <label className="language-selector" aria-label="Language">
       <span aria-hidden="true">🌐</span>
-      <select value={language} onChange={(event) => changeLanguage(event.target.value)}>
+      <select
+        value={language}
+        onChange={(event) => changeLanguage(event.target.value)}
+        aria-label="Language"
+      >
         {LANGUAGES.map((item) => (
           <option key={item.code} value={item.code}>
             {item.flag} {item.label}
