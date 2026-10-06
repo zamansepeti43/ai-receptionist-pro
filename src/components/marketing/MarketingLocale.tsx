@@ -116,7 +116,7 @@ export function MarketingLocale() {
 
   useEffect(() => {
     let locale = normalize(window.localStorage.getItem(STORAGE_KEY));
-    translateDom(locale);
+    const initialTranslationTimer = window.setTimeout(() => translateDom(locale), 0);
 
     const onLanguageChange = (event: Event) => {
       locale = normalize((event as CustomEvent<string>).detail);
@@ -125,6 +125,7 @@ export function MarketingLocale() {
 
     window.addEventListener('languagechange', onLanguageChange);
     return () => {
+      window.clearTimeout(initialTranslationTimer);
       window.removeEventListener('languagechange', onLanguageChange);
     };
   }, [pathname]);
