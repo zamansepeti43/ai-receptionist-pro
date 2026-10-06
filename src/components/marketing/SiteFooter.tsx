@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
+const CURRENT_YEAR = 2026;
+
 const FOOTER_COLUMNS = [
   {
     title: 'Product',
@@ -73,7 +75,7 @@ export function SiteFooter() {
         <hr className="divider" />
         <div className="row-between" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
           <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-            © {new Date().getFullYear()} {PRODUCT_IDENTITY.name}. Upstream MIT attribution retained.
+            © {CURRENT_YEAR} {PRODUCT_IDENTITY.name}. Upstream MIT attribution retained.
           </p>
           <Link href="/status" className="muted" style={{ fontSize: 'var(--text-xs)' }}>
             Service status
