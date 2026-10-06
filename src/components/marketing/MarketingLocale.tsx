@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 const STORAGE_KEY = 'ai-receptionist-language';
@@ -111,20 +112,22 @@ function translateDom(locale: Locale) {
 }
 
 export function MarketingLocale() {
+  const pathname = usePathname();
+
   useEffect(() => {
     let locale = normalize(window.localStorage.getItem(STORAGE_KEY));
     translateDom(locale);
+
     const onLanguageChange = (event: Event) => {
       locale = normalize((event as CustomEvent<string>).detail);
       translateDom(locale);
     };
+
     window.addEventListener('languagechange', onLanguageChange);
-    const observer = new MutationObserver(() => translateDom(locale));
-    observer.observe(document.body, { childList: true, subtree: true });
     return () => {
       window.removeEventListener('languagechange', onLanguageChange);
-      observer.disconnect();
     };
-  }, []);
+  }, [pathname]);
+
   return null;
 }
