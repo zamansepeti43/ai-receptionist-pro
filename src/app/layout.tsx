@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
+import { MarketingLocale } from '@/components/marketing/MarketingLocale';
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -89,6 +90,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <a href="#main" className="skip-link">
           Skip to content
         </a>
+        <MarketingLocale />
         {children}
       </body>
     </html>
