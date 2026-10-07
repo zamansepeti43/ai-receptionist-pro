@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'ai-receptionist-language';
 type Locale = 'en' | 'tr';
@@ -267,6 +267,8 @@ const PAIRS: ReadonlyArray<readonly [string, string]> = [
   ['Contact us', 'Bize ulaşın'],
 ];
 
+
+
 const EN_TO_TR = new Map(PAIRS);
 const TR_TO_EN = new Map(PAIRS.map(([en, tr]) => [tr, en]));
 
@@ -280,20 +282,13 @@ function translateText(text: string, locale: Locale) {
   const translated = map.get(trimmed);
   if (translated) return text.replace(trimmed, translated);
 
-  if (locale === 'tr') {
-    for (const [en, tr] of PAIRS) {
-      if (trimmed.includes(en) && en !== trimmed) {
-        return text.replace(trimmed, trimmed.split(en).join(tr));
-      }
-    }
-  } else {
-    for (const [en, tr] of PAIRS) {
-      if (trimmed.includes(tr) && tr !== trimmed) {
-        return text.replace(trimmed, trimmed.split(tr).join(en));
-      }
+  for (const [en, tr] of PAIRS) {
+    const from = locale === 'tr' ? en : tr;
+    const to = locale === 'tr' ? tr : en;
+    if (trimmed.includes(from) && from !== trimmed) {
+      return text.replace(trimmed, trimmed.split(from).join(to));
     }
   }
-
   return null;
 }
 
@@ -322,5 +317,23 @@ function translateDom(locale: Locale) {
       if (translated) element.setAttribute(attribute, translated);
     }
   });
+
+  const translatedTitle = translateText(document.title, locale);
+  if (translatedTitle) document.title = translatedTitle;
 }
 
+export function MarketingLocale() {
+  const [pathname, setPathname] = useState('');
+  useEffect(() => {
+    setPathname(window.location.pathname);
+    const apply = () => translateDom(normalize(window.localStorage.getItem(STORAGE_KEY)));
+    apply();
+    window.addEventListener('languagechange', apply);
+    return () => window.removeEventListener('languagechange', apply);
+  }, []);
+  useEffect(() => {
+    if (!pathname) return;
+    translateDom(normalize(window.localStorage.getItem(STORAGE_KEY)));
+  }, [pathname]);
+  return null;
+}
