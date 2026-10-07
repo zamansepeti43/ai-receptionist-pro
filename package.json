@@ -38,7 +38,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "rm -f tsconfig.tsbuildinfo && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=75",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

@@ -19,6 +19,7 @@ const config = [
     ignores: [
       'node_modules/**',
       '.next/**',
+      '.kilo/worktrees/**',
       'dist/**',
       'build/**',
       'coverage/**',
