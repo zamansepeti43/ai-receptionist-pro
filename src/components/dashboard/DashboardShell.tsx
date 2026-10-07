@@ -2,10 +2,10 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 const SIDEBAR_ITEMS = [
-  { href: '/dashboard', label: 'Panoramica', icon: '◐' },
+  { href: '/dashboard', label: 'Dashboard', icon: '◐' },
   { href: '/conversations', label: 'Conversazioni', icon: '✻' },
   { href: '/calendar', label: 'Calendario', icon: '◫' },
-  { href: '/knowledge', label: 'Knowledge base', icon: '☰' },
+  { href: '/knowledge', label: 'Bilgi tabanı', icon: '☰' },
   { href: '/settings', label: 'Impostazioni', icon: '⚙' },
   { href: '/billing', label: 'Fatturazione', icon: '€' },
 ] as const;
