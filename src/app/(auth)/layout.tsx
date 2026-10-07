@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { LanguageSelector } from '@/components/marketing/LanguageSelector';
-import { MarketingLocale } from '@/components/marketing/MarketingLocale';
 
 export default function AuthLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -35,7 +34,6 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
           </Link>
           <LanguageSelector />
         </div>
-        <MarketingLocale />
         <main
           id="main"
           style={{
