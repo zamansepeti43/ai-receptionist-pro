@@ -35,14 +35,8 @@ function exportedHandlers(source: string): string[] {
   const handlers: string[] = [];
 
   for (const handler of VALID_HANDLERS) {
-    const declaration = new RegExp(
-      `\\bexport\\s+(?:async\\s+)?function\\s+${handler}\\b`,
-      'm',
-    );
-    const namedExport = new RegExp(
-      `\\bexport\\s*\\{[^}]*\\b${handler}\\b[^}]*\\}`,
-      'm',
-    );
+    const declaration = new RegExp(`\\bexport\\s+(?:async\\s+)?function\\s+${handler}\\b`, 'm');
+    const namedExport = new RegExp(`\\bexport\\s*\\{[^}]*\\b${handler}\\b[^}]*\\}`, 'm');
 
     if (declaration.test(source) || namedExport.test(source)) {
       handlers.push(handler);
