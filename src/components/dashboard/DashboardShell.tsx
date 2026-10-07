@@ -1,13 +1,16 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { LanguageSelector } from '@/components/marketing/LanguageSelector';
+import { MarketingLocale } from '@/components/marketing/MarketingLocale';
+
 const SIDEBAR_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '◐' },
-  { href: '/conversations', label: 'Conversazioni', icon: '✻' },
-  { href: '/calendar', label: 'Calendario', icon: '◫' },
+  { href: '/conversations', label: 'Görüşmeler', icon: '✻' },
+  { href: '/calendar', label: 'Takvim', icon: '◫' },
   { href: '/knowledge', label: 'Bilgi tabanı', icon: '☰' },
-  { href: '/settings', label: 'Impostazioni', icon: '⚙' },
-  { href: '/billing', label: 'Fatturazione', icon: '€' },
+  { href: '/settings', label: 'Ayarlar', icon: '⚙' },
+  { href: '/billing', label: 'Faturalandırma', icon: '€' },
 ] as const;
 
 export interface DashboardShellProps {
@@ -19,7 +22,7 @@ export interface DashboardShellProps {
 export function DashboardShell({
   children,
   currentPath,
-  tenantName = 'Il tuo studio',
+  tenantName = 'İşletmeniz',
 }: Readonly<DashboardShellProps>) {
   return (
     <div className="dashboard-shell">
@@ -40,7 +43,7 @@ export function DashboardShell({
           }}
         >
           <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-            Tenant attivo
+            Aktif işletme
           </p>
           <p
             style={{
@@ -83,11 +86,13 @@ export function DashboardShell({
         >
           <Link href="/help" className="sidebar-link" style={{ fontSize: 'var(--text-xs)' }}>
             <span aria-hidden="true">?</span>
-            Centro assistenza
+            Yardım merkezi
           </Link>
         </div>
       </aside>
 
+      <MarketingLocale />
+      <div style={{ position: 'absolute', top: 'var(--space-4)', right: 'var(--space-6)', zIndex: 10 }}><LanguageSelector /></div>
       <main className="dashboard-main" id="main">
         {children}
       </main>
