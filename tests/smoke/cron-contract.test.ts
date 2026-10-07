@@ -25,7 +25,7 @@ async function loadCrons(): Promise<Array<{ path: string; schedule: string }>> {
 }
 
 function routeFileFor(cronPath: string): string {
-  return join(PROJECT_ROOT, 'src/app', `${cronPath}/route.ts`);
+  return join(PROJECT_ROOT, 'src/app', cronPath, 'route.ts');
 }
 
 function exportsGetHandler(source: string): boolean {
