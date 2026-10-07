@@ -85,7 +85,7 @@ const PAIRS: ReadonlyArray<readonly [string, string]> = [
   ['Change plan', 'Planı değiştir'],
   ['Limit reached', 'Limit doldu'],
   ['Plan usage', 'Plan kullanımı'],
-  ['Connect WhatsApp', 'WhatsApp'ı bağla'],
+  ["Connect WhatsApp", "WhatsApp'ı bağla"],
   ['No conversations yet', 'Henüz görüşme yok'],
   ['All →', 'Tümü →'],
   ['Recent conversations', 'Son görüşmeler'],
