@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 const STORAGE_KEY = 'ai-receptionist-language';
@@ -325,29 +324,3 @@ function translateDom(locale: Locale) {
   });
 }
 
-export function MarketingLocale() {
-  const pathname = usePathname();
-
-  useEffect(() => {
-    const apply = () => {
-      const locale = normalize(window.localStorage.getItem(STORAGE_KEY));
-      translateDom(locale);
-
-      const title = document.title.trim();
-      const translatedTitle = translateText(title, locale);
-      if (translatedTitle) document.title = translatedTitle;
-    };
-
-    const initialTranslationTimer = window.setTimeout(apply, 0);
-
-    const onLanguageChange = () => apply();
-    window.addEventListener('languagechange', onLanguageChange);
-
-    return () => {
-      window.clearTimeout(initialTranslationTimer);
-      window.removeEventListener('languagechange', onLanguageChange);
-    };
-  }, [pathname]);
-
-  return null;
-}
