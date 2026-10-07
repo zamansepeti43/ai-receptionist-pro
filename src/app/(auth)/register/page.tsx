@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const SETUP_INCLUDES = [
   'WhatsApp numaranızı bağlayın',
   'Takviminizi bağlayın',
-  'İşletme bilgilerini ve SSS'leri yapılandırın',
+  "İşletme bilgilerini ve SSS'leri yapılandırın",
   'İnsan aktarımı kurallarını belirleyin',
 ] as const;
 
