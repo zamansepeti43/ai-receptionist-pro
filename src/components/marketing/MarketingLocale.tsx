@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const STORAGE_KEY = 'ai-receptionist-language';
 type Locale = 'en' | 'tr';
@@ -323,17 +323,11 @@ function translateDom(locale: Locale) {
 }
 
 export function MarketingLocale() {
-  const [pathname, setPathname] = useState('');
   useEffect(() => {
-    setPathname(window.location.pathname);
     const apply = () => translateDom(normalize(window.localStorage.getItem(STORAGE_KEY)));
     apply();
     window.addEventListener('languagechange', apply);
     return () => window.removeEventListener('languagechange', apply);
   }, []);
-  useEffect(() => {
-    if (!pathname) return;
-    translateDom(normalize(window.localStorage.getItem(STORAGE_KEY)));
-  }, [pathname]);
   return null;
 }
