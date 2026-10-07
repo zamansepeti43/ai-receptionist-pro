@@ -183,7 +183,23 @@ function translateText(text: string, locale: Locale) {
   const map = locale === 'tr' ? EN_TO_TR : TR_TO_EN;
   const trimmed = text.trim();
   const translated = map.get(trimmed);
-  return translated ? text.replace(trimmed, translated) : null;
+  if (translated) return text.replace(trimmed, translated);
+
+  if (locale === 'tr') {
+    for (const [en, tr] of PAIRS) {
+      if (trimmed.includes(en) && en !== trimmed) {
+        return text.replace(trimmed, trimmed.split(en).join(tr));
+      }
+    }
+  } else {
+    for (const [en, tr] of PAIRS) {
+      if (trimmed.includes(tr) && tr !== trimmed) {
+        return text.replace(trimmed, trimmed.split(tr).join(en));
+      }
+    }
+  }
+
+  return null;
 }
 
 function translateDom(locale: Locale) {
@@ -204,8 +220,8 @@ function translateDom(locale: Locale) {
     if (next) textNode.nodeValue = next;
   }
 
-  document.querySelectorAll<HTMLElement>('[placeholder],[aria-label]').forEach((element) => {
-    for (const attribute of ['placeholder', 'aria-label'] as const) {
+  document.querySelectorAll<HTMLElement>('[title],[placeholder],[aria-label]').forEach((element) => {
+    for (const attribute of ['title', 'placeholder', 'aria-label'] as const) {
       const value = element.getAttribute(attribute);
       const translated = value ? translateText(value, locale) : null;
       if (translated) element.setAttribute(attribute, translated);
@@ -220,6 +236,10 @@ export function MarketingLocale() {
     const apply = () => {
       const locale = normalize(window.localStorage.getItem(STORAGE_KEY));
       translateDom(locale);
+
+      const title = document.title.trim();
+      const translatedTitle = translateText(title, locale);
+      if (translatedTitle) document.title = translatedTitle;
     };
 
     const initialTranslationTimer = window.setTimeout(apply, 0);
