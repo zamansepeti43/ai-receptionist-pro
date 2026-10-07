@@ -10,20 +10,20 @@ export const metadata: Metadata = {
 };
 
 const SETUP_INCLUDES = [
-  'Connect your WhatsApp number',
-  'Connect your calendar',
-  'Configure business knowledge and FAQs',
-  'Set human handoff rules',
+  'WhatsApp numaranızı bağlayın',
+  'Takviminizi bağlayın',
+  'İşletme bilgilerini ve SSS'leri yapılandırın',
+  'İnsan aktarımı kurallarını belirleyin',
 ] as const;
 
 export default function RegisterPage() {
   return (
     <div className="stack stack-6">
       <div className="stack stack-2">
-        <span className="badge badge-success">Guided setup</span>
-        <h1 style={{ fontSize: 'var(--text-3xl)' }}>Create your account</h1>
+        <span className="badge badge-success">Yönlendirmeli kurulum</span>
+        <h1 style={{ fontSize: 'var(--text-3xl)' }}>Hesabınızı oluşturun</h1>
         <p className="muted">
-          It takes about 60 seconds. You can connect your WhatsApp number and calendar during setup.
+          Yaklaşık 60 saniye sürer. Kurulum sırasında WhatsApp numaranızı ve takviminizi bağlayabilirsiniz.
         </p>
       </div>
 
@@ -57,9 +57,9 @@ export default function RegisterPage() {
       </ul>
 
       <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-        Already have an account?{' '}
+        Zaten bir hesabınız var mı?{' '}
         <Link href="/login" className="btn-link">
-          Sign in
+          Giriş yap
         </Link>
       </p>
     </div>
