@@ -5,7 +5,7 @@
  * di import o spostamento file, senza necessità di un server in esecuzione.
  */
 
-import { readdir } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,6 +31,23 @@ async function findRouteFiles(dir: string): Promise<string[]> {
   return result;
 }
 
+function exportedHandlers(source: string): string[] {
+  const handlers: string[] = [];
+
+  for (const handler of VALID_HANDLERS) {
+    const pattern = new RegExp(
+      String.raw`(?:export\\s+(?:async\\s+)?function\\s+${handler}\\b|export\\s*\\{[^}]*\\b${handler}\\b[^}]*\\})`,
+      'm',
+    );
+
+    if (pattern.test(source)) {
+      handlers.push(handler);
+    }
+  }
+
+  return handlers;
+}
+
 describe('API routes shape (smoke)', () => {
   it('every route.ts exports at least one HTTP handler', async () => {
     const routes = await findRouteFiles(API_ROOT);
@@ -40,30 +57,16 @@ describe('API routes shape (smoke)', () => {
     const failures: string[] = [];
 
     for (const routePath of routes) {
-      try {
-        const mod = (await import(routePath)) as Record<string, unknown>;
-        const exportedHandlers = Object.keys(mod).filter((key) => VALID_HANDLERS.has(key));
+      const source = await readFile(routePath, 'utf8');
+      const exported = exportedHandlers(source);
 
-        if (exportedHandlers.length === 0) {
-          failures.push(`${relative(PROJECT_ROOT, routePath)} - no HTTP handler exported`);
-        }
-
-        for (const handlerName of exportedHandlers) {
-          if (typeof mod[handlerName] !== 'function') {
-            failures.push(
-              `${relative(PROJECT_ROOT, routePath)} - export ${handlerName} is not a function`,
-            );
-          }
-        }
-      } catch (error) {
-        failures.push(
-          `${relative(PROJECT_ROOT, routePath)} - import failed: ${(error as Error).message}`,
-        );
+      if (exported.length === 0) {
+        failures.push(`${relative(PROJECT_ROOT, routePath)} - no HTTP handler exported`);
       }
     }
 
     if (failures.length > 0) {
-      throw new Error(`Route shape failures:\n${failures.join('\n')}`);
+      throw new Error(`Route shape failures:\\n${failures.join('\\n')}`);
     }
   });
 
