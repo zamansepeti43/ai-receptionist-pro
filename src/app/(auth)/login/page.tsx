@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { LoginForm } from '@/components/auth/LoginForm';
 
 export const metadata: Metadata = {
-  title: 'Sign in · AI Receptionist Pro',
-  description: 'Sign in to your AI Receptionist Pro account.',
+  title: 'Giriş yap · AI Receptionist Pro',
+  description: 'Giriş yap to your AI Receptionist Pro account.',
   robots: { index: false, follow: false },
 };
 
@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <div className="stack stack-6">
       <div className="stack stack-2">
-        <h1 style={{ fontSize: 'var(--text-3xl)' }}>Welcome back</h1>
+        <h1 style={{ fontSize: 'var(--text-3xl)' }}>Tekrar hoş geldiniz</h1>
         <p className="muted">
           Enter your email and we&apos;ll send you a secure sign-in link. No password to remember.
         </p>
@@ -31,17 +31,17 @@ export default function LoginPage() {
         <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
           Don&apos;t have an account yet?{' '}
           <Link href="/register" className="btn-link">
-            Create an account
+            Hesap oluştur
           </Link>
         </p>
         <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-          By selecting &quot;Send sign-in link&quot; you agree to the{' '}
+          By selecting &quot;Giriş bağlantısı gönder&quot; you agree to the{' '}
           <Link href="/legal/terms" className="btn-link">
-            terms of service
+            hizmet koşullarını
           </Link>{' '}
           and{' '}
           <Link href="/legal/privacy" className="btn-link">
-            privacy policy
+            gizlilik politikasını
           </Link>
           .
         </p>
