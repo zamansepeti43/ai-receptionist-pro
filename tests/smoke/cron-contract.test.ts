@@ -29,8 +29,8 @@ function routeFileFor(cronPath: string): string {
 }
 
 function exportsGetHandler(source: string): boolean {
-  const declaration = /\\bexport\\s+(?:async\\s+)?function\\s+GET\\b/m;
-  const namedExport = /\\bexport\\s*\\{[^}]*\\bGET\\b[^}]*\\}/m;
+  const declaration = /\bexport\s+(?:async\s+)?function\s+GET\b/m;
+  const namedExport = /\bexport\s*\{[^}]*\bGET\b[^}]*\}/m;
   return declaration.test(source) || namedExport.test(source);
 }
 
