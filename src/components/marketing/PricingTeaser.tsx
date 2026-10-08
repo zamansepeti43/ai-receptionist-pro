@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { useMarketingLocale } from './LanguageSelector';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function PricingTeaser() {
   const { t } = useMarketingLocale();
