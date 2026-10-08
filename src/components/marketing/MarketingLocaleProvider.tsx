@@ -29,11 +29,11 @@ export function MarketingLocaleProvider({ children }: Readonly<{ children: React
     setLanguage(next);
   };
 
-  const value = useMemo(
+  const value = useMemo<MarketingLocaleContextValue>(
     () => ({
       language,
       changeLanguage,
-      t: MARKETING_COPY[language],
+      t: MARKETING_COPY[language] as MarketingCopy,
     }),
     [language],
   );
