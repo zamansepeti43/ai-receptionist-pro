@@ -79,11 +79,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <meta name="format-detection" content="telephone=no" />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body data-csp-nonce={nonce}>
+      <body>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
