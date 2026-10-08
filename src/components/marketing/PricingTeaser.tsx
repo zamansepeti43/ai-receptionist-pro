@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function PricingTeaser() {
-  const { t } = useMarketingLocale();
+  const { t, language } = useMarketingLocale();
 
   const plans = [
     { name: t.starter, description: t.starterBody, features: ['1 WhatsApp Business number','1 Google Calendar','AI conversations','Voice transcription','Core dashboard'], cta: t.configure, href: '/register?plan=starter', highlight: false },
