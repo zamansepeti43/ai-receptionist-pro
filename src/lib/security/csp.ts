@@ -6,9 +6,9 @@
  *
  * Two design choices worth highlighting:
  *
- * 1. We use `'strict-dynamic'` together with a nonce, so any script that we
- *    explicitly nonce can transitively load other scripts without us having
- *    to whitelist their hosts. This is the modern CSP3 pattern.
+ * 1. We use a per-request nonce for inline scripts and explicitly allow
+ *    same-origin scripts. This keeps Next.js static asset scripts loadable while
+ *    still requiring a nonce for inline script execution.
  * 2. The nonce is a base64url string sourced from `crypto.getRandomValues`.
  *    `crypto.randomUUID()` would also work, but we want raw entropy without
  *    the UUID dashes, and we want to stay compatible with the Edge Runtime
@@ -44,7 +44,7 @@ export const CSP_FRAME_SRC: readonly string[] = ["'self'", 'https://js.stripe.co
 /** Origins allowed for <audio>/<video>/blob URLs (TTS playback, Supabase media). */
 export const CSP_MEDIA_SRC: readonly string[] = ["'self'", 'blob:', 'https://*.supabase.co'];
 
-/** Origins allowed for <style>. We keep `'unsafe-inline'` for Next.js streaming styles. */
+/** Origins allowed for <style>. We keep \'unsafe-inline\' for Next.js streaming styles. */
 export const CSP_STYLE_SRC: readonly string[] = ["'self'", "'unsafe-inline'"];
 
 /**
@@ -73,8 +73,7 @@ export function generateNonce(): string {
  *
  * Directives:
  * - `default-src 'self'`: deny by default, allow same-origin.
- * - `script-src`: only nonced inline scripts and same-origin scripts;
- *   `'strict-dynamic'` lets nonced scripts load further scripts at runtime.
+ * - `script-src`: same-origin scripts plus nonced inline scripts.
  * - `style-src`: same-origin + inline (Next.js streaming RSC requires this).
  * - `img-src`: same-origin + data URIs + Supabase + Google avatars.
  * - `font-src`: same-origin + inlined fonts.
@@ -90,7 +89,7 @@ export function generateNonce(): string {
 export function buildContentSecurityPolicy(nonce: string): string {
   const directives: ReadonlyArray<readonly [string, readonly string[]]> = [
     ['default-src', ["'self'"]],
-    ['script-src', ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"]],
+    ['script-src', ["'self'", `'nonce-${nonce}'`]],
     ['style-src', CSP_STYLE_SRC],
     ['img-src', CSP_IMG_SRC],
     ['font-src', CSP_FONT_SRC],
