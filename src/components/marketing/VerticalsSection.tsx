@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function VerticalsSection() {
-  const { t } = useMarketingLocale();
+  const { t, language } = useMarketingLocale();
 
   const verticals = [
     { slug: 'salon', title: 'Salon & Barber', body: 'Appointments by service and duration, with business hours and optional staff-aware configuration.', icon: '✂️' },
@@ -16,10 +16,10 @@ export function VerticalsSection() {
     { slug: 'consulting', title: 'Consulting', body: 'Qualify meeting requests, answer approved FAQs and schedule consultations without double-booking.', icon: '💼' },
   ] as const;
 
-  const titles = [t.navSectors, 'Güzellik ve Yaşam', 'Diş ve Klinik', 'Veteriner', 'Spor Salonu ve Fitness', 'Oto Servis', 'Danışmanlık'];
-  const englishTitles = ['Salon & Barber', 'Beauty & Wellness', 'Dental & Clinic', 'Veterinary', 'Gym & Fitness', 'Auto Service', 'Consulting'];
-  const localizedTitles = t.navSectors === 'Sektörler' ? titles : englishTitles;
-  const localizedBodies = t.navSectors === 'Sektörler'
+  const titles = ['Salon & Barber', 'Beauty & Wellness', 'Dental & Clinic', 'Veterinary', 'Gym & Fitness', 'Auto Service', 'Consulting'];
+  const turkishTitles = ['Güzellik ve Yaşam', 'Diş ve Klinik', 'Veteriner', 'Spor Salonu ve Fitness', 'Oto Servis', 'Danışmanlık'];
+  const localizedTitles = language === 'tr' ? [titles[0], ...turkishTitles] : titles;
+  const localizedBodies = language === 'tr'
     ? [
         'Hizmet ve süreye göre, çalışma saatleri ve isteğe bağlı personel ayarlarıyla randevu oluşturun.',
         'Bakım sorularını, hizmet sürelerini ve randevu taleplerini tek akışta yönetin.',
