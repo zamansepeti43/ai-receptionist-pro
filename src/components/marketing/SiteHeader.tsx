@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
-import { LanguageSelector, useMarketingLocale } from './LanguageSelector';
+import { LanguageSelector, useMarketingLocale } from './MarketingLocaleProvider';
 
 export function SiteHeader() {
   const { t } = useMarketingLocale();
