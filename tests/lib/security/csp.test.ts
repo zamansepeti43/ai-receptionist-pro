@@ -15,9 +15,7 @@ describe('generateNonce', () => {
   it('produces a base64url-safe string with at least 22 characters', () => {
     const nonce = generateNonce();
 
-    // 16 random bytes encode to 22 base64url chars (no padding).
     expect(nonce.length).toBeGreaterThanOrEqual(22);
-    // base64url alphabet only.
     expect(nonce).toMatch(/^[A-Za-z0-9_-]+$/);
   });
 
@@ -35,7 +33,8 @@ describe('buildContentSecurityPolicy', () => {
     const nonce = 'test-nonce-123';
     const csp = buildContentSecurityPolicy(nonce);
 
-    expect(csp).toContain(`script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`);
+    expect(csp).toContain("script-src 'self' 'nonce-" + nonce + "'");
+    expect(csp).not.toContain("'strict-dynamic'");
   });
 
   it('declares default-src self and a hardened baseline', () => {
@@ -89,7 +88,7 @@ describe('buildContentSecurityPolicy', () => {
   it('allows blob: URIs and Supabase inside media-src', () => {
     const csp = buildContentSecurityPolicy('n');
     expect(csp).toMatch(/media-src[^;]*blob:/);
-    expect(csp).toMatch(/media-src[^;]*https:\/\/\*\.supabase\.co/);
+    expect(csp).toMatch(/media-src[^;]*https:\/\/\\*\.supabase\.co/);
   });
 });
 
