@@ -20,18 +20,15 @@ export function LanguageSelector() {
   useEffect(() => {
     const saved = normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
     setLanguage(saved);
-    const selected = LANGUAGES.find((item) => item.code === saved)!;
-    document.documentElement.lang = selected.htmlLang;
   }, []);
 
   function changeLanguage(code: string) {
     const next = normalizeLanguage(code);
-    const selected = LANGUAGES.find((item) => item.code === next)!;
-
     window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = selected.htmlLang;
     setLanguage(next);
-    window.dispatchEvent(new CustomEvent('languagechange'));
+
+    document.documentElement.lang = next === 'tr' ? 'tr-TR' : 'en-US';
+    window.dispatchEvent(new CustomEvent('languagechange', { detail: next }));
   }
 
   return (
