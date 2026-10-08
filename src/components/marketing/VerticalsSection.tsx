@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMarketingLocale } from './LanguageSelector';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function VerticalsSection() {
   const { t } = useMarketingLocale();
