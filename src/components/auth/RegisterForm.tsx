@@ -21,7 +21,7 @@ export function RegisterForm() {
   const isSubmitting = state.status === 'submitting';
 
   return (
-    <form onSubmit={onSubmit} className="stack stack-4" noValidate>
+    <form onSubmit={(event) => { void onSubmit(event); }} className="stack stack-4" noValidate>
       <FormFeedback state={state} id="register-form-errors" />
       <div className="field">
         <label htmlFor="business_name" className="label">
