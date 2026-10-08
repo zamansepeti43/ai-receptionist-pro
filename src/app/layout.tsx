@@ -63,8 +63,7 @@ const websiteSchema = {
   url: SITE_URL,
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const nonce: string | undefined = undefined;
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
