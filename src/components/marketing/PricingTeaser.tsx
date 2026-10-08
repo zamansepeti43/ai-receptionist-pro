@@ -35,7 +35,7 @@ export function PricingTeaser() {
   const featureMap = new Map(trFeatures);
   const localizedPlans = plans.map((plan) => ({
     ...plan,
-    features: plan.features.map((f) => t.starter === 'Başlangıç' ? featureMap.get(f) ?? f : f),
+    features: plan.features.map((f) => language === 'tr' ? featureMap.get(f) ?? f : f),
   }));
 
   return (
