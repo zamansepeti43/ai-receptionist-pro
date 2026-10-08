@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
 import { LanguageSelector } from './LanguageSelector';
+import { MarketingLocale } from './MarketingLocale';
 
 const NAV_LINKS = [
   { href: '/#features', label: 'Features' },
@@ -38,6 +39,7 @@ export function SiteHeader() {
           </Link>
         </div>
       </div>
+      <MarketingLocale />
     </header>
   );
 }
