@@ -12,6 +12,7 @@ const inter = Inter({
   preload: true,
   variable: '--font-inter',
 });
+
 const fraunces = Fraunces({
   subsets: ['latin', 'latin-ext'],
   display: 'swap',
@@ -19,6 +20,7 @@ const fraunces = Fraunces({
   variable: '--font-fraunces',
   axes: ['opsz', 'SOFT'],
 });
+
 const SITE_URL = process.env['NEXT_PUBLIC_SITE_URL'] ?? 'http://localhost:3000';
 
 export const metadata: Metadata = {
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', locale: 'en_US', url: SITE_URL, siteName: PRODUCT_IDENTITY.name },
   alternates: {
     canonical: '/',
-    languages: { 'en-US': SITE_URL, 'it-IT': `${SITE_URL}?lang=it`, 'x-default': SITE_URL },
+    languages: { 'en-US': SITE_URL, 'tr-TR': `${SITE_URL}?lang=tr`, 'x-default': SITE_URL },
   },
   appleWebApp: { capable: true, title: PRODUCT_IDENTITY.name, statusBarStyle: 'default' },
   other: { 'msapplication-TileColor': '#0d766e' },
@@ -62,10 +64,12 @@ const websiteSchema = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: SITE_URL,
+  inLanguage: ['en-US', 'tr-TR'],
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const nonce = (await headers()).get('x-nonce') ?? undefined;
+
   return (
     <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
