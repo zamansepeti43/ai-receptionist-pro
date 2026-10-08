@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
+import { MarketingLocaleProvider } from '@/components/marketing/MarketingLocaleProvider';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
 const inter = Inter({
@@ -93,7 +94,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        {children}
+        <MarketingLocaleProvider>{children}</MarketingLocaleProvider>
       </body>
     </html>
   );
