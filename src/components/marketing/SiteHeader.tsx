@@ -1,15 +1,20 @@
-import Link from 'next/link';
-import { PRODUCT_IDENTITY } from '@/config/product-identity';
-import { LanguageSelector } from './LanguageSelector';
+'use client';
 
-const NAV_LINKS = [
-  { href: '/#features', label: 'Features' },
-  { href: '/verticali', label: 'Sectors' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/help', label: 'Help' },
-] as const;
+import Link from 'next/link';
+
+import { PRODUCT_IDENTITY } from '@/config/product-identity';
+import { LanguageSelector, useMarketingCopy } from './LanguageSelector';
 
 export function SiteHeader() {
+  const { copy } = useMarketingCopy();
+
+  const navLinks = [
+    { href: '/#features', label: copy.navFeatures },
+    { href: '/verticali', label: copy.navSectors },
+    { href: '/pricing', label: copy.navPricing },
+    { href: '/help', label: copy.navHelp },
+  ] as const;
+
   return (
     <header className="site-header" role="banner">
       <div className="container site-header-inner">
@@ -18,7 +23,7 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Main navigation">
           <ul className="site-nav">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href}>{link.label}</Link>
               </li>
@@ -28,13 +33,13 @@ export function SiteHeader() {
         <div className="row site-header-actions" style={{ gap: 'var(--space-3)' }}>
           <LanguageSelector />
           <Link href="/pricing" className="btn btn-ghost btn-sm site-header-mobile-link">
-            Menu
+            {copy.menu}
           </Link>
           <Link href="/login" className="btn btn-ghost btn-sm">
-            Sign in
+            {copy.signIn}
           </Link>
           <Link href="/register" className="btn btn-primary btn-sm">
-            Get started
+            {copy.getStarted}
           </Link>
         </div>
       </div>
