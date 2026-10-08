@@ -68,7 +68,8 @@ const websiteSchema = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  const requestHeaders = await headers();
+  const nonce = requestHeaders.get('x-nonce') ?? undefined;
 
   return (
     <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
