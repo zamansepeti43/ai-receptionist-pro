@@ -1,42 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
-const STORAGE_KEY = 'ai-receptionist-language';
 const LANGUAGES = [
-  { code: 'tr', label: 'Türkçe', flag: '🇹🇷', htmlLang: 'tr-TR' },
-  { code: 'en', label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
+  { code: 'tr' as const, label: 'Türkçe', flag: '🇹🇷' },
+  { code: 'en' as const, label: 'English', flag: '🇬🇧' },
 ] as const;
 
-type LanguageCode = (typeof LANGUAGES)[number]['code'];
-
-function normalizeLanguage(value: string | null): LanguageCode {
-  return value === 'en' ? 'en' : 'tr';
-}
-
 export function LanguageSelector() {
-  const [language, setLanguage] = useState<LanguageCode>('tr');
-
-  useEffect(() => {
-    const saved = normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
-    setLanguage(saved);
-    const selected = LANGUAGES.find((item) => item.code === saved)!;
-    document.documentElement.lang = selected.htmlLang;
-  }, []);
-
-  function changeLanguage(value: string) {
-    const next = normalizeLanguage(value);
-    const selected = LANGUAGES.find((item) => item.code === next)!;
-    window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = selected.htmlLang;
-    setLanguage(next);
-    window.location.reload();
-  }
+  const { language, changeLanguage } = useMarketingLocale();
 
   return (
     <label className="language-selector" aria-label="Dil / Language">
       <span aria-hidden="true">🌐</span>
-      <select value={language} onChange={(event) => changeLanguage(event.target.value)} aria-label="Dil / Language">
+      <select
+        value={language}
+        onChange={(event) => changeLanguage(event.target.value as 'tr' | 'en')}
+        aria-label="Dil / Language"
+      >
         {LANGUAGES.map((item) => (
           <option key={item.code} value={item.code}>
             {item.flag} {item.label}
