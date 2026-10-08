@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 
 const STORAGE_KEY = 'ai-receptionist-language';
-const LANGUAGES = [
-  { code: 'tr', label: 'Türkçe', flag: '🇹🇷', htmlLang: 'tr-TR' },
-  { code: 'en', label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
-] as const;
 
-type LanguageCode = (typeof LANGUAGES)[number]['code'];
+export type Locale = 'en' | 'tr';
+
+const LANGUAGES = [
+  { code: 'tr' as const, label: 'Türkçe', flag: '🇹🇷', htmlLang: 'tr-TR' },
+  { code: 'en' as const, label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
+];
 
 const EN = {
   navFeatures: 'Features',
@@ -19,7 +19,6 @@ const EN = {
   menu: 'Menu',
   signIn: 'Sign in',
   getStarted: 'Get started',
-  skip: 'Skip to content',
   heroEyebrow: '24/7 AI receptionist · WhatsApp first',
   heroTitle: 'Your front desk, always on.',
   heroBody:
@@ -34,42 +33,31 @@ const EN = {
   featureIntro:
     'Focused on the customer journey: understand the request, check the real business state, take the right action, and escalate when automation should stop.',
   whatsapp: 'WhatsApp conversations',
-  whatsappBody:
-    'Receive customer text and voice messages, understand intent, collect missing details, and respond consistently.',
+  whatsappBody: 'Receive customer text and voice messages, understand intent, collect missing details, and respond consistently.',
   booking: 'Real appointment booking',
-  bookingBody:
-    'Check actual availability and create appointments without offering times that are already occupied.',
+  bookingBody: 'Check actual availability and create appointments without offering times that are already occupied.',
   handoff: 'Human handoff',
-  handoffBody:
-    'Stop automation when a customer asks for a person or a configured guardrail is triggered, while preserving conversation context.',
+  handoffBody: 'Stop automation when a customer asks for a person or a configured guardrail is triggered, while preserving conversation context.',
   knowledge: 'Knowledge base',
-  knowledgeBody:
-    'Answer from business-approved information such as services, policies, FAQs and location details.',
+  knowledgeBody: 'Answer from business-approved information such as services, policies, FAQs and location details.',
   whiteLabel: 'White-label controls',
   whiteLabelBody: 'Configure the business name, logo, colors and assistant identity for each tenant.',
   usage: 'Usage and billing',
-  usageBody:
-    'Track usage and connect billing so the application can be operated as a controlled SaaS product.',
+  usageBody: 'Track usage and connect billing so the application can be operated as a controlled SaaS product.',
   sectorHeading: 'One core product. Seven starting points.',
-  sectorIntro:
-    'Each preset gives the business a useful starting configuration. Services, hours, assistant behavior and branding remain editable.',
+  sectorIntro: 'Each preset gives the business a useful starting configuration. Services, hours, assistant behavior and branding remain editable.',
   explore: 'Explore preset',
   howHeading: 'Three steps from setup to a working digital receptionist.',
-  howIntro:
-    'The product keeps configuration separate from the business logic, so a buyer can adapt the same application to different service businesses.',
+  howIntro: 'The product keeps configuration separate from the business logic, so a buyer can adapt the same application to different service businesses.',
   step1: 'Configure the business',
-  step1Body:
-    'Set the business identity, sector, services, working hours, assistant behavior and knowledge base.',
+  step1Body: 'Set the business identity, sector, services, working hours, assistant behavior and knowledge base.',
   step2: 'Connect the integrations',
-  step2Body:
-    'Connect WhatsApp Business, Google Calendar and any optional providers using accounts owned by the business.',
+  step2Body: 'Connect WhatsApp Business, Google Calendar and any optional providers using accounts owned by the business.',
   step3: 'Let the workflow run',
-  step3Body:
-    'Customers ask questions and request appointments. The assistant checks real availability, books, confirms, and hands off to a human when needed.',
+  step3Body: 'Customers ask questions and request appointments. The assistant checks real availability, books, confirms, and hands off to a human when needed.',
   pricingEyebrow: 'EXAMPLE SAAS PLANS',
   pricingHeading: 'Example models — configure your own commercial offer.',
-  pricingIntro:
-    'The prices shown here are 0 because these are example configurations, not live commercial offers. Before launch, the buyer defines the actual plans, limits, prices and billing rules.',
+  pricingIntro: 'The prices shown here are 0 because these are example configurations, not live commercial offers. Before launch, the buyer defines the actual plans, limits, prices and billing rules.',
   starter: 'Starter',
   professional: 'Professional',
   agency: 'Agency',
@@ -81,8 +69,7 @@ const EN = {
   discuss: 'Discuss configuration',
   ctaEyebrow: 'Ready to configure your receptionist?',
   ctaHeading: 'Turn customer messages into completed appointments.',
-  ctaBody:
-    'Start with a sector preset, connect the business integrations, and adapt the assistant to the way the business actually works.',
+  ctaBody: 'Start with a sector preset, connect the business integrations, and adapt the assistant to the way the business actually works.',
   viewPlans: 'View plans',
   product: 'Product',
   resources: 'Resources',
@@ -109,11 +96,9 @@ const TR = {
   menu: 'Menü',
   signIn: 'Giriş yap',
   getStarted: 'Başlayın',
-  skip: 'İçeriğe geç',
   heroEyebrow: '7/24 AI resepsiyon · WhatsApp öncelikli',
   heroTitle: 'Resepsiyonunuz, her zaman açık.',
-  heroBody:
-    'AI Receptionist Pro müşteri sorularını yanıtlar, gerçek uygunluğu kontrol eder, randevuları oluşturur, değişiklikleri onaylar ve gerektiğinde görüşmeyi bir insana aktarır.',
+  heroBody: 'AI Receptionist Pro müşteri sorularını yanıtlar, gerçek uygunluğu kontrol eder, randevuları oluşturur, değişiklikleri onaylar ve gerektiğinde görüşmeyi bir insana aktarır.',
   startSetup: 'Kuruluma başlayın',
   seeHow: 'Nasıl çalıştığını görün',
   customerCoverage: 'Müşteri kapsamı',
@@ -121,44 +106,33 @@ const TR = {
   humanHandoff: 'İnsan aktarımı',
   coreCapabilities: 'Temel yetenekler',
   featureHeading: 'Resepsiyonun ihtiyaç duyduğu her şey, tek bir akışta.',
-  featureIntro:
-    'Müşteri yolculuğuna odaklanır: talebi anlayın, işletmenin gerçek durumunu kontrol edin, doğru işlemi yapın ve otomasyonun durması gerektiğinde insan desteğine aktarın.',
+  featureIntro: 'Müşteri yolculuğuna odaklanır: talebi anlayın, işletmenin gerçek durumunu kontrol edin, doğru işlemi yapın ve otomasyonun durması gerektiğinde insan desteğine aktarın.',
   whatsapp: 'WhatsApp görüşmeleri',
-  whatsappBody:
-    'Müşteri metin ve sesli mesajlarını alın, amacı anlayın, eksik bilgileri toplayın ve tutarlı yanıtlar verin.',
+  whatsappBody: 'Müşteri metin ve sesli mesajlarını alın, amacı anlayın, eksik bilgileri toplayın ve tutarlı yanıtlar verin.',
   booking: 'Gerçek randevu oluşturma',
   bookingBody: 'Gerçek uygunluğu kontrol edin ve dolu saatleri önermeden randevu oluşturun.',
   handoff: 'İnsan aktarımı',
-  handoffBody:
-    'Müşteri bir kişi istediğinde veya bir kural tetiklendiğinde otomasyonu durdurun; görüşme bağlamını koruyun.',
+  handoffBody: 'Müşteri bir kişi istediğinde veya bir kural tetiklendiğinde otomasyonu durdurun; görüşme bağlamını koruyun.',
   knowledge: 'Bilgi tabanı',
-  knowledgeBody:
-    'Hizmetler, politikalar, SSS ve konum bilgileri gibi işletmenin onayladığı bilgilerle yanıt verin.',
+  knowledgeBody: 'Hizmetler, politikalar, SSS ve konum bilgileri gibi işletmenin onayladığı bilgilerle yanıt verin.',
   whiteLabel: 'Beyaz etiket ayarları',
   whiteLabelBody: 'Her işletme için ad, logo, renkler ve asistan kimliğini yapılandırın.',
   usage: 'Kullanım ve faturalandırma',
-  usageBody:
-    'Kullanımı izleyin ve faturalandırmayı bağlayarak ürünü kontrollü bir SaaS olarak yönetin.',
+  usageBody: 'Kullanımı izleyin ve faturalandırmayı bağlayarak ürünü kontrollü bir SaaS olarak yönetin.',
   sectorHeading: 'Tek ürün. Yedi başlangıç noktası.',
-  sectorIntro:
-    'Her şablon işletmeye kullanışlı bir başlangıç yapılandırması sunar. Hizmetler, çalışma saatleri, asistan davranışı ve marka ayarları düzenlenebilir.',
+  sectorIntro: 'Her şablon işletmeye kullanışlı bir başlangıç yapılandırması sunar. Hizmetler, çalışma saatleri, asistan davranışı ve marka ayarları düzenlenebilir.',
   explore: 'Şablonu inceleyin',
   howHeading: 'Kurulumdan çalışan dijital resepsiyona üç adım.',
-  howIntro:
-    'Ürün, yapılandırmayı iş mantığından ayrı tutar; böylece aynı uygulama farklı hizmet işletmelerine uyarlanabilir.',
+  howIntro: 'Ürün, yapılandırmayı iş mantığından ayrı tutar; böylece aynı uygulama farklı hizmet işletmelerine uyarlanabilir.',
   step1: 'İşletmeyi yapılandırın',
-  step1Body:
-    'İşletme kimliğini, sektörü, hizmetleri, çalışma saatlerini, asistan davranışını ve bilgi tabanını ayarlayın.',
+  step1Body: 'İşletme kimliğini, sektörü, hizmetleri, çalışma saatlerini, asistan davranışını ve bilgi tabanını ayarlayın.',
   step2: 'Entegrasyonları bağlayın',
-  step2Body:
-    'WhatsApp Business, Google Takvim ve isteğe bağlı sağlayıcıları işletmenin kendi hesaplarıyla bağlayın.',
+  step2Body: 'WhatsApp Business, Google Takvim ve isteğe bağlı sağlayıcıları işletmenin kendi hesaplarıyla bağlayın.',
   step3: 'Akışı çalıştırın',
-  step3Body:
-    'Müşteriler soru sorar ve randevu ister. Asistan gerçek uygunluğu kontrol eder, randevu oluşturur, onaylar ve gerektiğinde insana aktarır.',
+  step3Body: 'Müşteriler soru sorar ve randevu ister. Asistan gerçek uygunluğu kontrol eder, randevu oluşturur, onaylar ve gerektiğinde insana aktarır.',
   pricingEyebrow: 'ÖRNEK SAAS PLANLARI',
   pricingHeading: 'Örnek modeller — ticari teklifinizi kendiniz yapılandırın.',
-  pricingIntro:
-    'Buradaki fiyatlar 0’dır çünkü bunlar gerçek ticari teklifler değil, örnek yapılandırmalardır. Yayına almadan önce gerçek planları, limitleri, fiyatları ve faturalandırma kurallarını belirleyin.',
+  pricingIntro: 'Buradaki fiyatlar 0’dır çünkü bunlar gerçek ticari teklifler değil, örnek yapılandırmalardır. Yayına almadan önce gerçek planları, limitleri, fiyatları ve faturalandırma kurallarını belirleyin.',
   starter: 'Başlangıç',
   professional: 'Profesyonel',
   agency: 'Ajans',
@@ -170,8 +144,7 @@ const TR = {
   discuss: 'Yapılandırmayı görüşün',
   ctaEyebrow: 'Resepsiyonunuzu yapılandırmaya hazır mısınız?',
   ctaHeading: 'Müşteri mesajlarını tamamlanmış randevulara dönüştürün.',
-  ctaBody:
-    'Bir sektör şablonuyla başlayın, işletme entegrasyonlarını bağlayın ve asistanı işletmenizin gerçek çalışma biçimine göre uyarlayın.',
+  ctaBody: 'Bir sektör şablonuyla başlayın, işletme entegrasyonlarını bağlayın ve asistanı işletmenizin gerçek çalışma biçimine göre uyarlayın.',
   viewPlans: 'Planları görün',
   product: 'Ürün',
   resources: 'Kaynaklar',
@@ -190,44 +163,36 @@ const TR = {
   multiSectorBadge: 'Çoklu sektör',
 } as const;
 
+export type MarketingCopy = typeof EN;
+
 export function useMarketingLocale() {
-  const pathname = usePathname();
-  const [language, setLanguage] = useState<LanguageCode>('tr');
+  const [language, setLanguage] = useState<Locale>('tr');
 
   useEffect(() => {
-    setLanguage(normalizeLanguage(window.localStorage.getItem(STORAGE_KEY)));
-  }, [pathname]);
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const next: Locale = saved === 'en' ? 'en' : 'tr';
+    setLanguage(next);
+    document.documentElement.lang = next === 'tr' ? 'tr-TR' : 'en-US';
+  }, []);
 
-  useEffect(() => {
-    document.documentElement.lang = language === 'tr' ? 'tr-TR' : 'en-US';
-  }, [language]);
-
-  function changeLanguage(code: string) {
-    const next = normalizeLanguage(code);
+  function changeLanguage(next: Locale) {
     window.localStorage.setItem(STORAGE_KEY, next);
+    document.documentElement.lang = next === 'tr' ? 'tr-TR' : 'en-US';
     setLanguage(next);
   }
 
-  return {
-    language,
-    changeLanguage,
-    t: language === 'tr' ? TR : EN,
-  } as const;
-}
-
-function normalizeLanguage(value: string | null): LanguageCode {
-  return value === 'en' ? 'en' : 'tr';
+  return { language, changeLanguage, t: language === 'tr' ? TR : EN } as const;
 }
 
 export function LanguageSelector() {
-  const { language, changeLanguage, t } = useMarketingLocale();
+  const { language, changeLanguage } = useMarketingLocale();
 
   return (
     <label className="language-selector" aria-label="Dil">
       <span aria-hidden="true">🌐</span>
       <select
         value={language}
-        onChange={(event) => changeLanguage(event.target.value)}
+        onChange={(event) => changeLanguage(event.target.value as Locale)}
         aria-label="Dil"
       >
         {LANGUAGES.map((item) => (
