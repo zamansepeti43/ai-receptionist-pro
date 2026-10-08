@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
-import { LanguageSelector, useMarketingLocale } from './MarketingLocaleProvider';
+import { LanguageSelector } from './LanguageSelector';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function SiteHeader() {
   const { t } = useMarketingLocale();
@@ -17,7 +18,7 @@ export function SiteHeader() {
   return (
     <header className="site-header" role="banner">
       <div className="container site-header-inner">
-        <Link href="/" className="site-logo" aria-label={`${PRODUCT_IDENTITY.name} - homepage`}>
+        <Link href="/" className="site-logo" aria-label="${PRODUCT_IDENTITY.name} - homepage">
           {PRODUCT_IDENTITY.name}
         </Link>
         <nav aria-label="Main navigation">
