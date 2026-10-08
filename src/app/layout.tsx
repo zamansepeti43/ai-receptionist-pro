@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
+import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
@@ -63,7 +64,8 @@ const websiteSchema = {
   url: SITE_URL,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   return (
     <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
@@ -78,10 +80,11 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <meta name="format-detection" content="telephone=no" />
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body>
+      <body data-csp-nonce={nonce}>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
