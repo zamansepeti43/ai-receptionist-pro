@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { LanguageSelector } from '@/components/marketing/LanguageSelector';
-import { MarketingLocale } from '@/components/marketing/MarketingLocale';
 
 const SIDEBAR_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: '◐' },
@@ -26,34 +25,14 @@ export function DashboardShell({
 }: Readonly<DashboardShellProps>) {
   return (
     <div className="dashboard-shell">
-      <aside className="sidebar" aria-label="Navigazione dashboard">
-        <Link
-          href="/dashboard"
-          className="site-logo"
-          style={{ fontSize: 'var(--text-base)', display: 'block' }}
-        >
+      <aside className="sidebar" aria-label="Kenar menüsü">
+        <Link href="/dashboard" className="site-logo" style={{ fontSize: 'var(--text-base)', display: 'block' }}>
           Ambrogio<span style={{ color: 'var(--color-accent)' }}>.ai</span>
         </Link>
 
-        <div
-          className="surface-flat"
-          style={{
-            padding: 'var(--space-3) var(--space-4)',
-            marginTop: 'var(--space-5)',
-          }}
-        >
-          <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-            Aktif işletme
-          </p>
-          <p
-            style={{
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-              marginTop: '2px',
-            }}
-          >
-            {tenantName}
-          </p>
+        <div className="surface-flat" style={{ padding: 'var(--space-3) var(--space-4)', marginTop: 'var(--space-5)' }}>
+          <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>Aktif işletme</p>
+          <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, marginTop: '2px' }}>{tenantName}</p>
         </div>
 
         <ul className="sidebar-nav">
@@ -61,14 +40,8 @@ export function DashboardShell({
             const active = currentPath === item.href;
             return (
               <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="sidebar-link"
-                  aria-current={active ? 'page' : undefined}
-                >
-                  <span aria-hidden="true" style={{ width: '1.25rem' }}>
-                    {item.icon}
-                  </span>
+                <Link href={item.href} className="sidebar-link" aria-current={active ? 'page' : undefined}>
+                  <span aria-hidden="true" style={{ width: '1.25rem' }}>{item.icon}</span>
                   {item.label}
                 </Link>
               </li>
@@ -76,14 +49,7 @@ export function DashboardShell({
           })}
         </ul>
 
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 'var(--space-6)',
-            left: 'var(--space-6)',
-            right: 'var(--space-6)',
-          }}
-        >
+        <div style={{ position: 'absolute', bottom: 'var(--space-6)', left: 'var(--space-6)', right: 'var(--space-6)' }}>
           <Link href="/help" className="sidebar-link" style={{ fontSize: 'var(--text-xs)' }}>
             <span aria-hidden="true">?</span>
             Yardım merkezi
@@ -91,8 +57,10 @@ export function DashboardShell({
         </div>
       </aside>
 
-      <MarketingLocale />
-      <div style={{ position: 'absolute', top: 'var(--space-4)', right: 'var(--space-6)', zIndex: 10 }}><LanguageSelector /></div>
+      <div style={{ position: 'absolute', top: 'var(--space-4)', right: 'var(--space-6)', zIndex: 10 }}>
+        <LanguageSelector />
+      </div>
+
       <main className="dashboard-main" id="main">
         {children}
       </main>
