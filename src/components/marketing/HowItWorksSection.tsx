@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useMarketingLocale } from './LanguageSelector';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function HowItWorksSection() {
   const { t } = useMarketingLocale();
