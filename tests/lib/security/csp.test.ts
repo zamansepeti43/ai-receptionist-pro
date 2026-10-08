@@ -14,7 +14,6 @@ import {
 describe('generateNonce', () => {
   it('produces a base64url-safe string with at least 22 characters', () => {
     const nonce = generateNonce();
-
     expect(nonce.length).toBeGreaterThanOrEqual(22);
     expect(nonce).toMatch(/^[A-Za-z0-9_-]+$/);
   });
@@ -88,7 +87,7 @@ describe('buildContentSecurityPolicy', () => {
   it('allows blob: URIs and Supabase inside media-src', () => {
     const csp = buildContentSecurityPolicy('n');
     expect(csp).toMatch(/media-src[^;]*blob:/);
-    expect(csp).toMatch(/media-src[^;]*https:\/\/\\*\.supabase\.co/);
+    expect(csp).toMatch(/media-src[^;]*https:\/\/\*\.supabase\.co/);
   });
 });
 
