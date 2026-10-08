@@ -2,47 +2,37 @@
 
 import { useEffect, useState } from 'react';
 
-const STORAGE_KEY = 'ai-receptionist-language';
+import { MARKETING_COPY, STORAGE_KEY, type Locale } from '@/i18n/marketing';
+
 const LANGUAGES = [
-  { code: 'it', label: 'Italiano', flag: '🇮🇹', htmlLang: 'it-IT' },
-  { code: 'en', label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
-] as const;
-
-type LanguageCode = (typeof LANGUAGES)[number]['code'];
-
-function normalizeLanguage(value: string | null): LanguageCode {
-  return value === 'it' ? 'it' : 'en';
-}
+  { code: 'tr' as const, label: 'Türkçe', flag: '🇹🇷', htmlLang: 'tr-TR' },
+  { code: 'en' as const, label: 'English', flag: '🇬🇧', htmlLang: 'en-US' },
+];
 
 export function LanguageSelector() {
-  const [language, setLanguage] = useState<LanguageCode>('en');
+  const [locale, setLocale] = useState<Locale>('tr');
 
   useEffect(() => {
-    const saved = normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
-    setLanguage(saved);
-    const selected = LANGUAGES.find((item) => item.code === saved)!;
-    document.documentElement.lang = selected.htmlLang;
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    const next: Locale = saved === 'en' ? 'en' : 'tr';
+    setLocale(next);
+    document.documentElement.lang = next === 'tr' ? 'tr-TR' : 'en-US';
   }, []);
 
-  function changeLanguage(code: string) {
-    const next = normalizeLanguage(code);
-    const selected = LANGUAGES.find((item) => item.code === next)!;
-
-    // Persist first, then reload so every route gets the same locale from a
-    // clean DOM. MarketingLocale reads this value during its initial effect.
+  function changeLanguage(next: Locale) {
     window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = selected.htmlLang;
-    setLanguage(next);
-    window.location.reload();
+    setLocale(next);
+    document.documentElement.lang = next === 'tr' ? 'tr-TR' : 'en-US';
+    window.dispatchEvent(new CustomEvent('languagechange', { detail: next }));
   }
 
   return (
-    <label className="language-selector" aria-label="Language">
+    <label className="language-selector" aria-label="Dil">
       <span aria-hidden="true">🌐</span>
       <select
-        value={language}
-        onChange={(event) => changeLanguage(event.target.value)}
-        aria-label="Language"
+        value={locale}
+        onChange={(event) => changeLanguage(event.target.value as Locale)}
+        aria-label="Dil"
       >
         {LANGUAGES.map((item) => (
           <option key={item.code} value={item.code}>
@@ -52,4 +42,24 @@ export function LanguageSelector() {
       </select>
     </label>
   );
+}
+
+export function useMarketingCopy() {
+  const [locale, setLocale] = useState<Locale>('tr');
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    setLocale(saved === 'en' ? 'en' : 'tr');
+  }, []);
+
+  useEffect(() => {
+    const onLanguageChange = (event: Event) => {
+      const detail = (event as CustomEvent<Locale>).detail;
+      setLocale(detail === 'en' ? 'en' : 'tr');
+    };
+    window.addEventListener('languagechange', onLanguageChange);
+    return () => window.removeEventListener('languagechange', onLanguageChange);
+  }, []);
+
+  return { locale, copy: MARKETING_COPY[locale] } as const;
 }
