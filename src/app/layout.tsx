@@ -68,7 +68,10 @@ const websiteSchema = {
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const requestHeaders = await headers();
-  const nonce = requestHeaders.get('x-nonce') ?? undefined;
+  // Reading the nonce keeps the request-specific CSP available to the layout.
+  // Do not put it on the JSON-LD data script: browsers intentionally hide nonce
+  // attributes from getAttribute(), which can trigger React hydration mismatches.
+  requestHeaders.get('x-nonce');
 
   return (
     <html lang="tr-TR" className={`${inter.variable} ${fraunces.variable}`}>
@@ -84,11 +87,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <meta name="format-detection" content="telephone=no" />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body data-csp-nonce={nonce}>
+      <body>
         <a href="#main" className="skip-link">
           İçeriğe geç
         </a>
