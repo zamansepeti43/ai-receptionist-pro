@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './helpers/english-locale-test';
 
 import { gotoOk } from './helpers/page-signals';
 
