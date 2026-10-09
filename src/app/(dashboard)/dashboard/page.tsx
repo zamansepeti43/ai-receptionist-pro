@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-
 import { DashboardTranslations } from '@/components/dashboard/DashboardTranslations';
 import { requireSession } from '@/lib/auth/session';
 import type { AuthSession } from '@/lib/auth/session';
@@ -47,7 +46,6 @@ export default async function DashboardPage() {
           <Link href="/calendar" className="btn btn-primary"><DashboardTranslations tr="Takvime git" en="Go to calendar" /></Link>
         </div>
       </div>
-
       <div className="kpi-grid">
         <article className="kpi">
           <span className="kpi-label"><DashboardTranslations tr="Bu ayki görüşmeler" en="Conversations this month" /></span>
@@ -70,7 +68,6 @@ export default async function DashboardPage() {
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>{describeAutoReply(usage.autoReplyAllowed, usage.blockReason)}</span>
         </article>
       </div>
-
       <div className="dashboard-content-grid">
         <section className="card stack stack-4">
           <div className="row-between">
@@ -105,9 +102,11 @@ export default async function DashboardPage() {
           {usage.blockReason !== null ? (
             <div className="card stack stack-3">
               <span className="eyebrow"><DashboardTranslations tr="Limite ulaşıldı" en="Limit reached" /></span>
-              <p style={{ fontSize: 'var(--text-sm)' }}>{usage.blockReason === 'conversations_exceeded'
-                ? <DashboardTranslations tr="Plana dâhil görüşme hakkınız bitti. Aylık yenilemeye kadar otomatik yanıtlar duraklatıldı." en="You have used all conversations in your plan. Automatic replies are paused until the monthly reset." />
-                : <DashboardTranslations tr="Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı." en="You have used all voice messages in your plan. Audio transcription is paused until the monthly reset." />}</p>
+              <p style={{ fontSize: 'var(--text-sm)' }}>
+                {usage.blockReason === 'conversations_exceeded'
+                  ? <DashboardTranslations tr="Plana dâhil görüşme hakkınız bitti. Aylık yenilemeye kadar otomatik yanıtlar duraklatıldı." en="You have used all conversations in your plan. Automatic replies are paused until the monthly reset." />
+                  : <DashboardTranslations tr="Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı." en="You have used all voice messages in your plan. Audio transcription is paused until the monthly reset." />}
+              </p>
               <Link href="/billing" className="btn btn-primary btn-sm"><DashboardTranslations tr="Planı değiştir" en="Change plan" /></Link>
             </div>
           ) : usage.softWarning ? (
@@ -140,11 +139,7 @@ function ConversationRow({ conversation, timezone }: Readonly<{ conversation: Co
 
 function UsageMeter({ label, metric }: Readonly<{ label: string; metric: UsageMetricSnapshot }>) {
   const fill = metric.exceeded ? 'var(--color-danger)' : metric.warning ? 'var(--color-warning)' : 'var(--color-accent)';
-  return (
-    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={metric.percent} aria-valuetext={`${metric.percent}% of limit`} style={{ height: 6, borderRadius: 'var(--radius-full)', background: 'var(--color-surface-sunken)', overflow: 'hidden' }}>
-      <div style={{ width: `${metric.percent}%`, height: '100%', background: fill }} />
-    </div>
-  );
+  return <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={metric.percent} aria-valuetext={`${metric.percent}% of limit`} style={{ height: 6, borderRadius: 'var(--radius-full)', background: 'var(--color-surface-sunken)', overflow: 'hidden' }}><div style={{ width: `${metric.percent}%`, height: '100%', background: fill }} /></div>;
 }
 
 async function loadTenantSettings(session: AuthSession): Promise<TenantSettingsSnapshot | null> {
