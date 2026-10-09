@@ -11,43 +11,43 @@ export function VerticalsSection() {
     {
       slug: 'salon',
       title: 'Kuaför ve Berber',
-      body: 'Hizmet ve süreye göre, çalışma saatleri ve isteğe bağlı personel ayarlarıyla randevu oluşturun.'
+      body: 'Hizmet ve süreye göre, çalışma saatleri ve isteğe bağlı personel ayarlarıyla randevu oluşturun.',
       icon: '✂️',
     },
     {
       slug: 'beauty',
       title: 'Güzellik ve Bakım',
-      body: 'Bakım sorularını, hizmet sürelerini ve randevu taleplerini tek akışta yönetin.'
+      body: 'Bakım sorularını, hizmet sürelerini ve randevu taleplerini tek akışta yönetin.',
       icon: '✨',
     },
     {
       slug: 'dental',
       title: 'Diş ve Klinik',
-      body: 'Yalnızca idari randevu ve müşteri iletişimi — tanı veya tedavi tavsiyesi yoktur.'
+      body: 'Yalnızca idari randevu ve müşteri iletişimi — tanı veya tedavi tavsiyesi yoktur.',
       icon: '🦷',
     },
     {
       slug: 'veterinary',
       title: 'Veteriner',
-      body: 'Randevu taleplerini ve hizmet bilgilerini yönetin; gereken durumlarda insan desteğine aktarın.'
+      body: 'Randevu taleplerini ve hizmet bilgilerini yönetin; gereken durumlarda insan desteğine aktarın.',
       icon: '🐾',
     },
     {
       slug: 'fitness',
       title: 'Spor Salonu ve Fitness',
-      body: 'Danışmanlık, kişisel antrenman ve rezervasyonlu hizmetleri gerçek uygunluğa göre koordine edin.'
+      body: 'Danışmanlık, kişisel antrenman ve rezervasyonlu hizmetleri gerçek uygunluğa göre koordine edin.',
       icon: '🏋️',
     },
     {
       slug: 'auto-service',
       title: 'Oto Servis',
-      body: 'Servis taleplerini süre ve kaynak farkındalığı olan randevulara dönüştürün.'
+      body: 'Servis taleplerini süre ve kaynak farkındalığı olan randevulara dönüştürün.',
       icon: '🚗',
     },
     {
       slug: 'consulting',
       title: 'Danışmanlık',
-      body: 'Görüşme taleplerini nitelendirin, onaylı soruları yanıtlayın ve danışmanlık planlayın.'
+      body: 'Görüşme taleplerini nitelendirin, onaylı soruları yanıtlayın ve danışmanlık planlayın.',
       icon: '💼',
     },
   ] as const;
