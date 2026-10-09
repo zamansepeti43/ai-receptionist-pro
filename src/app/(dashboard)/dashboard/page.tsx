@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { DashboardTranslations } from '@/components/dashboard/DashboardTranslations';
 import { requireSession } from '@/lib/auth/session';
 import type { AuthSession } from '@/lib/auth/session';
 import { createConversationInboxService } from '@/server/conversations/inbox';
@@ -57,18 +58,18 @@ export default async function DashboardPage() {
     <>
       <div className="dashboard-header">
         <div className="stack stack-2">
-          <span className="eyebrow">{tr ? 'Genel bakış' : 'Overview'}</span>
-          <h1>{displayName ?? (tr ? 'İşletmeniz' : 'Your business')}</h1>
+          <span className="eyebrow"><DashboardTranslations tr="Genel bakış" en="Overview" /></span>
+          <h1>{displayName ?? <DashboardTranslations tr="İşletmeniz" en="Your business" />}</h1>
           <p className="muted">
-            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {<DashboardTranslations tr={formatMetricMonth(usage.metricMonth, true)} en={formatMetricMonth(usage.metricMonth, false)} />}
+            <DashboardTranslations tr={`Plan ${PLAN_LABELS[usage.plan]} · dönem ${formatMetricMonth(usage.metricMonth, true)}`} en={`Plan ${PLAN_LABELS[usage.plan]} · period ${formatMetricMonth(usage.metricMonth, false)}`} />
           </p>
         </div>
         <div className="row" style={{ gap: 'var(--space-3)' }}>
           <Link href="/conversations" className="btn btn-secondary">
-            {tr ? 'Görüşmeleri görüntüle' : 'View conversations'}
+            <DashboardTranslations tr="Görüşmeleri görüntüle" en="View conversations" />
           </Link>
           <Link href="/calendar" className="btn btn-primary">
-            {tr ? 'Takvime git' : 'Go to calendar'}
+            <DashboardTranslations tr="Takvime git" en="Go to calendar" />
           </Link>
         </div>
       </div>
@@ -83,7 +84,7 @@ export default async function DashboardPage() {
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">{tr ? 'Gönderilen ve alınan mesajlar' : 'Messages exchanged'}</span>
+          <span className="kpi-label"><DashboardTranslations tr="Gönderilen ve alınan mesajlar" en="Messages exchanged" /></span>
           <span className="kpi-value">{formatNumber(usage.messages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
             <DashboardTranslations tr="Bu ayki toplam gelen ve giden mesajlar" en="Monthly total, inbound and outbound" />
@@ -122,7 +123,7 @@ export default async function DashboardPage() {
             <div className="empty-state">
               <p className="empty-state-title"><DashboardTranslations tr="Henüz görüşme yok" en="No conversations yet" /></p>
               <p className="empty-state-text">
-                <DashboardTranslations tr="Ambrogio, işletmenizin WhatsApp numarası bağlandıktan sonra yanıt verir. Bağlantı etkinleşene kadar burada görüşme görünmez." en="Ambrogio responds after you connect your business WhatsApp number. No conversations appear here until the connection is active." />
+                <DashboardTranslations tr="<DashboardTranslations tr="Ambrogio, işletmenizin WhatsApp numarası bağlandıktan sonra yanıt verir. Bağlantı etkinleşene kadar burada görüşme görünmez." en="Ambrogio responds after you connect your business WhatsApp number. No conversations appear here until the connection is active." />" en="Ambrogio responds after you connect your business WhatsApp number. No conversations appear here until the connection is active." />
               </p>
               <Link href="/settings/whatsapp" className="btn btn-primary">
                 <DashboardTranslations tr="WhatsApp’ı bağla" en="Connect WhatsApp" />
@@ -168,7 +169,7 @@ export default async function DashboardPage() {
               <p style={{ fontSize: 'var(--text-sm)' }}>
                 {usage.blockReason === 'conversations_exceeded'
                   ? 'Hai esaurito le conversazioni {tr ? 'plana dâhil' : 'included in plan'}: Ambrogio ha smesso di rispondere in automatico fino al rinnovo del mese.'
-                  : '{tr ? 'Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı.' : 'You have used all voice messages in your plan. Audio transcription is paused until the monthly reset.'}'}
+                  : '{tr ? '<DashboardTranslations tr="Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı." en="You have used all voice messages in your plan. Audio transcription is paused until the monthly reset." />' : 'You have used all voice messages in your plan. Audio transcription is paused until the monthly reset.'}'}
               </p>
               <Link href="/billing" className="btn btn-primary btn-sm">
                 <DashboardTranslations tr="Planı değiştir" en="Change plan" />
