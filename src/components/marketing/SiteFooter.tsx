@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
@@ -84,10 +86,7 @@ export function SiteFooter() {
           ))}
         </div>
         <hr className="divider" />
-        <div
-          className="row-between"
-          style={{ alignItems: 'center', flexWrap: 'wrap' }}
-        >
+        <div className="row-between" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
           <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
             © {CURRENT_YEAR} {PRODUCT_IDENTITY.name}.{' '}
             {isTurkish
