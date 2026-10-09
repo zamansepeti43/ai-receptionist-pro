@@ -92,10 +92,14 @@ function messageFor(payload: unknown, httpStatus: number): string {
   }
 
   if (httpStatus >= 500) {
-    return isTurkish() ? 'Hizmet şu anda geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.' : 'The service is temporarily unavailable. Please try again shortly.';
+    return isTurkish()
+      ? 'Hizmet şu anda geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.'
+      : 'The service is temporarily unavailable. Please try again shortly.';
   }
 
-  return isTurkish() ? 'Bir sorun oluştu. Lütfen tekrar deneyin veya sorun devam ederse bizimle iletişime geçin.' : FALLBACK_MESSAGE;
+  return isTurkish()
+    ? 'Bir sorun oluştu. Lütfen tekrar deneyin veya sorun devam ederse bizimle iletişime geçin.'
+    : FALLBACK_MESSAGE;
 }
 
 /**
@@ -131,7 +135,9 @@ export function useApiForm(options: UseApiFormOptions): {
       } catch {
         setState({
           status: 'error',
-          message: isTurkish() ? 'Bağlantı kurulamadı. Ağınızı kontrol edip tekrar deneyin.' : 'Connection failed. Check your network and try again.',
+          message: isTurkish()
+            ? 'Bağlantı kurulamadı. Ağınızı kontrol edip tekrar deneyin.'
+            : 'Connection failed. Check your network and try again.',
         });
         return;
       }
