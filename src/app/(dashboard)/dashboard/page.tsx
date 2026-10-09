@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
-
 import { requireSession } from '@/lib/auth/session';
 import type { AuthSession } from '@/lib/auth/session';
 import { createConversationInboxService } from '@/server/conversations/inbox';
@@ -39,8 +37,6 @@ const STATUS_PRESENTATION = {
 } as const;
 
 export default async function DashboardPage() {
-  const { language } = useMarketingLocale();
-  const tr = language === 'tr';
   const session = await requireSession();
 
   const [usage, inbox, settings] = await Promise.all([
@@ -63,7 +59,7 @@ export default async function DashboardPage() {
           <span className="eyebrow">{tr ? 'Genel bakış' : 'Overview'}</span>
           <h1>{displayName ?? (tr ? 'İşletmeniz' : 'Your business')}</h1>
           <p className="muted">
-            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {formatMetricMonth(usage.metricMonth, language === 'tr')}
+            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {<DashboardTranslations tr={formatMetricMonth(usage.metricMonth, true)} en={formatMetricMonth(usage.metricMonth, false)} />}
           </p>
         </div>
         <div className="row" style={{ gap: 'var(--space-3)' }}>
@@ -78,10 +74,10 @@ export default async function DashboardPage() {
 
       <div className="kpi-grid">
         <article className="kpi">
-          <span className="kpi-label">{tr ? 'Bu ayki görüşmeler' : 'Conversations this month'}</span>
+          <span className="kpi-label"><DashboardTranslations tr="Bu ayki görüşmeler" en="Conversations this month" /></span>
           <span className="kpi-value">{formatNumber(usage.conversations.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            {tr ? 'Plana dâhil' : 'Included in plan'}: {formatNumber(usage.conversations.limit)}
+            <DashboardTranslations tr={`Plana dâhil: ${formatNumber(usage.conversations.limit)}`} en={`Included in plan: ${formatNumber(usage.conversations.limit)}`} />
           </span>
         </article>
 
@@ -89,23 +85,23 @@ export default async function DashboardPage() {
           <span className="kpi-label">{tr ? 'Gönderilen ve alınan mesajlar' : 'Messages exchanged'}</span>
           <span className="kpi-value">{formatNumber(usage.messages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            {tr ? 'Bu ayki toplam gelen ve giden mesajlar' : 'Monthly total, inbound and outbound'}
+            <DashboardTranslations tr="Bu ayki toplam gelen ve giden mesajlar" en="Monthly total, inbound and outbound" />
           </span>
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">{tr ? 'Yazıya çevrilen sesli mesajlar' : 'Voice messages transcribed'}</span>
+          <span className="kpi-label"><DashboardTranslations tr="Yazıya çevrilen sesli mesajlar" en="Voice messages transcribed" /></span>
           <span className="kpi-value">{formatNumber(usage.voiceMessages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            {tr ? 'Plana dâhil' : 'Included in plan'}: {formatNumber(usage.voiceMessages.limit)}
+            <DashboardTranslations tr={`Plana dâhil: ${formatNumber(usage.voiceMessages.limit)}`} en={`Included in plan: ${formatNumber(usage.voiceMessages.limit)}`} />
           </span>
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">{tr ? 'Otomatik yanıtlar' : 'Automatic replies'}</span>
-          <span className="kpi-value">{usage.autoReplyAllowed ? (tr ? 'Etkin' : 'Active') : (tr ? 'Duraklatıldı' : 'Paused')}</span>
+          <span className="kpi-label"><DashboardTranslations tr="Otomatik yanıtlar" en="Automatic replies" /></span>
+          <span className="kpi-value">{usage.autoReplyAllowed ? <DashboardTranslations tr="Etkin" en="Active" /> : <DashboardTranslations tr="Duraklatıldı" en="Paused" />}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            {describeAutoReply(usage.autoReplyAllowed, usage.blockReason, tr)}
+            {describeAutoReply(usage.autoReplyAllowed, usage.blockReason)}
           </span>
         </article>
       </div>
@@ -113,23 +109,22 @@ export default async function DashboardPage() {
       <div className="dashboard-content-grid">
         <section className="card stack stack-4">
           <div className="row-between">
-            <h2 style={{ fontSize: 'var(--text-xl)' }}>{tr ? 'Son görüşmeler' : 'Recent conversations'}</h2>
+            <h2 style={{ fontSize: 'var(--text-xl)' }}><DashboardTranslations tr="Son görüşmeler" en="Recent conversations" /></h2>
             {conversations.length > 0 ? (
               <Link href="/conversations" className="btn-link">
-                {tr ? 'Tümü →' : 'All →'}
+                <DashboardTranslations tr="Tümü →" en="All →" />
               </Link>
             ) : null}
           </div>
 
           {conversations.length === 0 ? (
             <div className="empty-state">
-              <p className="empty-state-title">{tr ? 'Henüz görüşme yok' : 'No conversations yet'}</p>
+              <p className="empty-state-title"><DashboardTranslations tr="Henüz görüşme yok" en="No conversations yet" /></p>
               <p className="empty-state-text">
-                Ambrogio risponde solo dopo che hai collegato il numero WhatsApp della tua attività.
-                Finché il collegamento non è attivo, qui non arriva nulla.
+                <DashboardTranslations tr="Ambrogio, işletmenizin WhatsApp numarası bağlandıktan sonra yanıt verir. Bağlantı etkinleşene kadar burada görüşme görünmez." en="Ambrogio responds after you connect your business WhatsApp number. No conversations appear here until the connection is active." />
               </p>
               <Link href="/settings/whatsapp" className="btn btn-primary">
-                {tr ? 'WhatsApp’ı bağla' : 'Connect WhatsApp'}
+                <DashboardTranslations tr="WhatsApp’ı bağla" en="Connect WhatsApp" />
               </Link>
             </div>
           ) : (
@@ -145,7 +140,7 @@ export default async function DashboardPage() {
 
         <aside className="stack stack-4">
           <div className="card stack stack-3">
-            <span className="eyebrow">{tr ? 'Plan kullanımı' : 'Plan usage'}</span>
+            <span className="eyebrow"><DashboardTranslations tr="Plan kullanımı" en="Plan usage" /></span>
             <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700 }}>
               {formatNumber(usage.conversations.used)}
               <span className="muted" style={{ fontSize: 'var(--text-base)' }}>
@@ -153,16 +148,16 @@ export default async function DashboardPage() {
               </span>
             </p>
             <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-              {tr ? 'Bu ayki görüşme kullanımı: ' : 'Monthly conversations on the '} {PLAN_LABELS[usage.plan]}{tr ? ' planı.' : ' plan.'}
+              <DashboardTranslations tr={`Bu ayki görüşme kullanımı: ${PLAN_LABELS[usage.plan]} planı.`} en={`Monthly conversations on the ${PLAN_LABELS[usage.plan]} plan.`} />
             </p>
-            <UsageMeter label="{tr ? 'Bu ayki görüşmeler' : 'Conversations this month'}" metric={usage.conversations} />
+            <UsageMeter label="<DashboardTranslations tr="Bu ayki görüşmeler" en="Conversations this month" />" metric={usage.conversations} />
 
             <div className="stack stack-2" style={{ marginTop: 'var(--space-2)' }}>
               <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
                 Vocali: {formatNumber(usage.voiceMessages.used)}/
                 {formatNumber(usage.voiceMessages.limit)}
               </p>
-              <UsageMeter label="{tr ? 'Bu ayki sesli mesajlar' : 'Voice messages this month'}" metric={usage.voiceMessages} />
+              <UsageMeter label="<DashboardTranslations tr="Bu ayki sesli mesajlar" en="Voice messages this month" />" metric={usage.voiceMessages} />
             </div>
           </div>
 
@@ -175,18 +170,18 @@ export default async function DashboardPage() {
                   : '{tr ? 'Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı.' : 'You have used all voice messages in your plan. Audio transcription is paused until the monthly reset.'}'}
               </p>
               <Link href="/billing" className="btn btn-primary btn-sm">
-                {tr ? 'Planı değiştir' : 'Change plan'}
+                <DashboardTranslations tr="Planı değiştir" en="Change plan" />
               </Link>
             </div>
           ) : usage.softWarning ? (
             <div className="card stack stack-3">
-              <span className="eyebrow">{tr ? 'Kullanım sınırına yaklaşıyorsunuz' : 'Approaching usage limit'}</span>
+              <span className="eyebrow"><DashboardTranslations tr="Kullanım sınırına yaklaşıyorsunuz" en="Approaching usage limit" /></span>
               <p style={{ fontSize: 'var(--text-sm)' }}>
                 Hai superato l&apos;80% di una delle soglie {tr ? 'plana dâhil' : 'included in plan'}. Al 100% le risposte
                 automatiche si fermano fino al rinnovo del mese.
               </p>
               <Link href="/billing" className="btn btn-secondary btn-sm">
-                {tr ? 'Planı görüntüle' : 'View plan'}
+                <DashboardTranslations tr="Planı görüntüle" en="View plan" />
               </Link>
             </div>
           ) : null}
@@ -196,13 +191,9 @@ export default async function DashboardPage() {
   );
 }
 
-function ConversationRow({
-  conversation,
-  timezone,
-  language = 'tr',
-}: Readonly<{ conversation: ConversationSummary; timezone: string | null; language?: 'tr' | 'en' }>) {
+function ConversationRow({ conversation, timezone }: Readonly<{ conversation: ConversationSummary; timezone: string | null }>) {
   const presentation = STATUS_PRESENTATION[conversation.status];
-  const timestamp = formatTimestampParts(conversation.lastMessageAt, timezone, language);
+  const timestamp = formatTimestampParts(conversation.lastMessageAt, timezone);
 
   return (
     <Link
@@ -220,7 +211,7 @@ function ConversationRow({
         </p>
         <p className="muted activity-row-detail">
           {CHANNEL_LABELS[conversation.channel]} ·{' '}
-          {conversation.aiEnabled ? 'gestita da Ambrogio' : 'gestita da un operatore'}
+          {conversation.aiEnabled ? <DashboardTranslations tr="Ambrogio yönetiyor" en="Handled by Ambrogio" /> : <DashboardTranslations tr="Operatör yönetiyor" en="Handled by an operator" />}
         </p>
       </div>
       <span className={`badge ${presentation.badge}`}>{presentation.label}</span>
@@ -277,19 +268,10 @@ async function loadTenantSettings(session: AuthSession): Promise<TenantSettingsS
 function describeAutoReply(
   allowed: boolean,
   blockReason: 'conversations_exceeded' | 'voice_exceeded' | null,
-  tr = true,
-): string {
-  if (allowed) {
-    return '{tr ? 'Ambrogio planınızın sınırları içinde yanıt verir' : 'Ambrogio replies within your plan limits'}';
-  }
-
-  return blockReason === 'voice_exceeded'
-    ? '{tr ? 'Sesli mesaj sınırı aylık yenilemeye kadar doldu' : 'Voice-message limit reached until monthly reset'}'
-    : '{tr ? 'Görüşme sınırı aylık yenilemeye kadar doldu' : 'Conversation limit reached until monthly reset'}';
-}
+ ): string { }
 
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat('it-IT').format(value);
+  return new Intl.NumberFormat('tr-TR').format(value);
 }
 
 function formatMetricMonth(metricMonth: string, tr = true): string {
@@ -309,7 +291,6 @@ function formatMetricMonth(metricMonth: string, tr = true): string {
 function formatTimestampParts(
   isoDate: string,
   timezone: string | null,
-  language: 'tr' | 'en' = 'tr',
 ): { date: string; time: string } {
   const date = new Date(isoDate);
 
@@ -320,7 +301,7 @@ function formatTimestampParts(
   const zone = timezone !== null ? { timeZone: timezone } : {};
 
   return {
-    date: new Intl.DateTimeFormat(language === 'tr' ? 'tr-TR' : 'en-US', {
+    date: new Intl.DateTimeFormat('tr-TR', {
       day: '2-digit',
       month: '2-digit',
       ...zone,
