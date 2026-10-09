@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { requireSession } from '@/lib/auth/session';
 import type { AuthSession } from '@/lib/auth/session';
@@ -268,7 +269,14 @@ async function loadTenantSettings(session: AuthSession): Promise<TenantSettingsS
 function describeAutoReply(
   allowed: boolean,
   blockReason: 'conversations_exceeded' | 'voice_exceeded' | null,
- ): string { }
+): ReactNode {
+  if (allowed) {
+    return <DashboardTranslations tr="Plan kullanım sınırları içinde" en="Within plan usage limits" />;
+  }
+  return blockReason === 'voice_exceeded'
+    ? <DashboardTranslations tr="Sesli mesaj sınırı doldu" en="Voice-message limit reached" />
+    : <DashboardTranslations tr="Görüşme sınırı doldu" en="Conversation limit reached" />;
+}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('tr-TR').format(value);
