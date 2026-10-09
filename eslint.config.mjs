@@ -87,7 +87,7 @@ const config = [
       ],
 
       // Prettier integration
-      'prettier/prettier': 'warn',
+      'prettier/prettier': 'off',
     },
   },
 
