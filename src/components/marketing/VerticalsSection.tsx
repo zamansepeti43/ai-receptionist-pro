@@ -10,44 +10,44 @@ export function VerticalsSection() {
   const verticals = [
     {
       slug: 'salon',
-      title: 'Salon & Barber',
-      body: 'Appointments by service and duration, with business hours and optional staff-aware configuration.',
+      title: 'Kuaför ve Berber',
+      body: 'Hizmet ve süreye göre, çalışma saatleri ve isteğe bağlı personel ayarlarıyla randevu oluşturun.'
       icon: '✂️',
     },
     {
       slug: 'beauty',
-      title: 'Beauty & Wellness',
-      body: 'Handle treatment questions, service durations and appointment requests from one workflow.',
+      title: 'Güzellik ve Bakım',
+      body: 'Bakım sorularını, hizmet sürelerini ve randevu taleplerini tek akışta yönetin.'
       icon: '✨',
     },
     {
       slug: 'dental',
-      title: 'Dental & Clinic',
-      body: 'Administrative scheduling and customer communication only — no diagnosis or treatment advice.',
+      title: 'Diş ve Klinik',
+      body: 'Yalnızca idari randevu ve müşteri iletişimi — tanı veya tedavi tavsiyesi yoktur.'
       icon: '🦷',
     },
     {
       slug: 'veterinary',
-      title: 'Veterinary',
-      body: 'Appointment intake, service information and human escalation for cases that need staff attention.',
+      title: 'Veteriner',
+      body: 'Randevu taleplerini ve hizmet bilgilerini yönetin; gereken durumlarda insan desteğine aktarın.'
       icon: '🐾',
     },
     {
       slug: 'fitness',
-      title: 'Gym & Fitness',
-      body: 'Coordinate consultations, personal training and other bookable services around real availability.',
+      title: 'Spor Salonu ve Fitness',
+      body: 'Danışmanlık, kişisel antrenman ve rezervasyonlu hizmetleri gerçek uygunluğa göre koordine edin.'
       icon: '🏋️',
     },
     {
       slug: 'auto-service',
-      title: 'Auto Service',
-      body: 'Turn service requests into structured appointment requests with duration and resource-aware booking.',
+      title: 'Oto Servis',
+      body: 'Servis taleplerini süre ve kaynak farkındalığı olan randevulara dönüştürün.'
       icon: '🚗',
     },
     {
       slug: 'consulting',
-      title: 'Consulting',
-      body: 'Qualify meeting requests, answer approved FAQs and schedule consultations without double-booking.',
+      title: 'Danışmanlık',
+      body: 'Görüşme taleplerini nitelendirin, onaylı soruları yanıtlayın ve danışmanlık planlayın.'
       icon: '💼',
     },
   ] as const;
