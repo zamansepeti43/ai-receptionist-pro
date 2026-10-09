@@ -29,7 +29,7 @@ export function VerticalsIndexClient() {
         name: tr ? 'AI Receptionist Pro sektör şablonları' : 'AI Receptionist Pro sector presets',
         description: tr ? 'Yedi farklı sektör için yapılandırılabilir başlangıç noktaları.' : 'Seven configurable sector starting points.',
         url: '/verticali',
-        hasPart: VERTICALS.map((v, i) => ({ name: tr ? TR_TITLES[i] : v.title, url: `/verticali/${v.slug}` })),
+        hasPart: VERTICALS.map((v, i) => ({ name: tr ? (TR_TITLES[i] ?? v.title) : v.title, url: `/verticali/${v.slug}` })),
       })} />
       <SiteHeader />
       <main id="main">
@@ -44,8 +44,8 @@ export function VerticalsIndexClient() {
               {VERTICALS.map((v, i) => (
                 <Link key={v.slug} href={`/verticali/${v.slug}`} className="card card-padded card-interactive stack stack-4" style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className="feature-icon-tile" aria-hidden="true" style={{ fontSize: '1.5rem' }}>{v.icon}</div>
-                  <h2 style={{ fontSize: 'var(--text-2xl)' }}>{tr ? TR_TITLES[i] : v.title}</h2>
-                  <p style={{ color: 'var(--color-text-secondary)' }}>{tr ? TR_BODIES[i] : v.hero.body}</p>
+                  <h2 style={{ fontSize: 'var(--text-2xl)' }}>{tr ? (TR_TITLES[i] ?? v.title) : v.title}</h2>
+                  <p style={{ color: 'var(--color-text-secondary)' }}>{tr ? (TR_BODIES[i] ?? v.hero.body) : v.hero.body}</p>
                   <span className="row plan-card-actions" style={{ gap: 'var(--space-2)', color: 'var(--color-accent-fg)', fontSize: 'var(--text-sm)', fontWeight: 600 }}>{t.explore} <span aria-hidden="true">→</span></span>
                 </Link>
               ))}
