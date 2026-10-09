@@ -123,7 +123,7 @@ export default async function DashboardPage() {
 }
 
 function ConversationRow({ conversation, timezone }: Readonly<{ conversation: ConversationSummary; timezone: string | null }>) {
-  const presentation = STATUS_PRESENTATION[conversation.status] ?? STATUS_PRESENTATION.active;
+  const presentation = STATUS_PRESENTATION[conversation.status] ?? { tr: 'Etkin', en: 'Active', badge: 'badge-success' };
   const timestamp = formatTimestampParts(conversation.lastMessageAt, timezone);
   return (
     <Link href={`/conversations/${conversation.id}`} className="activity-row" style={{ color: 'inherit', textDecoration: 'none' }}>
