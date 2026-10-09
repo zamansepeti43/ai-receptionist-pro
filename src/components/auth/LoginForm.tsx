@@ -46,8 +46,12 @@ export function LoginForm() {
         disabled={state.status === 'submitting'}
       >
         {state.status === 'submitting'
-          ? isTurkish ? 'Gönderiliyor…' : 'Sending…'
-          : isTurkish ? 'Giriş bağlantısı gönder' : 'Send sign-in link'}
+          ? isTurkish
+            ? 'Gönderiliyor…'
+            : 'Sending…'
+          : isTurkish
+            ? 'Giriş bağlantısı gönder'
+            : 'Send sign-in link'}
       </button>
     </form>
   );
