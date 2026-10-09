@@ -20,6 +20,7 @@ const trCopy: Record<string, { title: string; eyebrow: string; h1: string; body:
 export function VerticalDetailClient({ slug }: { slug: string }) {
  const { language, t } = useMarketingLocale();
  const data = VERTICALS_DATA[slug];
+ if (data === undefined) return null;
  const translated = language === 'tr' ? trCopy[slug] : undefined;
  const pains = translated ? translated.pains : data.pains.map((x) => [x.title, x.body] as [string,string]);
  const scenarios = translated ? translated.scenarios : data.scenarios.map((x) => [x.title, x.body] as [string,string]);
