@@ -1,4 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './helpers/english-locale-test';
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem('ai-receptionist-language', 'en'));
+});
 
 const TENANT_PATHS = [
   '/dashboard',

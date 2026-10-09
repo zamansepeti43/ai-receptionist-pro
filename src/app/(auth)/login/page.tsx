@@ -1,26 +1,27 @@
-import type { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 
 import { LoginForm } from '@/components/auth/LoginForm';
-
-export const metadata: Metadata = {
-  title: 'Sign in · AI Receptionist Pro',
-  description: 'Sign in to your AI Receptionist Pro account.',
-  robots: { index: false, follow: false },
-};
+import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
 
 export default function LoginPage() {
+  const { language } = useMarketingLocale();
+  const isTurkish = language === 'tr';
+
   return (
     <div className="stack stack-6">
       <div className="stack stack-2">
-        <h1 style={{ fontSize: 'var(--text-3xl)' }}>Welcome back</h1>
+        <h1 style={{ fontSize: 'var(--text-3xl)' }}>
+          {isTurkish ? 'Tekrar hoş geldiniz' : 'Welcome back'}
+        </h1>
         <p className="muted">
-          Enter your email and we&apos;ll send you a secure sign-in link. No password to remember.
+          {isTurkish
+            ? 'E-postanızı girin; size güvenli bir giriş bağlantısı gönderelim. Şifre hatırlamanız gerekmez.'
+            : 'Enter your email and we’ll send you a secure sign-in link. No password to remember.'}
         </p>
       </div>
-
       <LoginForm />
-
       <div
         className="stack stack-3"
         style={{
@@ -29,21 +30,23 @@ export default function LoginPage() {
         }}
       >
         <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
-          Don&apos;t have an account yet?{' '}
+          {isTurkish ? 'Henüz hesabınız yok mu?' : "Don't have an account yet?"}{' '}
           <Link href="/register" className="btn-link">
-            Create an account
+            {isTurkish ? 'Hesap oluştur' : 'Create an account'}
           </Link>
         </p>
         <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-          By selecting &quot;Send sign-in link&quot; you agree to the{' '}
+          {isTurkish
+            ? '“Giriş bağlantısı gönder” seçeneğini kullanarak'
+            : 'By selecting “Send sign-in link” you agree to the'}{' '}
           <Link href="/legal/terms" className="btn-link">
-            terms of service
+            {isTurkish ? 'hizmet koşullarını' : 'terms of service'}
           </Link>{' '}
-          and{' '}
+          {isTurkish ? 've' : 'and'}{' '}
           <Link href="/legal/privacy" className="btn-link">
-            privacy policy
+            {isTurkish ? 'gizlilik politikasını' : 'privacy policy'}
           </Link>
-          .
+          {isTurkish ? ' kabul etmiş olursunuz.' : '.'}
         </p>
       </div>
     </div>

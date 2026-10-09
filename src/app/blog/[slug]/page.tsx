@@ -1,131 +1,77 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+'use client';
 
-import { buildArticleSchema, buildBreadcrumbSchema, JsonLd } from '@/components/marketing/JsonLd';
+import Link from 'next/link';
+import { notFound, useParams } from 'next/navigation';
+import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
 
-interface Post {
-  slug: string;
-  title: string;
-  /** SEO meta title — può essere più conciso del title H1 per stare in <60 char dopo template. */
-  seoTitle?: string;
-  excerpt: string;
-  body: string;
-  date: string;
-  isoDate: string;
-  readTime: string;
-  category: string;
-  relatedVerticalSlug: string | null;
-  relatedVerticalLabel: string | null;
-  relatedPostSlugs: ReadonlyArray<string>;
-}
-
-const POSTS: Record<string, Post> = {
+const POSTS = {
   'whatsapp-business-vs-360dialog-quando-conviene': {
-    slug: 'whatsapp-business-vs-360dialog-quando-conviene',
-    title: 'WhatsApp Cloud API vs 360dialog: quando conviene cosa',
-    seoTitle: 'WhatsApp Cloud API vs 360dialog · Confronto',
-    excerpt: 'Confronto tecnico ed economico tra l’API ufficiale Meta e i BSP italiani più usati.',
-    body: `Quando si integra WhatsApp Business per un SaaS B2B in Italia, le opzioni sono due: Meta WhatsApp Cloud API direttamente, oppure passare per un BSP (Business Solution Provider) come 360dialog.\n\nMeta Cloud API: economico, controllo totale, supporto solo via documentazione. Ideale se hai un team tecnico.\n\n360dialog: prezzo più alto, supporto in italiano, onboarding facilitato, fattura italiana. Ideale per agenzie che gestiscono molti clienti.\n\nIl breakeven economico è intorno ai 50.000 messaggi/mese. Sotto, conviene 360dialog. Sopra, conviene Cloud API diretto.`,
-    date: '2 maggio 2026',
-    isoDate: '2026-05-02',
-    readTime: '8 min',
-    category: 'Guida',
-    relatedVerticalSlug: null,
-    relatedVerticalLabel: null,
-    relatedPostSlugs: ['gdpr-receptionist-ai-dpa-template'],
+    date: '2026-05-02',
+    minutes: 8,
+    category: { tr: 'Rehber', en: 'Guide' },
+    title: {
+      tr: 'WhatsApp Cloud API ve 360dialog: hangisi ne zaman tercih edilmeli?',
+      en: 'WhatsApp Cloud API vs 360dialog: when should you choose each?',
+    },
+    excerpt: {
+      tr: 'Meta’nın resmî API’si ile yaygın kullanılan iş çözümü sağlayıcılarının teknik ve maliyet karşılaştırması.',
+      en: 'A technical and cost comparison of Meta’s official API and common business solution providers.',
+    },
+    body: {
+      tr: 'Türkiye’de ve diğer pazarlarda WhatsApp Business entegrasyonu yaparken iki temel seçenek bulunur: Meta WhatsApp Cloud API’yi doğrudan kullanmak veya 360dialog gibi bir iş çözümü sağlayıcısından yararlanmak.\n\nDoğrudan Cloud API, teknik ekibe daha fazla kontrol sağlayabilir; ancak kurulum, izleme ve destek sorumluluğu daha çok ekibin üzerindedir.\n\nBir sağlayıcı üzerinden çalışmak, kurulum desteği ve işletim kolaylığı sunabilir; buna karşılık sağlayıcının ücretleri ve koşulları ayrıca değerlendirilmelidir.\n\nKarar verirken mesaj hacmini, destek gereksinimini, entegrasyon esnekliğini ve toplam işletme maliyetini birlikte karşılaştırın. Tek bir mesaj eşiğinin her işletme için geçerli olduğunu varsaymayın.',
+      en: 'When integrating WhatsApp Business, there are two common options: use Meta WhatsApp Cloud API directly or work through a business solution provider such as 360dialog.\n\nDirect Cloud API access can provide more control to a technical team, but setup, monitoring and support responsibilities also sit more heavily with that team.\n\nA provider may simplify onboarding and operations, while adding its own fees and contractual terms.\n\nCompare message volume, support needs, integration flexibility and total operating cost. Do not assume a single message-volume break-even point applies to every business.',
+    },
   },
   'gdpr-receptionist-ai-dpa-template': {
-    slug: 'gdpr-receptionist-ai-dpa-template',
-    title: 'GDPR e receptionist AI: il DPA che serve davvero',
-    seoTitle: 'GDPR e DPA per AI Receptionist',
-    excerpt: 'Cosa deve contenere un DPA per essere utile in caso di audit. Template scaricabile.',
-    body: `Il Data Processing Agreement (DPA) è obbligatorio quando un service provider tratta dati personali per conto del titolare. Per un AI receptionist questo è particolarmente sensibile perché si processano conversazioni intere, vocali, e potenzialmente dati sanitari.\n\nUn DPA solido deve specificare: categorie di dati, finalità, durata, sub-processori, misure tecniche, procedura data breach, diritti degli interessati.\n\nAmbrogio.ai fornisce un DPA pre-compilato con: hosting EU (Supabase Frankfurt), retention 24 mesi, audit log immutabile, endpoint Art. 15/17 self-service, sub-processori dichiarati pubblicamente.`,
-    date: '28 aprile 2026',
-    isoDate: '2026-04-28',
-    readTime: '12 min',
-    category: 'GDPR',
-    relatedVerticalSlug: 'professional',
-    relatedVerticalLabel: 'Ambrogio per studi professionali',
-    relatedPostSlugs: ['whatsapp-business-vs-360dialog-quando-conviene'],
-  },
-};
-
-export function generateStaticParams() {
-  return Object.keys(POSTS).map((slug) => ({ slug }));
-}
-
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const post = POSTS[slug];
-  if (!post) {
-    return {
-      title: 'Articolo non trovato',
-      robots: { index: false, follow: false },
-    };
-  }
-  return {
-    title: post.seoTitle ?? post.title,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: 'article',
-      publishedTime: post.isoDate,
-      url: `/blog/${post.slug}`,
-      locale: 'it_IT',
+    date: '2026-04-28',
+    minutes: 12,
+    category: { tr: 'GDPR', en: 'GDPR' },
+    title: {
+      tr: 'GDPR ve yapay zekâ resepsiyonu: veri işleme sözleşmesinde neler olmalı?',
+      en: 'GDPR and AI receptionists: what a useful DPA should include',
     },
-    alternates: { canonical: `/blog/${post.slug}` },
-  };
-}
+    excerpt: {
+      tr: 'Veri işleme sözleşmesinin temel unsurları ve uygulamaya dönük bir kontrol listesi.',
+      en: 'The essential elements of a data processing agreement and a practical checklist.',
+    },
+    body: {
+      tr: 'Veri İşleme Sözleşmesi (DPA), bir hizmet sağlayıcının veri sorumlusu adına kişisel veri işlemesi durumunda tarafların görevlerini açıklığa kavuşturur. Yapay zekâ destekli resepsiyon iş akışlarında bu önemlidir; çünkü sistem mesajları, ses kayıtlarını veya randevu bilgilerini işleyebilir.\n\nSözleşmede işlenen veri kategorileri, amaç ve süre, alt işleyenler, teknik ve organizasyonel önlemler, veri ihlali süreci ve ilgili kişi taleplerinde sağlanacak yardım açıklanmalıdır.\n\nBir DPA’yı kullanmadan önce gerçek veri akışlarını ve sağlayıcıları doğrulayın; varsayımsal güvenlik iddialarını veya uygulanmayan özellikleri sözleşmeye eklemeyin.',
+      en: 'A Data Processing Agreement (DPA) clarifies responsibilities when a provider processes personal data on behalf of a controller. This matters for AI-assisted reception workflows because the system may handle messages, audio recordings or appointment details.\n\nThe agreement should describe data categories, purpose and duration, sub-processors, technical and organisational measures, incident procedures and assistance with data-subject requests.\n\nBefore using a DPA, verify actual data flows and providers. Do not include security claims or capabilities that have not been implemented.',
+    },
+  },
+} as const;
 
-export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = await params;
-  const post = POSTS[slug];
-  if (!post) {
-    notFound();
-  }
-
-  const articleSchema = buildArticleSchema({
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.isoDate,
-    url: `/blog/${post.slug}`,
-    category: post.category,
-  });
-
-  const relatedPosts = post.relatedPostSlugs
-    .map((relSlug) => POSTS[relSlug])
-    .filter((p): p is Post => p !== undefined);
+export default function BlogPostPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const { language } = useMarketingLocale();
+  const tr = language === 'tr';
+  const post = POSTS[slug as keyof typeof POSTS];
+  if (!post) notFound();
+  const title = post.title[tr ? 'tr' : 'en'];
+  const excerpt = post.excerpt[tr ? 'tr' : 'en'];
+  const body = post.body[tr ? 'tr' : 'en'];
+  const date = tr
+    ? ({ '2026-05-02': '2 Mayıs 2026', '2026-04-28': '28 Nisan 2026' } as Record<string, string>)[post.date]
+    : ({ '2026-05-02': '2 May 2026', '2026-04-28': '28 April 2026' } as Record<string, string>)[post.date];
 
   return (
     <>
-      <JsonLd data={articleSchema} />
-      <JsonLd
-        data={buildBreadcrumbSchema([
-          { name: 'Home', url: '/' },
-          { name: 'Blog', url: '/blog' },
-          { name: post.title, url: `/blog/${post.slug}` },
-        ])}
-      />
       <SiteHeader />
       <main id="main">
         <article className="section">
           <div className="container-narrow stack stack-6">
             <div className="stack stack-3">
               <Link href="/blog" className="btn-link" style={{ fontSize: 'var(--text-sm)' }}>
-                ← Tutti gli articoli
+                ← {tr ? 'Tüm yazılar' : 'All articles'}
               </Link>
-              <span className="badge badge-neutral">{post.category}</span>
-              <h1 className="text-balance">{post.title}</h1>
+              <span className="badge badge-neutral">{post.category[tr ? 'tr' : 'en']}</span>
+              <h1 className="text-balance">{title}</h1>
+              <p className="lead">{excerpt}</p>
               <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-                {post.date} · {post.readTime} di lettura
+                {date} · {post.minutes} {tr ? 'dk okuma' : 'min read'}
               </p>
             </div>
             <hr className="divider" />
@@ -137,74 +83,40 @@ export default async function BlogPostPage({ params }: PageProps) {
                 whiteSpace: 'pre-wrap',
               }}
             >
-              {post.body}
+              {body}
             </div>
             <hr className="divider" />
-
-            {post.relatedVerticalSlug !== null && post.relatedVerticalLabel !== null && (
-              <div
-                className="card stack stack-3"
-                style={{ background: 'var(--color-surface-sunken)' }}
-              >
-                <span className="eyebrow">Verticale correlato</span>
-                <Link
-                  href={`/verticali/${post.relatedVerticalSlug}`}
-                  className="btn btn-secondary"
-                  style={{ alignSelf: 'flex-start' }}
-                >
-                  {post.relatedVerticalLabel} →
-                </Link>
+            <section className="stack stack-3">
+              <h2 style={{ fontSize: 'var(--text-xl)' }}>
+                {tr ? 'Diğer yazılar' : 'Related articles'}
+              </h2>
+              <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+                {Object.entries(POSTS).filter(([otherSlug]) => otherSlug !== slug).map(([otherSlug, other]) => (
+                  <Link
+                    key={otherSlug}
+                    href={`/blog/${otherSlug}`}
+                    className="card card-interactive stack stack-3"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <span className="badge badge-neutral">{other.category[tr ? 'tr' : 'en']}</span>
+                    <h3>{other.title[tr ? 'tr' : 'en']}</h3>
+                    <p className="muted">{other.excerpt[tr ? 'tr' : 'en']}</p>
+                    <span className="btn-link">{tr ? 'Makaleyi oku' : 'Read article'} →</span>
+                  </Link>
+                ))}
               </div>
-            )}
-
-            {relatedPosts.length > 0 && (
-              <section className="stack stack-4" aria-labelledby="related-posts-heading">
-                <h2 id="related-posts-heading" style={{ fontSize: 'var(--text-xl)' }}>
-                  Continua a leggere
-                </h2>
-                <div
-                  className="grid"
-                  style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}
-                >
-                  {relatedPosts.map((rel) => (
-                    <Link
-                      key={rel.slug}
-                      href={`/blog/${rel.slug}`}
-                      className="card card-interactive stack stack-3"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <span className="badge badge-neutral">{rel.category}</span>
-                      <h3 style={{ fontSize: 'var(--text-base)' }}>{rel.title}</h3>
-                      <span
-                        style={{
-                          color: 'var(--color-accent)',
-                          fontSize: 'var(--text-sm)',
-                          fontWeight: 600,
-                          marginTop: 'auto',
-                        }}
-                      >
-                        Leggi →
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
-
+            </section>
             <div className="card stack stack-3" style={{ background: 'var(--color-accent-soft)' }}>
               <h3 style={{ fontSize: 'var(--text-lg)' }}>
-                Vuoi i risultati di{' '}
-                {post.category.toLowerCase() === 'case study' ? 'questo studio' : 'questa guida'}?
+                {tr ? 'Ürünü denemek ister misiniz?' : 'Would you like to try the product?'}
               </h3>
               <p style={{ fontSize: 'var(--text-sm)' }}>
-                Inizia la prova di 14 giorni gratis. Setup in 24h.
+                {tr
+                  ? 'İşletmenize uygun kurulum hakkında bilgi alın.'
+                  : 'Learn about setup options for your business.'}
               </p>
-              <Link
-                href="/register"
-                className="btn btn-primary"
-                style={{ alignSelf: 'flex-start' }}
-              >
-                Inizia gratis →
+              <Link href="/register" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>
+                {tr ? 'Ücretsiz başlayın' : 'Get started'}
               </Link>
             </div>
           </div>

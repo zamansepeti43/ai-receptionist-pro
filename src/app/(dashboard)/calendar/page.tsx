@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import type React from 'react';
 import Link from 'next/link';
+import { DashboardTranslations } from '@/components/dashboard/DashboardTranslations';
 
 import { requireSession, type AuthSession } from '@/lib/auth/session';
 import { toAppError } from '@/lib/errors/app-error';
@@ -22,19 +24,18 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const FETCH_LIMIT = 300;
 const DEFAULT_TIMEZONE = 'Europe/Rome';
 
-const STATUS_CONFIG: Record<AppointmentStatus, { readonly label: string; readonly badge: string }> =
-  {
-    confirmed: { label: 'Confermato', badge: 'badge-success' },
-    cancelled: { label: 'Cancellato', badge: 'badge-danger' },
-    completed: { label: 'Concluso', badge: 'badge-neutral' },
-    no_show: { label: 'Non presentato', badge: 'badge-warm' },
-  };
+const STATUS_CONFIG: Record<AppointmentStatus, { readonly tr: string; readonly en: string; readonly badge: string }> = {
+  confirmed: { tr: 'Onaylandı', en: 'Confirmed', badge: 'badge-success' },
+  cancelled: { tr: 'İptal edildi', en: 'Cancelled', badge: 'badge-danger' },
+  completed: { tr: 'Tamamlandı', en: 'Completed', badge: 'badge-neutral' },
+  no_show: { tr: 'Gelmedi', en: 'No-show', badge: 'badge-warm' },
+};
 
-const SOURCE_LABEL: Record<BookingSource, string> = {
-  manual: 'Inserito a mano',
-  whatsapp_ai: 'Prenotato da Ambrogio su WhatsApp',
-  dashboard: 'Creato dalla dashboard',
-  api: 'Creato via API',
+const SOURCE_LABEL: Record<BookingSource, { tr: string; en: string }> = {
+  manual: { tr: 'Elle girildi', en: 'Entered manually' },
+  whatsapp_ai: { tr: 'Ambrogio tarafından WhatsApp ile alındı', en: 'Booked by Ambrogio on WhatsApp' },
+  dashboard: { tr: 'Kontrol panelinden oluşturuldu', en: 'Created from dashboard' },
+  api: { tr: 'API üzerinden oluşturuldu', en: 'Created via API' },
 };
 
 type CalendarAppointment = {
@@ -73,12 +74,11 @@ export default async function CalendarPage() {
   if (!result.ok) {
     return (
       <>
-        <CalendarHeader subtitle="Agenda non disponibile in questo momento." />
+        <CalendarHeader subtitle={<DashboardTranslations tr="Takvim şu anda kullanılamıyor." en="Calendar is unavailable right now." />} />
         <section className="card card-padded stack stack-3">
-          <h2 style={{ fontSize: 'var(--text-lg)' }}>Non riesco a leggere gli appuntamenti</h2>
+          <h2 style={{ fontSize: 'var(--text-lg)' }}><DashboardTranslations tr="Randevular okunamıyor" en="Could not load appointments" /></h2>
           <p className="muted">
-            La lettura dell&apos;agenda è fallita. Ricarica la pagina fra qualche istante: se il
-            problema resta, controlla lo stato dei servizi.
+            <DashboardTranslations tr="Takvim yüklenemedi. Biraz sonra sayfayı yenileyin; sorun sürerse hizmet durumunu kontrol edin." en="The calendar could not be loaded. Refresh in a moment; if the problem persists, check service status." />
           </p>
           <Link href="/status" className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
             Stato del servizio
@@ -92,26 +92,26 @@ export default async function CalendarPage() {
 
   return (
     <>
-      <CalendarHeader subtitle={`${data.rangeLabel} · fuso orario ${data.timezone}`} />
+      <CalendarHeader subtitle={<><DashboardTranslations tr={buildRangeLabel(data.days.map((day) => day.key), data.timezone, true)} en={buildRangeLabel(data.days.map(d => d.key), data.timezone, false)} /> · <DashboardTranslations tr="Saat dilimi" en="Timezone" /> {data.timezone}</>} />
 
       <div
         className="kpi-grid"
         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}
       >
         <article className="kpi">
-          <span className="kpi-label">Oggi</span>
+          <span className="kpi-label"><DashboardTranslations tr="Bugün" en="Today" /></span>
           <span className="kpi-value">{data.todayCount}</span>
         </article>
         <article className="kpi">
-          <span className="kpi-label">Prossimi 7 giorni</span>
+          <span className="kpi-label"><DashboardTranslations tr="Önümüzdeki 7 gün" en="Next 7 days" /></span>
           <span className="kpi-value">{data.weekCount}</span>
         </article>
         <article className="kpi">
-          <span className="kpi-label">Confermati</span>
+          <span className="kpi-label"><DashboardTranslations tr="Onaylananlar" en="Confirmed" /></span>
           <span className="kpi-value">{data.confirmedCount}</span>
         </article>
         <article className="kpi">
-          <span className="kpi-label">Prenotati da Ambrogio</span>
+          <span className="kpi-label"><DashboardTranslations tr="Ambrogio tarafından oluşturulan" en="Booked by Ambrogio" /></span>
           <span className="kpi-value">{data.aiBookedCount}</span>
         </article>
       </div>
@@ -119,10 +119,9 @@ export default async function CalendarPage() {
       {data.days.length === 0 ? (
         <section className="card">
           <div className="empty-state">
-            <p className="empty-state-title">Nessun appuntamento in agenda</p>
+            <p className="empty-state-title"><DashboardTranslations tr="Takvimde randevu yok" en="No appointments on the calendar" /></p>
             <p className="empty-state-text">
-              Ambrogio prenota da solo quando servizi e orari di apertura sono configurati. Se
-              l&apos;agenda resta vuota, parti da lì.
+              <DashboardTranslations tr="Ambrogio, hizmetler ve çalışma saatleri ayarlandığında otomatik randevu oluşturur. Takvim boşsa önce bu ayarları tamamlayın." en="Ambrogio can book automatically once services and opening hours are configured. If the calendar is empty, start with those settings." />
             </p>
             <div className="row" style={{ gap: 'var(--space-2)' }}>
               <Link href="/settings" className="btn btn-primary">
@@ -152,8 +151,8 @@ export default async function CalendarPage() {
                 <h2 style={{ fontSize: 'var(--text-lg)' }}>{day.label}</h2>
                 <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
                   {day.appointments.length === 1
-                    ? '1 appuntamento'
-                    : `${day.appointments.length} appuntamenti`}
+                    ? <DashboardTranslations tr="1 randevu" en="1 appointment" />
+                    : <DashboardTranslations tr={`${day.appointments.length} randevu`} en={`${day.appointments.length} appointments`} />}
                 </span>
               </header>
 
@@ -189,7 +188,7 @@ export default async function CalendarPage() {
                       </p>
                     </div>
                     <span className={`badge ${STATUS_CONFIG[appointment.status].badge}`}>
-                      {STATUS_CONFIG[appointment.status].label}
+                      <DashboardTranslations tr={STATUS_CONFIG[appointment.status].tr} en={STATUS_CONFIG[appointment.status].en} />
                     </span>
                   </li>
                 ))}
@@ -202,12 +201,12 @@ export default async function CalendarPage() {
   );
 }
 
-function CalendarHeader({ subtitle }: { readonly subtitle: string }) {
+function CalendarHeader({ subtitle }: { readonly subtitle: React.ReactNode }) {
   return (
     <div className="dashboard-header">
       <div className="stack stack-2">
-        <span className="eyebrow">Calendario</span>
-        <h1>Agenda</h1>
+        <span className="eyebrow"><DashboardTranslations tr="Takvim" en="Calendar" /></span>
+        <h1><DashboardTranslations tr="Randevu takvimi" en="Appointment calendar" /></h1>
         <p className="muted">{subtitle}</p>
       </div>
     </div>
@@ -330,7 +329,7 @@ function buildDayLabel(
   dayKeys: readonly string[],
   timezone: string,
 ): string {
-  const formatted = new Intl.DateTimeFormat('it-IT', {
+  const formatted = new Intl.DateTimeFormat('tr-TR', {
     timeZone: timezone,
     weekday: 'long',
     day: 'numeric',
@@ -338,47 +337,45 @@ function buildDayLabel(
   }).format(date);
 
   if (key === dayKeys[0]) {
-    return `Oggi · ${formatted}`;
+    return `Bugün · ${formatted}`;
   }
 
   if (key === dayKeys[1]) {
-    return `Domani · ${formatted}`;
+    return `Yarın · ${formatted}`;
   }
 
   return formatted;
 }
 
-function buildRangeLabel(dayKeys: readonly string[], timezone: string): string {
+function buildRangeLabel(dayKeys: readonly string[], timezone: string, tr = true): string {
   const first = dayKeys[0];
   const last = dayKeys[dayKeys.length - 1];
 
   if (!first || !last) {
-    return 'Prossimi giorni';
+    return tr ? 'Önümüzdeki günler' : 'Upcoming days';
   }
 
-  const formatter = new Intl.DateTimeFormat('it-IT', {
+  const formatter = new Intl.DateTimeFormat(tr ? 'tr-TR' : 'en-US', {
     timeZone: timezone,
     day: 'numeric',
     month: 'long',
   });
 
-  return `Dal ${formatter.format(new Date(`${first}T12:00:00Z`))} al ${formatter.format(
-    new Date(`${last}T12:00:00Z`),
-  )}`;
+  return tr ? ` ${formatter.format(new Date(`${first}T12:00:00Z`))} – ${formatter.format(new Date(`${last}T12:00:00Z`))}` : `${formatter.format(new Date(`${first}T12:00:00Z`))} – ${formatter.format(new Date(`${last}T12:00:00Z`))}`;
 }
 
 function describeAppointment(appointment: CalendarAppointment): string {
   const parts = [
-    appointment.serviceName ?? 'Servizio non indicato',
+    appointment.serviceName ?? '—',
     appointment.durationMinutes !== null ? `${appointment.durationMinutes} min` : null,
-    SOURCE_LABEL[appointment.bookingSource],
   ].filter((part): part is string => part !== null);
-
+  const source = SOURCE_LABEL[appointment.bookingSource];
+  parts.push(source.tr);
   return parts.join(' · ');
 }
 
 function formatTime(date: Date, timezone: string): string {
-  return new Intl.DateTimeFormat('it-IT', {
+  return new Intl.DateTimeFormat('tr-TR', {
     timeZone: timezone,
     hour: '2-digit',
     minute: '2-digit',

@@ -49,6 +49,20 @@ const MESSAGE_BY_CODE: Record<string, string> = {
 const FALLBACK_MESSAGE =
   'Something went wrong. Please try again, or contact us if the problem persists.';
 
+const MESSAGES_TR: Record<string, string> = {
+  rate_limited: 'Çok fazla deneme yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.',
+  bad_request: 'Bazı bilgiler geçersiz. Alanları kontrol edip tekrar deneyin.',
+  validation_error: 'Bazı bilgiler geçersiz. Alanları kontrol edip tekrar deneyin.',
+  unauthorized: 'Oturumunuz artık geçerli değil. Lütfen tekrar giriş yapın.',
+  forbidden: 'Bu işlemi tamamlamak için yetkiniz yok.',
+  not_found: 'İstenen kaynak bulunamadı.',
+  conflict: 'Bu bilgilerle zaten bir hesap bulunuyor.',
+};
+
+function isTurkish(): boolean {
+  return typeof window !== 'undefined' && window.localStorage.getItem('ai-receptionist-language') === 'tr';
+}
+
 function defaultBuildBody(formData: FormData): Record<string, string> {
   const body: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
@@ -63,6 +77,10 @@ function messageFor(payload: unknown, httpStatus: number): string {
   const envelope = payload as Partial<ApiErrorEnvelope> | null;
   const code = envelope?.error?.code;
 
+  if (code && isTurkish() && MESSAGES_TR[code]) {
+    return MESSAGES_TR[code];
+  }
+
   if (code && MESSAGE_BY_CODE[code]) {
     return MESSAGE_BY_CODE[code];
   }
@@ -74,10 +92,14 @@ function messageFor(payload: unknown, httpStatus: number): string {
   }
 
   if (httpStatus >= 500) {
-    return 'The service is temporarily unavailable. Please try again shortly.';
+    return isTurkish()
+      ? 'Hizmet şu anda geçici olarak kullanılamıyor. Lütfen biraz sonra tekrar deneyin.'
+      : 'The service is temporarily unavailable. Please try again shortly.';
   }
 
-  return FALLBACK_MESSAGE;
+  return isTurkish()
+    ? 'Bir sorun oluştu. Lütfen tekrar deneyin veya sorun devam ederse bizimle iletişime geçin.'
+    : FALLBACK_MESSAGE;
 }
 
 /**
@@ -113,7 +135,9 @@ export function useApiForm(options: UseApiFormOptions): {
       } catch {
         setState({
           status: 'error',
-          message: 'Connection failed. Check your network and try again.',
+          message: isTurkish()
+            ? 'Bağlantı kurulamadı. Ağınızı kontrol edip tekrar deneyin.'
+            : 'Connection failed. Check your network and try again.',
         });
         return;
       }

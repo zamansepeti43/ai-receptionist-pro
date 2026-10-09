@@ -4,15 +4,9 @@
  * Edge-runtime compatible. Used by `src/middleware.ts` to attach a per-request
  * nonce to inline scripts and to whitelist external origins we actually call.
  *
- * Two design choices worth highlighting:
- *
- * 1. We use `'strict-dynamic'` together with a nonce, so any script that we
- *    explicitly nonce can transitively load other scripts without us having
- *    to whitelist their hosts. This is the modern CSP3 pattern.
- * 2. The nonce is a base64url string sourced from `crypto.getRandomValues`.
- *    `crypto.randomUUID()` would also work, but we want raw entropy without
- *    the UUID dashes, and we want to stay compatible with the Edge Runtime
- *    where the Web Crypto API is the only available implementation.
+ * Development-only compatibility: React/Next.js development diagnostics use
+ * eval for enhanced error overlays and Fast Refresh. Keep that permission out
+ * of production CSP.
  */
 
 /** Origins we make `connect-src` (fetch/XHR/WebSocket) calls to. */
@@ -44,16 +38,12 @@ export const CSP_FRAME_SRC: readonly string[] = ["'self'", 'https://js.stripe.co
 /** Origins allowed for <audio>/<video>/blob URLs (TTS playback, Supabase media). */
 export const CSP_MEDIA_SRC: readonly string[] = ["'self'", 'blob:', 'https://*.supabase.co'];
 
-/** Origins allowed for <style>. We keep `'unsafe-inline'` for Next.js streaming styles. */
+/** Origins allowed for <style>. Next.js streaming styles require inline styles. */
 export const CSP_STYLE_SRC: readonly string[] = ["'self'", "'unsafe-inline'"];
 
 /**
  * Generate a cryptographically random nonce as a URL-safe base64 string.
- *
- * - Uses Web Crypto (`crypto.getRandomValues`), available in both Node 22+ and
- *   the Edge Runtime; no `node:crypto` import.
- * - 16 random bytes → 22 base64url characters (no padding), well above the
- *   recommended 128 bits of entropy for CSP nonces.
+ * Uses Web Crypto, available in both Node and the Edge Runtime.
  */
 export function generateNonce(): string {
   const bytes = new Uint8Array(16);
@@ -64,33 +54,24 @@ export function generateNonce(): string {
     binary += String.fromCharCode(byte);
   }
 
-  // btoa is available in both browser, Node 16+, and Edge Runtime.
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 /**
  * Build the full Content-Security-Policy header value for a given nonce.
- *
- * Directives:
- * - `default-src 'self'`: deny by default, allow same-origin.
- * - `script-src`: only nonced inline scripts and same-origin scripts;
- *   `'strict-dynamic'` lets nonced scripts load further scripts at runtime.
- * - `style-src`: same-origin + inline (Next.js streaming RSC requires this).
- * - `img-src`: same-origin + data URIs + Supabase + Google avatars.
- * - `font-src`: same-origin + inlined fonts.
- * - `connect-src`: explicit whitelist of every external API we hit.
- * - `frame-src`: only same-origin and Stripe.
- * - `media-src`: same-origin, blob URLs (for TTS), and Supabase storage.
- * - `object-src 'none'`: disallow Flash/Java/legacy plugins.
- * - `base-uri 'self'`: prevent <base> tag hijacks.
- * - `form-action 'self'`: forms only POST to us.
- * - `frame-ancestors 'none'`: nobody can embed us in an iframe (clickjacking).
- * - `upgrade-insecure-requests`: auto-upgrade http:// to https://.
+ * The development-only eval permission is explicit and must never be enabled
+ * for production responses.
  */
-export function buildContentSecurityPolicy(nonce: string): string {
+export function buildContentSecurityPolicy(nonce: string, isDevelopment = false): string {
+  const scriptSources = ["'self'", `'nonce-${nonce}'`];
+  if (isDevelopment) {
+    // Next.js/React development overlays and Fast Refresh require eval.
+    scriptSources.push("'unsafe-eval'");
+  }
+
   const directives: ReadonlyArray<readonly [string, readonly string[]]> = [
     ['default-src', ["'self'"]],
-    ['script-src', ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"]],
+    ['script-src', scriptSources],
     ['style-src', CSP_STYLE_SRC],
     ['img-src', CSP_IMG_SRC],
     ['font-src', CSP_FONT_SRC],
@@ -104,8 +85,6 @@ export function buildContentSecurityPolicy(nonce: string): string {
   ];
 
   const directiveStrings = directives.map(([name, sources]) => `${name} ${sources.join(' ')}`);
-
-  // `upgrade-insecure-requests` is a directive without a source list.
   directiveStrings.push('upgrade-insecure-requests');
 
   return directiveStrings.join('; ');
@@ -113,12 +92,7 @@ export function buildContentSecurityPolicy(nonce: string): string {
 
 /**
  * Path prefixes that should NOT receive a CSP header.
- *
- * Webhook endpoints (Stripe, WhatsApp/Meta) are called server-to-server and
- * never render HTML; injecting CSP into their JSON responses is harmless but
- * makes integration debugging confusing (e.g. some CDN intermediaries forward
- * CSP into developer dashboards). `/api/health` is also exempt so probes get
- * a minimal response.
+ * Webhook endpoints and /api/health do not render HTML.
  */
 export const CSP_BYPASS_PATH_PREFIXES: readonly string[] = [
   '/api/webhook/stripe',
@@ -126,9 +100,7 @@ export const CSP_BYPASS_PATH_PREFIXES: readonly string[] = [
   '/api/health',
 ];
 
-/**
- * Whether the given pathname should bypass CSP injection.
- */
+/** Whether the given pathname should bypass CSP injection. */
 export function shouldBypassCsp(pathname: string): boolean {
   return CSP_BYPASS_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),

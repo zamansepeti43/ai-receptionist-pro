@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
-import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
+import { MarketingLocaleProvider } from '@/components/marketing/MarketingLocaleProvider';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
 
 const inter = Inter({
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', locale: 'en_US', url: SITE_URL, siteName: PRODUCT_IDENTITY.name },
   alternates: {
     canonical: '/',
-    languages: { 'en-US': SITE_URL, 'it-IT': `${SITE_URL}?lang=it`, 'x-default': SITE_URL },
+    languages: { 'en-US': SITE_URL, 'tr-TR': `${SITE_URL}?lang=tr`, 'x-default': SITE_URL },
   },
   appleWebApp: { capable: true, title: PRODUCT_IDENTITY.name, statusBarStyle: 'default' },
   other: { 'msapplication-TileColor': '#0d766e' },
@@ -62,13 +62,12 @@ const websiteSchema = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: SITE_URL,
+  inLanguage: ['en-US', 'tr-TR'],
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const headerList = await headers();
-  const nonce = headerList.get('x-nonce') ?? undefined;
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en-US" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="tr-TR" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
         <link rel="preconnect" href="https://api.anthropic.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
@@ -81,15 +80,14 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <meta name="format-detection" content="telephone=no" />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body data-csp-nonce={nonce}>
+      <body>
         <a href="#main" className="skip-link">
-          Skip to content
+          İçeriğe geç
         </a>
-        {children}
+        <MarketingLocaleProvider>{children}</MarketingLocaleProvider>
       </body>
     </html>
   );

@@ -1,25 +1,29 @@
+'use client';
+
 import Link from 'next/link';
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function ProductHero() {
+  const { t } = useMarketingLocale();
+
   return (
     <section className="hero" aria-labelledby="product-hero-heading">
       <div className="container hero-grid">
         <div className="stack stack-6 animate-fade-up">
-          <span className="hero-eyebrow">24/7 AI receptionist · WhatsApp first</span>
+          <span className="hero-eyebrow">{t.heroEyebrow}</span>
           <h1 id="product-hero-heading" className="display text-balance">
-            Your front desk, always on.
+            {t.heroTitle}
           </h1>
           <p className="lead text-pretty">
-            {PRODUCT_IDENTITY.name} answers customer questions, checks real availability, books
-            appointments, confirms changes, and hands conversations to a human when needed.
+            {PRODUCT_IDENTITY.name} {t.heroBody.replace(/^AI Receptionist Pro\s*/, '')}
           </p>
           <div className="row" style={{ gap: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
             <Link href="/register" className="btn btn-primary btn-lg">
-              Start your setup <span aria-hidden="true">→</span>
+              {t.startSetup} <span aria-hidden="true">→</span>
             </Link>
             <Link href="/#how-it-works" className="btn btn-secondary btn-lg">
-              See how it works
+              {t.seeHow}
             </Link>
           </div>
           <div
@@ -33,15 +37,15 @@ export function ProductHero() {
           >
             <div className="stat">
               <span className="stat-value">24/7</span>
-              <span className="stat-label">Customer coverage</span>
+              <span className="stat-label">{t.customerCoverage}</span>
             </div>
             <div className="stat">
               <span className="stat-value">7</span>
-              <span className="stat-label">Sector presets</span>
+              <span className="stat-label">{t.sectorPresets}</span>
             </div>
             <div className="stat">
               <span className="stat-value">AI</span>
-              <span className="stat-label">Human handoff</span>
+              <span className="stat-label">{t.humanHandoff}</span>
             </div>
           </div>
         </div>

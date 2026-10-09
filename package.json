@@ -37,7 +37,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-e2e-standalone.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=75",
     "lint:fix": "eslint . --fix",
@@ -51,7 +51,7 @@
     "test:e2e:report": "playwright show-report",
     "db:lint": "node scripts/check-rls-migration.mjs",
     "security:secrets": "gitleaks detect --source . --verbose",
-    "verify": "npm run typecheck && npm run lint && npm run test && npm run db:lint",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run db:lint",
     "prepare": "husky"
   },
   "lint-staged": {

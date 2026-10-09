@@ -1,9 +1,9 @@
 // Magic-link login service.
-// Uses Supabase OTP and keeps account-enumeration details masked from the client.
-
+// Production responses remain uniform to avoid account enumeration. In development,
+// fail the request when the provider rejects delivery so the problem is visible.
+import { createClient } from '@supabase/supabase-js';
 import { logger } from '@/lib/logging/logger';
 import { env } from '@/lib/env';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export type MagicLinkInput = {
   email: string;
@@ -45,6 +45,13 @@ export class MagicLinkService {
         { requestId: input.requestId, err: error },
         'Magic link sender returned error (response masked for anti-enumeration)',
       );
+
+      // In production, keep the same response for existing and non-existing
+      // accounts. In local development, do not pretend delivery succeeded:
+      // return an error so the developer can see the provider failure in logs.
+      if (env.NODE_ENV === 'development') {
+        throw new Error('Magic-link provider rejected the request; inspect the development server log.');
+      }
     } else {
       logger.info({ requestId: input.requestId }, 'Magic link dispatched');
     }
@@ -54,7 +61,18 @@ export class MagicLinkService {
 }
 
 class SupabaseMagicLinkSender implements MagicLinkSender {
-  private readonly supabase = createSupabaseAdminClient();
+  // OTP sign-in is an end-user Auth operation. Use the project's publishable/anon
+  // key here; the newer sb_secret_* server key is not an Auth API key.
+  private readonly supabase = createClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    },
+  );
 
   async send(input: { email: string; redirectTo: string }): Promise<{ error: Error | null }> {
     const { error } = await this.supabase.auth.signInWithOtp({

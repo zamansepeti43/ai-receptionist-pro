@@ -1,9 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { LanguageSelector } from '@/components/marketing/LanguageSelector';
+import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
 
 export default function AuthLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const { language } = useMarketingLocale();
+  const isTurkish = language === 'tr';
+
   return (
     <div
       style={{
@@ -46,7 +52,7 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
           <div style={{ width: '100%', maxWidth: '420px' }}>{children}</div>
         </main>
         <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
-          AGTStudio ürünüdür.
+          {isTurkish ? 'AGTStudio ürünüdür.' : 'A product by AGTStudio.'}
         </p>
       </div>
       <aside
@@ -82,7 +88,7 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
               alignSelf: 'center',
             }}
           >
-            Beta Italia · 2026
+            BETA · 2026
           </span>
           <h2
             style={{
@@ -93,7 +99,9 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
             }}
             className="text-balance"
           >
-            La reception che non dorme. Il fatturato che non si ferma.
+            {isTurkish
+              ? 'Resepsiyonunuz hiç uyumaz. İşinizin kazancı durmaz.'
+              : 'The reception that never sleeps. Revenue that never stops.'}
           </h2>
           <p
             className="text-pretty"
@@ -103,8 +111,9 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
               color: 'oklch(95% 0.005 150)',
             }}
           >
-            AI Receptionist Pro risponde, raccoglie le richieste, gestisce le prenotazioni e passa la
-            conversazione a una persona quando serve.
+            {isTurkish
+              ? 'AI Receptionist Pro talepleri yanıtlar, randevuları yönetir ve gerektiğinde görüşmeyi bir insana aktarır.'
+              : 'AI Receptionist Pro answers requests, manages bookings, and hands the conversation to a person when needed.'}
           </p>
         </div>
       </aside>
