@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
 
 import { requireSession } from '@/lib/auth/session';
 import type { AuthSession } from '@/lib/auth/session';
@@ -38,6 +39,8 @@ const STATUS_PRESENTATION = {
 } as const;
 
 export default async function DashboardPage() {
+  const { language } = useMarketingLocale();
+  const tr = language === 'tr';
   const session = await requireSession();
 
   const [usage, inbox, settings] = await Promise.all([
@@ -57,41 +60,41 @@ export default async function DashboardPage() {
     <>
       <div className="dashboard-header">
         <div className="stack stack-2">
-          <span className="eyebrow">Panoramica</span>
-          <h1>{displayName ?? 'La tua attività'}</h1>
+          <span className="eyebrow">{tr ? 'Genel bakış' : 'Overview'}</span>
+          <h1>{displayName ?? (tr ? 'İşletmeniz' : 'Your business')}</h1>
           <p className="muted">
-            Piano {PLAN_LABELS[usage.plan]} · periodo {formatMetricMonth(usage.metricMonth)}
+            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {formatMetricMonth(usage.metricMonth)}
           </p>
         </div>
         <div className="row" style={{ gap: 'var(--space-3)' }}>
           <Link href="/conversations" className="btn btn-secondary">
-            Vedi conversazioni
+            {tr ? 'Görüşmeleri görüntüle' : 'View conversations'}
           </Link>
           <Link href="/calendar" className="btn btn-primary">
-            Vai al calendario
+            {tr ? 'Takvime git' : 'Go to calendar'}
           </Link>
         </div>
       </div>
 
       <div className="kpi-grid">
         <article className="kpi">
-          <span className="kpi-label">Conversazioni nel mese</span>
+          <span className="kpi-label">{tr ? 'Bu ayki görüşmeler' : 'Conversations this month'}</span>
           <span className="kpi-value">{formatNumber(usage.conversations.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            su {formatNumber(usage.conversations.limit)} incluse nel piano
+            su {formatNumber(usage.conversations.limit)} {tr ? 'plana dâhil' : 'included in plan'}
           </span>
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">Messaggi scambiati</span>
+          <span className="kpi-label">{tr ? 'Alışveriş yapılan mesajlar' : 'Messages exchanged'}</span>
           <span className="kpi-value">{formatNumber(usage.messages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            Totale del mese, in entrata e in uscita
+            {tr ? 'Bu ayki toplam gelen ve giden mesajlar' : 'Monthly total, inbound and outbound'}
           </span>
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">Vocali trascritti</span>
+          <span className="kpi-label">{tr ? 'Yazıya çevrilen sesli mesajlar' : 'Voice messages transcribed'}</span>
           <span className="kpi-value">{formatNumber(usage.voiceMessages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
             su {formatNumber(usage.voiceMessages.limit)} inclusi nel piano
@@ -99,8 +102,8 @@ export default async function DashboardPage() {
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">Risposte automatiche</span>
-          <span className="kpi-value">{usage.autoReplyAllowed ? 'Attive' : 'Sospese'}</span>
+          <span className="kpi-label">{tr ? 'Otomatik yanıtlar' : 'Automatic replies'}</span>
+          <span className="kpi-value">{usage.autoReplyAllowed ? (tr ? 'Etkin' : 'Active') : (tr ? 'Duraklatıldı' : 'Paused')}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
             {describeAutoReply(usage.autoReplyAllowed, usage.blockReason)}
           </span>
@@ -110,23 +113,23 @@ export default async function DashboardPage() {
       <div className="dashboard-content-grid">
         <section className="card stack stack-4">
           <div className="row-between">
-            <h2 style={{ fontSize: 'var(--text-xl)' }}>Conversazioni recenti</h2>
+            <h2 style={{ fontSize: 'var(--text-xl)' }}>{tr ? 'Son görüşmeler' : 'Recent conversations'}</h2>
             {conversations.length > 0 ? (
               <Link href="/conversations" className="btn-link">
-                Tutte →
+                {tr ? 'Tümü →' : 'All →'}
               </Link>
             ) : null}
           </div>
 
           {conversations.length === 0 ? (
             <div className="empty-state">
-              <p className="empty-state-title">Nessuna conversazione, per ora</p>
+              <p className="empty-state-title">{tr ? 'Henüz görüşme yok' : 'No conversations yet'}</p>
               <p className="empty-state-text">
                 Ambrogio risponde solo dopo che hai collegato il numero WhatsApp della tua attività.
                 Finché il collegamento non è attivo, qui non arriva nulla.
               </p>
               <Link href="/settings/whatsapp" className="btn btn-primary">
-                Collega WhatsApp
+                {tr ? 'WhatsApp’ı bağla' : 'Connect WhatsApp'}
               </Link>
             </div>
           ) : (
@@ -142,7 +145,7 @@ export default async function DashboardPage() {
 
         <aside className="stack stack-4">
           <div className="card stack stack-3">
-            <span className="eyebrow">Consumo del piano</span>
+            <span className="eyebrow">{tr ? 'Plan kullanımı' : 'Plan usage'}</span>
             <p style={{ fontSize: 'var(--text-2xl)', fontWeight: 700 }}>
               {formatNumber(usage.conversations.used)}
               <span className="muted" style={{ fontSize: 'var(--text-base)' }}>
@@ -150,40 +153,40 @@ export default async function DashboardPage() {
               </span>
             </p>
             <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-              Conversazioni del mese sul piano {PLAN_LABELS[usage.plan]}.
+              {tr ? 'Bu ayki görüşme kullanımı: ' : 'Monthly conversations on the '} {PLAN_LABELS[usage.plan]}{tr ? ' planı.' : ' plan.'}
             </p>
-            <UsageMeter label="Conversazioni del mese" metric={usage.conversations} />
+            <UsageMeter label="{tr ? 'Bu ayki görüşmeler' : 'Conversations this month'}" metric={usage.conversations} />
 
             <div className="stack stack-2" style={{ marginTop: 'var(--space-2)' }}>
               <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
                 Vocali: {formatNumber(usage.voiceMessages.used)}/
                 {formatNumber(usage.voiceMessages.limit)}
               </p>
-              <UsageMeter label="Vocali del mese" metric={usage.voiceMessages} />
+              <UsageMeter label="{tr ? 'Bu ayki sesli mesajlar' : 'Voice messages this month'}" metric={usage.voiceMessages} />
             </div>
           </div>
 
           {usage.blockReason !== null ? (
             <div className="card stack stack-3">
-              <span className="eyebrow">Limite raggiunto</span>
+              <span className="eyebrow">{tr ? 'Limiteye ulaşıldı' : 'Limit reached'}</span>
               <p style={{ fontSize: 'var(--text-sm)' }}>
                 {usage.blockReason === 'conversations_exceeded'
-                  ? 'Hai esaurito le conversazioni incluse nel piano: Ambrogio ha smesso di rispondere in automatico fino al rinnovo del mese.'
-                  : 'Hai esaurito i vocali inclusi nel piano: i messaggi audio non vengono più trascritti fino al rinnovo del mese.'}
+                  ? 'Hai esaurito le conversazioni {tr ? 'plana dâhil' : 'included in plan'}: Ambrogio ha smesso di rispondere in automatico fino al rinnovo del mese.'
+                  : '{tr ? 'Plana dâhil sesli mesaj hakkınız bitti. Aylık yenilemeye kadar ses transkripsiyonu duraklatıldı.' : 'You have used all voice messages in your plan. Audio transcription is paused until the monthly reset.'}'}
               </p>
               <Link href="/billing" className="btn btn-primary btn-sm">
-                Cambia piano
+                {tr ? 'Planı değiştir' : 'Change plan'}
               </Link>
             </div>
           ) : usage.softWarning ? (
             <div className="card stack stack-3">
-              <span className="eyebrow">Soglia in avvicinamento</span>
+              <span className="eyebrow">{tr ? 'Kullanım sınırına yaklaşıyorsunuz' : 'Approaching usage limit'}</span>
               <p style={{ fontSize: 'var(--text-sm)' }}>
-                Hai superato l&apos;80% di una delle soglie incluse nel piano. Al 100% le risposte
+                Hai superato l&apos;80% di una delle soglie {tr ? 'plana dâhil' : 'included in plan'}. Al 100% le risposte
                 automatiche si fermano fino al rinnovo del mese.
               </p>
               <Link href="/billing" className="btn btn-secondary btn-sm">
-                Vedi il piano
+                {tr ? 'Planı görüntüle' : 'View plan'}
               </Link>
             </div>
           ) : null}
