@@ -63,7 +63,7 @@ export default async function DashboardPage() {
           <span className="eyebrow">{tr ? 'Genel bakış' : 'Overview'}</span>
           <h1>{displayName ?? (tr ? 'İşletmeniz' : 'Your business')}</h1>
           <p className="muted">
-            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {formatMetricMonth(usage.metricMonth)}
+            {tr ? 'Plan' : 'Plan'} {PLAN_LABELS[usage.plan]} · {tr ? 'dönem' : 'period'} {formatMetricMonth(usage.metricMonth, language === 'tr')}
           </p>
         </div>
         <div className="row" style={{ gap: 'var(--space-3)' }}>
@@ -81,12 +81,12 @@ export default async function DashboardPage() {
           <span className="kpi-label">{tr ? 'Bu ayki görüşmeler' : 'Conversations this month'}</span>
           <span className="kpi-value">{formatNumber(usage.conversations.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            su {formatNumber(usage.conversations.limit)} {tr ? 'plana dâhil' : 'included in plan'}
+            {tr ? 'Plana dâhil' : 'Included in plan'}: {formatNumber(usage.conversations.limit)}
           </span>
         </article>
 
         <article className="kpi">
-          <span className="kpi-label">{tr ? 'Alışveriş yapılan mesajlar' : 'Messages exchanged'}</span>
+          <span className="kpi-label">{tr ? 'Gönderilen ve alınan mesajlar' : 'Messages exchanged'}</span>
           <span className="kpi-value">{formatNumber(usage.messages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
             {tr ? 'Bu ayki toplam gelen ve giden mesajlar' : 'Monthly total, inbound and outbound'}
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           <span className="kpi-label">{tr ? 'Yazıya çevrilen sesli mesajlar' : 'Voice messages transcribed'}</span>
           <span className="kpi-value">{formatNumber(usage.voiceMessages.used)}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            su {formatNumber(usage.voiceMessages.limit)} inclusi nel piano
+            {tr ? 'Plana dâhil' : 'Included in plan'}: {formatNumber(usage.voiceMessages.limit)}
           </span>
         </article>
 
@@ -105,7 +105,7 @@ export default async function DashboardPage() {
           <span className="kpi-label">{tr ? 'Otomatik yanıtlar' : 'Automatic replies'}</span>
           <span className="kpi-value">{usage.autoReplyAllowed ? (tr ? 'Etkin' : 'Active') : (tr ? 'Duraklatıldı' : 'Paused')}</span>
           <span className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-            {describeAutoReply(usage.autoReplyAllowed, usage.blockReason)}
+            {describeAutoReply(usage.autoReplyAllowed, usage.blockReason, tr)}
           </span>
         </article>
       </div>
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
             <ul style={{ listStyle: 'none', padding: 0 }} className="stack stack-3">
               {conversations.map((conversation) => (
                 <li key={conversation.id}>
-                  <ConversationRow conversation={conversation} timezone={timezone} />
+                  <ConversationRow conversation={conversation} timezone={timezone} language={language} />
                 </li>
               ))}
             </ul>
@@ -199,9 +199,10 @@ export default async function DashboardPage() {
 function ConversationRow({
   conversation,
   timezone,
-}: Readonly<{ conversation: ConversationSummary; timezone: string | null }>) {
+  language = 'tr',
+}: Readonly<{ conversation: ConversationSummary; timezone: string | null; language?: 'tr' | 'en' }>) {
   const presentation = STATUS_PRESENTATION[conversation.status];
-  const timestamp = formatTimestampParts(conversation.lastMessageAt, timezone);
+  const timestamp = formatTimestampParts(conversation.lastMessageAt, timezone, language);
 
   return (
     <Link
@@ -276,28 +277,29 @@ async function loadTenantSettings(session: AuthSession): Promise<TenantSettingsS
 function describeAutoReply(
   allowed: boolean,
   blockReason: 'conversations_exceeded' | 'voice_exceeded' | null,
+  tr = true,
 ): string {
   if (allowed) {
-    return 'Ambrogio risponde entro i limiti del piano';
+    return '{tr ? 'Ambrogio planınızın sınırları içinde yanıt verir' : 'Ambrogio replies within your plan limits'}';
   }
 
   return blockReason === 'voice_exceeded'
-    ? 'Limite vocali esaurito fino al rinnovo del mese'
-    : 'Limite conversazioni esaurito fino al rinnovo del mese';
+    ? '{tr ? 'Sesli mesaj sınırı aylık yenilemeye kadar doldu' : 'Voice-message limit reached until monthly reset'}'
+    : '{tr ? 'Görüşme sınırı aylık yenilemeye kadar doldu' : 'Conversation limit reached until monthly reset'}';
 }
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat('it-IT').format(value);
 }
 
-function formatMetricMonth(metricMonth: string): string {
+function formatMetricMonth(metricMonth: string, tr = true): string {
   const date = new Date(`${metricMonth}T00:00:00.000Z`);
 
   if (Number.isNaN(date.getTime())) {
-    return 'non disponibile';
+    return tr ? 'kullanılamıyor' : 'not available';
   }
 
-  return new Intl.DateTimeFormat('it-IT', {
+  return new Intl.DateTimeFormat(tr ? 'tr-TR' : 'en-US', {
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
@@ -307,6 +309,7 @@ function formatMetricMonth(metricMonth: string): string {
 function formatTimestampParts(
   isoDate: string,
   timezone: string | null,
+  language: 'tr' | 'en' = 'tr',
 ): { date: string; time: string } {
   const date = new Date(isoDate);
 
@@ -317,7 +320,7 @@ function formatTimestampParts(
   const zone = timezone !== null ? { timeZone: timezone } : {};
 
   return {
-    date: new Intl.DateTimeFormat('it-IT', {
+    date: new Intl.DateTimeFormat(language === 'tr' ? 'tr-TR' : 'en-US', {
       day: '2-digit',
       month: '2-digit',
       ...zone,
