@@ -74,7 +74,7 @@ export default async function CalendarPage() {
   if (!result.ok) {
     return (
       <>
-        <CalendarHeader subtitle={<DashboardTranslations tr="Takvim şu anda kullanılamıyor." en="Calendar is unavailable right now."} />} />
+        <CalendarHeader subtitle={<DashboardTranslations tr="Takvim şu anda kullanılamıyor." en="Calendar is unavailable right now." />} />
         <section className="card card-padded stack stack-3">
           <h2 style={{ fontSize: 'var(--text-lg)' }}><DashboardTranslations tr="Randevular okunamıyor" en="Could not load appointments" /></h2>
           <p className="muted">
