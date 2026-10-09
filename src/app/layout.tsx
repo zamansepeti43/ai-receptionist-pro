@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
-import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import '@/styles/globals.css';
@@ -66,13 +65,7 @@ const websiteSchema = {
   inLanguage: ['en-US', 'tr-TR'],
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const requestHeaders = await headers();
-  // Reading the nonce keeps the request-specific CSP available to the layout.
-  // Do not put it on the JSON-LD data script: browsers intentionally hide nonce
-  // attributes from getAttribute(), which can trigger React hydration mismatches.
-  requestHeaders.get('x-nonce');
-
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="tr-TR" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
