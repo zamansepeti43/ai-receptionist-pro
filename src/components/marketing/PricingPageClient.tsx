@@ -1,80 +1,33 @@
 'use client';
 
 import Link from 'next/link';
-import { buildBreadcrumbSchema, buildFaqSchema, buildSpeakableSchema, JsonLd } from '@/components/marketing/JsonLd';
-import { PricingTeaser } from '@/components/marketing/PricingTeaser';
-import { SiteFooter } from '@/components/marketing/SiteFooter';
-import { SiteHeader } from '@/components/marketing/SiteHeader';
-import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
+import { PricingTeaser } from './PricingTeaser';
+import { SiteHeader } from './SiteHeader';
+import { SiteFooter } from './SiteFooter';
+import { useMarketingLocale } from './MarketingLocaleProvider';
 
-const FAQ_EN = [
-  { q: 'Are the prices shown here real commercial prices?', a: 'No. The displayed 0 values are placeholders for example configurations. The actual commercial plans, limits and prices must be configured before launch.' },
-  { q: 'Can I change the plan structure?', a: 'Yes. The pricing layer is part of the application and is intended to be adapted before launch.' },
-  { q: 'Do customers need their own provider accounts?', a: 'Yes. The deployment is designed around buyer-owned accounts and credentials for supported providers.' },
-  { q: 'Can I use a different calendar provider?', a: 'The launch workflow is centered on Google Calendar. Additional providers can be added as a product extension.' },
-  { q: 'Is the application white-label?', a: 'Yes. The product layer provides configurable business identity and branding controls.' },
-  { q: 'Does the AI make medical decisions?', a: 'No. Healthcare-oriented presets are for administrative scheduling and customer communication, not diagnosis or treatment advice.' },
-  { q: 'What happens when automation should stop?', a: 'Configured guardrails and explicit requests for a person can trigger human handoff while preserving conversation context.' },
+const faqEn = [
+  ['Are these real commercial prices?', 'No. The displayed zero values are placeholders. Configure actual plans, limits and prices before launch.'],
+  ['Can I change the plan structure?', 'Yes. The pricing layer is intended to be adapted before launch.'],
+  ['Do customers need their own provider accounts?', 'Yes. Supported integrations use accounts owned by the business.'],
+  ['Can I use a different calendar provider?', 'The current workflow centers on Google Calendar. Others can be added later.'],
+  ['Is the application white-label?', 'Yes. Business identity and branding can be configured.'],
+  ['Does the AI make medical decisions?', 'No. Healthcare presets cover administrative scheduling, not diagnosis or treatment.'],
+  ['When should automation stop?', 'Safety rules or a request for a person can trigger human handoff.'],
 ] as const;
-
-const FAQ_TR = [
-  { q: 'Buradaki fiyatlar gerçek ticari fiyatlar mı?', a: 'Hayır. Gösterilen 0 değerleri örnek yapılandırmalar için yer tutucudur. Yayına almadan önce gerçek ticari planlar, limitler ve fiyatlar belirlenmelidir.' },
-  { q: 'Plan yapısını değiştirebilir miyim?', a: 'Evet. Fiyatlandırma katmanı uygulamanın bir parçasıdır ve yayına alınmadan önce ihtiyaca göre uyarlanmalıdır.' },
-  { q: 'Müşterilerin kendi sağlayıcı hesapları gerekli mi?', a: 'Evet. Uygulama, desteklenen sağlayıcılar için müşterinin sahip olduğu hesaplar ve erişim bilgileriyle çalışacak şekilde tasarlanmıştır.' },
-  { q: 'Farklı bir takvim sağlayıcısı kullanabilir miyim?', a: 'Mevcut başlangıç akışı Google Takvim üzerine kuruludur. Ürüne ek geliştirmeyle başka sağlayıcılar da eklenebilir.' },
-  { q: 'Uygulama beyaz etiket kullanımını destekliyor mu?', a: 'Evet. Ürün katmanı, işletme kimliğinin ve markasının yapılandırılmasını sağlar.' },
-  { q: 'Yapay zekâ tıbbi karar verir mi?', a: 'Hayır. Sağlık sektörüne yönelik şablonlar tanı veya tedavi tavsiyesi için değil, idari randevu planlama ve müşteri iletişimi içindir.' },
-  { q: 'Otomasyon ne zaman durdurulur?', a: 'Tanımlı güvenlik kuralları veya kullanıcının bir kişiyle görüşme isteği, görüşme bağlamı korunarak insan desteğine aktarımı başlatabilir.' },
+const faqTr = [
+  ['Bunlar gerçek ticari fiyatlar mı?', 'Hayır. Sıfır değerleri yer tutucudur. Yayına almadan önce gerçek planları, limitleri ve fiyatları belirleyin.'],
+  ['Plan yapısını değiştirebilir miyim?', 'Evet. Fiyatlandırma yapısı yayına alınmadan önce uyarlanabilir.'],
+  ['Müşterilerin kendi sağlayıcı hesapları gerekli mi?', 'Evet. Entegrasyonlar işletmenin kendi hesaplarını kullanır.'],
+  ['Farklı bir takvim sağlayıcısı kullanabilir miyim?', 'Mevcut akış Google Takvim merkezlidir; sonradan başka sağlayıcılar eklenebilir.'],
+  ['Uygulama beyaz etiket kullanımını destekliyor mu?', 'Evet. İşletme kimliği ve marka görünümü yapılandırılabilir.'],
+  ['Yapay zekâ tıbbi karar verir mi?', 'Hayır. Sağlık şablonları tanı veya tedavi değil, idari randevu planlaması içindir.'],
+  ['Otomasyon ne zaman durdurulur?', 'Güvenlik kuralları veya insanla görüşme isteği, insan desteğine aktarımı başlatabilir.'],
 ] as const;
 
 export function PricingPageClient() {
   const { language } = useMarketingLocale();
   const tr = language === 'tr';
-  const faq = tr ? FAQ_TR : FAQ_EN;
-  return (
-    <>
-      <JsonLd data={buildFaqSchema(faq)} />
-      <JsonLd data={buildBreadcrumbSchema([{ name: tr ? 'Ana sayfa' : 'Home', url: '/' }, { name: tr ? 'Fiyatlandırma' : 'Pricing', url: '/pricing' }])} />
-      <JsonLd data={buildSpeakableSchema({ url: '/pricing', cssSelector: ['#faq-heading', '[data-speakable="faq"]'] })} />
-      <SiteHeader />
-      <main id="main">
-        <section className="section" style={{ paddingTop: 'clamp(3rem, 4vw + 1rem, 5rem)', paddingBottom: 'clamp(2rem, 2vw, 3rem)' }}>
-          <div className="container stack stack-6 text-center" style={{ maxWidth: '720px', margin: '0 auto' }}>
-            <span className="badge" style={{ fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              {tr ? 'ÖRNEK FİYATLANDIRMA — GERÇEK TEKLİF DEĞİLDİR' : 'EXAMPLE PRICING — NOT A LIVE OFFER'}
-            </span>
-            <h1 className="display text-balance">{tr ? 'Bir başlangıç modeli seçin. Kendinize göre uyarlayın.' : 'Choose a starting model. Make it yours.'}</h1>
-            <p className="lead text-pretty" style={{ margin: '0 auto' }}>
-              {tr
-                ? <>Bu planlar uygulama için örnek varsayılanlardır. <strong>0</strong> değerleri yer tutucudur. Müşterilere teklif sunmadan önce gerçek fiyatları, limitleri, özellikleri ve faturalandırma kurallarını yapılandırın.</>
-                : <>These plans are example defaults for the application. The <strong>0</strong> values are intentional placeholders. Configure the actual prices, limits, features and billing rules before presenting an offer to customers.</>}
-            </p>
-          </div>
-        </section>
-        <PricingTeaser />
-        <section className="section section-divider" aria-labelledby="faq-heading">
-          <div className="container stack stack-12">
-            <div className="stack stack-3" style={{ maxWidth: '52ch' }}>
-              <span className="eyebrow">FAQ</span>
-              <h2 id="faq-heading">{tr ? 'Alıcıların sık sorduğu sorular' : 'Questions buyers usually ask'}</h2>
-            </div>
-            <div className="grid" data-speakable="faq" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
-              {faq.map((item) => (
-                <article key={item.q} className="card stack stack-3">
-                  <h3 style={{ fontSize: 'var(--text-lg)' }}>{item.q}</h3>
-                  <p style={{ color: 'var(--color-text-secondary)' }}>{item.a}</p>
-                </article>
-              ))}
-            </div>
-            <div className="card card-padded stack stack-4 text-center" style={{ background: 'var(--color-surface-sunken)', alignItems: 'center' }}>
-              <h3>{tr ? 'Size özel ticari yapılandırma mı gerekiyor?' : 'Need a custom commercial setup?'}</h3>
-              <p className="muted" style={{ maxWidth: '50ch' }}>{tr ? 'Büyük kurulumlar, ajanslar ve özel operasyonel gereksinimler için iletişim formunu kullanın.' : 'Use the contact flow for larger deployments, agencies and custom operational requirements.'}</p>
-              <Link href="/contact?plan=custom" className="btn btn-primary">{tr ? 'Bizimle iletişime geçin' : 'Contact us'}</Link>
-            </div>
-          </div>
-        </section>
-      </main>
-      <SiteFooter />
-    </>
-  );
+  const faq = tr ? faqTr : faqEn;
+  return <><SiteHeader /><main id="main"><section className="section"><div className="container stack stack-6 text-center" style={{ maxWidth: '720px', margin: '0 auto' }}><span className="badge">{tr ? 'ÖRNEK FİYATLANDIRMA — GERÇEK TEKLİF DEĞİLDİR' : 'EXAMPLE PRICING — NOT A LIVE OFFER'}</span><h1 className="display">{tr ? 'Bir başlangıç modeli seçin. Kendinize göre uyarlayın.' : 'Choose a starting model. Make it yours.'}</h1><p className="lead">{tr ? 'Bu planlar örnektir. 0 değerleri yer tutucudur. Müşterilere teklif sunmadan önce fiyatları, limitleri ve faturalandırma kurallarını yapılandırın.' : 'These plans are examples. The 0 values are placeholders. Configure prices, limits and billing rules before presenting an offer to customers.'}</p></div></section><PricingTeaser /><section className="section section-divider"><div className="container stack stack-6"><h2>{tr ? 'Sık sorulan sorular' : 'Questions buyers usually ask'}</h2><div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>{faq.map(([q,a]) => <article key={q} className="card stack stack-3"><h3>{q}</h3><p>{a}</p></article>)}</div><div className="card card-padded stack stack-4 text-center"><h3>{tr ? 'Size özel bir kurulum mu gerekiyor?' : 'Need a custom commercial setup?'}</h3><p>{tr ? 'Büyük kurulumlar ve özel gereksinimler için bizimle iletişime geçin.' : 'Contact us for larger deployments and custom requirements.'}</p><Link href="/contact?plan=custom" className="btn btn-primary">{tr ? 'İletişime geçin' : 'Contact us'}</Link></div></div></section></main><SiteFooter /></>;
 }
