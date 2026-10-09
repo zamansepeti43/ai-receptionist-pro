@@ -59,7 +59,7 @@ const EN = {
   pricingEyebrow: 'EXAMPLE SAAS PLANS',
   pricingHeading: 'Example models — configure your own commercial offer.',
   pricingIntro:
-    'The prices shown here are 0 because these are example configurations, not live commercial offers. Before launch, the buyer defines the actual plans, limits, prices and billing rules.',
+    'Prices shown as 0 are placeholders for example configurations, not live commercial offers. Configure the actual plans, limits, prices and billing rules before launch.',
   starter: 'Starter',
   professional: 'Professional',
   agency: 'Agency',
@@ -149,7 +149,7 @@ const TR = {
   pricingEyebrow: 'ÖRNEK SAAS PLANLARI',
   pricingHeading: 'Örnek modeller — ticari teklifinizi kendiniz yapılandırın.',
   pricingIntro:
-    'Buradaki fiyatlar 0’dır çünkü bunlar gerçek ticari teklifler değil, örnek yapılandırmalardır. Yayına almadan önce gerçek planları, limitleri, fiyatları ve faturalandırma kurallarını belirleyin.',
+    'Fiyatların 0 görünmesi, bunların gerçek ticari teklif değil örnek yapılandırmalar olduğunu belirtir. Yayına almadan önce gerçek planları, limitleri, fiyatları ve faturalandırma kurallarını belirleyin.',
   starter: 'Başlangıç',
   professional: 'Profesyonel',
   agency: 'Ajans',
