@@ -137,7 +137,7 @@ export default async function ConversationsPage({
               <DashboardTranslations tr="Yeniden dene" en="Retry" />
             </Link>
             <Link href="/status" className="btn btn-ghost btn-sm">
-              <DashboardTranslations tr="Durum" en="Status" /> del servizio
+              <DashboardTranslations tr="Hizmet durumu" en="Service status" />
             </Link>
           </div>
         </div>
@@ -148,21 +148,21 @@ export default async function ConversationsPage({
           <div className="empty-state">
             <p className="empty-state-title">
               {hasFilters
-                ? 'No conversations match these filters'
-                : 'No conversations yet'}
+                ? <DashboardTranslations tr="Bu filtrelerle eşleşen görüşme yok" en="No conversations match these filters" />
+                : <DashboardTranslations tr="Henüz görüşme yok" en="No conversations yet" />}
             </p>
             <p className="empty-state-text">
               {hasFilters
-                ? 'Try different filters; conversations may exist under another status or channel.'
-                : 'Conversations appear here when a customer messages your connected WhatsApp number. If it is not connected yet, start in settings.'}
+                ? <DashboardTranslations tr="Farklı filtreler deneyin; görüşmeler başka bir durumda veya kanalda olabilir." en="Try different filters; conversations may exist under another status or channel." />
+                : <DashboardTranslations tr="Müşteri bağlı WhatsApp numaranıza yazdığında görüşmeler burada görünür. Numara henüz bağlı değilse ayarlardan başlayın." en="Conversations appear here when a customer messages your connected WhatsApp number. If it is not connected yet, start in settings." />}
             </p>
             {hasFilters ? (
               <Link href="/conversations" className="btn btn-secondary btn-sm">
-                Clear filters
+                <DashboardTranslations tr="Filtreleri temizle" en="Clear filters" />
               </Link>
             ) : (
               <Link href="/settings" className="btn btn-primary btn-sm">
-                Connect WhatsApp
+                <DashboardTranslations tr="WhatsApp’ı bağla" en="Connect WhatsApp" />
               </Link>
             )}
           </div>
@@ -207,9 +207,9 @@ export default async function ConversationsPage({
                             {CHANNEL_LABELS[conversation.channel]}
                           </span>
                           {conversation.aiEnabled ? (
-                            <span className="badge">AI enabled</span>
+                            <span className="badge"><DashboardTranslations tr="Yapay zekâ etkin" en="AI enabled" /></span>
                           ) : (
-                            <span className="badge badge-warm">Operator only</span>
+                            <span className="badge badge-warm"><DashboardTranslations tr="Yalnızca operatör" en="Operator only" /></span>
                           )}
                         </div>
                         {conversation.customerName !== null ? (
@@ -243,7 +243,7 @@ export default async function ConversationsPage({
             style={{ marginTop: 'var(--space-6)', gap: 'var(--space-4)', flexWrap: 'wrap' }}
           >
             <p className="muted" style={{ fontSize: 'var(--text-sm)' }}>
-              {result.conversations.length} conversations, newest first.
+              <DashboardTranslations tr={`${result.conversations.length} görüşme, en yeniden eskiye.`} en={`${result.conversations.length} conversations, newest first.`} />
             </p>
             <div className="row" style={{ gap: 'var(--space-3)' }}>
               {before !== null ? (
@@ -251,7 +251,7 @@ export default async function ConversationsPage({
                   href={buildHref({ status, channel, before: null })}
                   className="btn btn-ghost btn-sm"
                 >
-                  Back to newest
+                  <DashboardTranslations tr="En yenilere dön" en="Back to newest" />
                 </Link>
               ) : null}
               {result.nextCursor !== null ? (
@@ -259,7 +259,7 @@ export default async function ConversationsPage({
                   href={buildHref({ status, channel, before: result.nextCursor })}
                   className="btn btn-secondary btn-sm"
                 >
-                  Older conversations
+                  <DashboardTranslations tr="Daha eski görüşmeler" en="Older conversations" />
                 </Link>
               ) : null}
             </div>
