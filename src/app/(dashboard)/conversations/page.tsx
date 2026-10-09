@@ -96,7 +96,7 @@ export default async function ConversationsPage({
               <option value=""><DashboardTranslations tr="Tümü" en="All" /></option>
               {(Object.keys(STATUS_LABELS) as ConversationStatus[]).map((value) => (
                 <option key={value} value={value}>
-                  {STATUS_LABELS[value].label}
+                  <DashboardTranslations tr={STATUS_LABELS[value].labelTr} en={STATUS_LABELS[value].labelEn} />
                 </option>
               ))}
             </select>
