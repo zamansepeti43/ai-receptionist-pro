@@ -10,6 +10,8 @@ export const test = base.extend<{ page: Page }>({
         window.localStorage.setItem(key, 'en');
       }
     }, STORAGE_KEY);
+    // Playwright fixture callback uses `use`; this is not a React Hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(page);
   },
 });
