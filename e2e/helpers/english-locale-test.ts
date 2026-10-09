@@ -6,7 +6,9 @@ const STORAGE_KEY = 'ai-receptionist-language';
 export const test = base.extend<{ page: Page }>({
   page: async ({ page }, use) => {
     await page.addInitScript((key) => {
-      window.localStorage.setItem(key, 'en');
+      if (window.location.origin !== 'null') {
+        window.localStorage.setItem(key, 'en');
+      }
     }, STORAGE_KEY);
     await use(page);
   },
