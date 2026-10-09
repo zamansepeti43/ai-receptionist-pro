@@ -4,10 +4,9 @@ import { gotoOk } from './helpers/page-signals';
 
 test.describe('Turkish and English language switching', () => {
   test('switches page copy and keeps the selected language across navigation and reload', async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.removeItem('ai-receptionist-language');
-    });
     await gotoOk(page, '/');
+    await page.evaluate(() => window.localStorage.removeItem('ai-receptionist-language'));
+    await page.reload();
 
     const language = page.getByRole('combobox', { name: 'Dil / Language' });
     const hero = page.getByRole('heading', { level: 1 });
