@@ -15,3 +15,4 @@ export const test = base.extend<{ page: Page }>({
 });
 
 export { expect };
+export type { Page };
