@@ -21,11 +21,16 @@ export function RegisterForm() {
       ? 'Hesap oluşturuldu. E-postanıza giriş bağlantısı gönderdik. Kurulumu tamamlamak için bağlantıyı açın.'
       : 'Account created. We sent you a sign-in link by email. Open it to finish setup.',
   });
-
   const isSubmitting = state.status === 'submitting';
 
   return (
-    <form onSubmit={(event) => { void onSubmit(event); }} className="stack stack-4" noValidate>
+    <form
+      onSubmit={(event) => {
+        void onSubmit(event);
+      }}
+      className="stack stack-4"
+      noValidate
+    >
       <FormFeedback state={state} id="register-form-errors" />
       <div className="field">
         <label htmlFor="business_name" className="label">
@@ -91,8 +96,12 @@ export function RegisterForm() {
       </div>
       <button type="submit" className="btn btn-primary btn-lg" disabled={isSubmitting}>
         {isSubmitting
-          ? isTurkish ? 'Hesap oluşturuluyor…' : 'Creating account…'
-          : isTurkish ? 'Hesap oluştur' : 'Create account'}
+          ? isTurkish
+            ? 'Hesap oluşturuluyor…'
+            : 'Creating account…'
+          : isTurkish
+            ? 'Hesap oluştur'
+            : 'Create account'}
       </button>
     </form>
   );
