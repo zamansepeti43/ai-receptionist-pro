@@ -36,6 +36,15 @@ describe('buildContentSecurityPolicy', () => {
     expect(csp).not.toContain("'strict-dynamic'");
   });
 
+  it('allows eval only when explicitly building a development policy', () => {
+    const developmentCsp = buildContentSecurityPolicy('dev-nonce', true);
+    const productionCsp = buildContentSecurityPolicy('prod-nonce', false);
+
+    expect(developmentCsp).toContain("script-src 'self' 'nonce-dev-nonce' 'unsafe-eval'");
+    expect(productionCsp).toContain("script-src 'self' 'nonce-prod-nonce'");
+    expect(productionCsp).not.toContain("'unsafe-eval'");
+  });
+
   it('declares default-src self and a hardened baseline', () => {
     const csp = buildContentSecurityPolicy('n');
 
