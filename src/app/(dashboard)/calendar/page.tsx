@@ -92,7 +92,7 @@ export default async function CalendarPage() {
 
   return (
     <>
-      <CalendarHeader subtitle={<><DashboardTranslations tr={buildRangeLabel(data.days.map(d => d.key), data.timezone, true)} en={buildRangeLabel(data.days.map(d => d.key), data.timezone, false)} /> · <DashboardTranslations tr="Saat dilimi" en="Timezone" /> {data.timezone}</>} />
+      <CalendarHeader subtitle={<><DashboardTranslations tr={buildRangeLabel(data.days.map((day) => day.key), data.timezone, true)} en={buildRangeLabel(data.days.map(d => d.key), data.timezone, false)} /> · <DashboardTranslations tr="Saat dilimi" en="Timezone" /> {data.timezone}</>} />
 
       <div
         className="kpi-grid"
@@ -205,8 +205,8 @@ function CalendarHeader({ subtitle }: { readonly subtitle: React.ReactNode }) {
   return (
     <div className="dashboard-header">
       <div className="stack stack-2">
-        <span className="eyebrow">Calendario</span>
-        <h1>Agenda</h1>
+        <span className="eyebrow"><DashboardTranslations tr="Takvim" en="Calendar" /></span>
+        <h1><DashboardTranslations tr="Randevu takvimi" en="Appointment calendar" /></h1>
         <p className="muted">{subtitle}</p>
       </div>
     </div>
