@@ -5,7 +5,6 @@
 'use client';
 
 import Link from 'next/link';
-import { buildBreadcrumbSchema, buildCollectionPageSchema, JsonLd } from '@/components/marketing/JsonLd';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { SiteHeader } from '@/components/marketing/SiteHeader';
 import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
@@ -28,13 +27,6 @@ export function VerticalsIndexClient() {
   const tr = language === 'tr';
   return (
     <>
-      <JsonLd data={buildBreadcrumbSchema([{ name: tr ? 'Ana sayfa' : 'Home', url: '/' }, { name: t.navSectors, url: '/verticali' }])} />
-      <JsonLd data={buildCollectionPageSchema({
-        name: tr ? 'AI Receptionist Pro sektör şablonları' : 'AI Receptionist Pro sector presets',
-        description: tr ? 'Yedi farklı sektör için yapılandırılabilir başlangıç noktaları.' : 'Seven configurable sector starting points.',
-        url: '/verticali',
-        hasPart: VERTICALS.map((v, i) => ({ name: tr ? (TR_TITLES[i] ?? v.title) : v.title, url: `/verticali/${v.slug}` })),
-      })} />
       <SiteHeader />
       <main id="main">
         <section className="section" style={{ paddingTop: 'clamp(3rem, 4vw + 1rem, 5rem)', paddingBottom: 'var(--space-section)' }}>
