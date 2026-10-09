@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+
 import { PRODUCT_IDENTITY } from '@/config/product-identity';
 import { LanguageSelector } from './LanguageSelector';
 import { useMarketingLocale } from './MarketingLocaleProvider';
 
 export function SiteHeader() {
-  const { t } = useMarketingLocale();
+  const { t, language } = useMarketingLocale();
 
   const navLinks = [
     { href: '/#features', label: t.navFeatures },
@@ -18,10 +19,14 @@ export function SiteHeader() {
   return (
     <header className="site-header" role="banner">
       <div className="container site-header-inner">
-        <Link href="/" className="site-logo" aria-label="${PRODUCT_IDENTITY.name} - homepage">
+        <Link
+          href="/"
+          className="site-logo"
+          aria-label={`${PRODUCT_IDENTITY.name} - ${language === 'tr' ? 'ana sayfa' : 'homepage'}`}
+        >
           {PRODUCT_IDENTITY.name}
         </Link>
-        <nav aria-label="Main navigation">
+        <nav aria-label={language === 'tr' ? 'Ana gezinme' : 'Main navigation'}>
           <ul className="site-nav">
             {navLinks.map((link) => (
               <li key={link.href}>
