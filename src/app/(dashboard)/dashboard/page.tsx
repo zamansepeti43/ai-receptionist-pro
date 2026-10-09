@@ -131,7 +131,7 @@ export default async function DashboardPage() {
             <ul style={{ listStyle: 'none', padding: 0 }} className="stack stack-3">
               {conversations.map((conversation) => (
                 <li key={conversation.id}>
-                  <ConversationRow conversation={conversation} timezone={timezone} language={language} />
+                  <ConversationRow conversation={conversation} timezone={timezone} />
                 </li>
               ))}
             </ul>
