@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+
 import { useMarketingLocale } from './MarketingLocaleProvider';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
@@ -14,6 +15,7 @@ export interface LegalPageProps {
 export function LegalPageLayout({ title, lastUpdated, children }: Readonly<LegalPageProps>) {
   const { language } = useMarketingLocale();
   const tr = language === 'tr';
+
   return (
     <>
       <SiteHeader />
