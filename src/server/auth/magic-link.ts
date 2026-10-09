@@ -1,6 +1,6 @@
 // Magic-link login service.
-// Uses Supabase OTP and keeps account-enumeration details masked from the client.
-
+// Production responses remain uniform to avoid account enumeration. In development,
+// fail the request when the provider rejects delivery so the problem is visible.
 import { logger } from '@/lib/logging/logger';
 import { env } from '@/lib/env';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -45,6 +45,13 @@ export class MagicLinkService {
         { requestId: input.requestId, err: error },
         'Magic link sender returned error (response masked for anti-enumeration)',
       );
+
+      // In production, keep the same response for existing and non-existing
+      // accounts. In local development, do not pretend delivery succeeded:
+      // return an error so the developer can see the provider failure in logs.
+      if (env.NODE_ENV === 'development') {
+        throw new Error('Magic-link provider rejected the request; inspect the development server log.');
+      }
     } else {
       logger.info({ requestId: input.requestId }, 'Magic link dispatched');
     }
