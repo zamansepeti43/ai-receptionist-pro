@@ -42,6 +42,9 @@ export default defineConfig({
     baseURL: BASE_URL,
     locale: 'en-US',
     timezoneId: 'Europe/Istanbul',
+    // Existing browser specs assert English copy; seed English only for fresh test contexts.
+    // The locale-switching spec still explicitly changes and persists both locales.
+    storageState: undefined,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'off',
