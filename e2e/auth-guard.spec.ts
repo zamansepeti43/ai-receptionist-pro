@@ -26,7 +26,7 @@ const ADMIN_PATHS = [
 const DASHBOARD_SHELL_MARKER = 'Navigazione dashboard';
 const ADMIN_SHELL_MARKER = 'Esci da admin';
 const LOGIN_URL = /\/login(\?.*)?$/;
-const LOGIN_ACTION = 'Send sign-in link';
+const LOGIN_ACTION = 'Sign in';
 
 test.describe('Protected tenant area', () => {
   for (const path of TENANT_PATHS) {
