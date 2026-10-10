@@ -73,6 +73,26 @@ export function RegisterForm() {
         </p>
       </div>
       <div className="field">
+        <label htmlFor="password" className="label">
+          {isTurkish ? 'Şifre' : 'Password'}
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          maxLength={128}
+          className="input"
+          aria-describedby="register-password-helper"
+          disabled={isSubmitting}
+        />
+        <p className="helper" id="register-password-helper">
+          {isTurkish ? 'En az 8 karakter kullanın.' : 'Use at least 8 characters.'}
+        </p>
+      </div>
+      <div className="field">
         <label htmlFor="vertical" className="label">
           {isTurkish ? 'Sektör' : 'Industry'}
         </label>
