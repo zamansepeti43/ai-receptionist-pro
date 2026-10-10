@@ -19,7 +19,7 @@ export function RegisterForm() {
     endpoint: '/api/auth/sign-up',
     successMessage: isTurkish
       ? 'Hesabınız oluşturuldu. E-posta ve şifrenizle giriş yapabilirsiniz.'
-      : 'Your account has been created. You can sign in with your email and password.',
+      : 'Account created. You can sign in with your email and password.',
   });
   const isSubmitting = state.status === 'submitting';
 
