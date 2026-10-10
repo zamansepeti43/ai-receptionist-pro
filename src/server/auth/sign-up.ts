@@ -25,6 +25,7 @@ export type SignUpInput = {
   email: string;
   vertical: SignUpVertical;
   requestId: string;
+  password?: string;
 };
 
 export type SignUpResult = {
@@ -69,22 +70,22 @@ export class SignUpService {
       businessType: input.vertical,
     });
 
-    // Magic link inviato in parallelo: non blocca la response se fallisce
-    // (il tenant resta in stato pending, l'utente puo' richiedere un nuovo link).
-    try {
-      await this.magicLinkService.request({
+    // Create a password-based Supabase identity and attach the tenant/owner claims.
+    // The optional password keeps existing unit-test callers backward compatible;
+    // the public API always requires it.
+    if (input.password) {
+      const admin = createSupabaseAdminClient();
+      const { data, error } = await admin.auth.admin.createUser({
         email,
-        requestId: input.requestId,
+        password: input.password,
+        email_confirm: true,
+        app_metadata: { tenant_id: tenant.id, role: 'owner' },
+        user_metadata: { business_name: businessName, vertical: input.vertical },
       });
-    } catch (error) {
-      logger.warn(
-        {
-          requestId: input.requestId,
-          tenantId: tenant.id,
-          err: error,
-        },
-        'Sign-up magic link dispatch failed (tenant remains pending)',
-      );
+      if (error || !data.user) {
+        logger.error({ requestId: input.requestId, tenantId: tenant.id, err: error }, 'Password account creation failed');
+        throw new AppError('upstream_error', 'Account could not be created. Please try again.', { cause: error, expose: true });
+      }
     }
 
     return { tenantId: tenant.id };
