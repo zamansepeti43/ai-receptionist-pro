@@ -1,11 +1,11 @@
-create or replace function public.replace_tenant_business_hours(
+create or replace function ai_receptionist.replace_tenant_business_hours(
   p_tenant_id uuid,
   p_hours jsonb
 )
-returns setof public.business_hours
+returns setof ai_receptionist.business_hours
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 begin
   if auth.role() <> 'service_role' then
@@ -16,10 +16,10 @@ begin
     raise exception 'p_hours must be a JSON array';
   end if;
 
-  delete from public.business_hours
+  delete from ai_receptionist.business_hours
   where tenant_id = p_tenant_id;
 
-  insert into public.business_hours (
+  insert into ai_receptionist.business_hours (
     tenant_id,
     weekday,
     opens_at,
@@ -36,13 +36,13 @@ begin
 
   return query
   select *
-  from public.business_hours
+  from ai_receptionist.business_hours
   where tenant_id = p_tenant_id
   order by weekday asc, opens_at asc;
 end;
 $$;
 
-revoke execute on function public.replace_tenant_business_hours(uuid, jsonb)
+revoke execute on function ai_receptionist.replace_tenant_business_hours(uuid, jsonb)
   from public, anon, authenticated;
-grant execute on function public.replace_tenant_business_hours(uuid, jsonb)
+grant execute on function ai_receptionist.replace_tenant_business_hours(uuid, jsonb)
   to service_role;
