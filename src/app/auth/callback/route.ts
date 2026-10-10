@@ -8,23 +8,16 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * Atterraggio del magic link.
- *
- * `magic-link.ts` e `sign-up.ts` configurano entrambi
- * `emailRedirectTo = ${NEXT_PUBLIC_APP_URL}/auth/callback`, ma la route non
- * esisteva: ogni link inviato per email finiva su 404 e nessuno poteva
- * completare l'accesso.
- *
- * Supabase può consegnare la sessione in due forme a seconda della
- * configurazione del progetto: `?code=` (flusso PKCE) oppure
- * `?token_hash=&type=` (link di verifica). Gestiamo entrambe perché quale
- * delle due arrivi dipende da impostazioni lato Supabase che non controlliamo
- * dal codice.
+ * Supabase Auth callback used by password-recovery email links and legacy
+ * verification links. Supports PKCE (`?code=`) and token-hash verification.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams, origin } = request.nextUrl;
 
   const next = safeDestination(searchParams.get('next'));
+
+  // Recovery links must reach the password form with a valid recovery session.
+  // After the password is changed, that route can send the user back to sign-in.
 
   // Supabase segnala i fallimenti (link scaduto, già usato) via query string.
   const providerError = searchParams.get('error_description') ?? searchParams.get('error');
