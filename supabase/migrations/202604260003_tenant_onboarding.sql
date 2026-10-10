@@ -1,4 +1,4 @@
-create or replace function public.create_tenant_onboarding(
+create or replace function ai_receptionist.create_tenant_onboarding(
   p_user_id uuid,
   p_user_email text,
   p_full_name text,
@@ -16,7 +16,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 declare
   v_tenant_id uuid;
@@ -28,7 +28,7 @@ begin
     raise insufficient_privilege using message = 'service_role required';
   end if;
 
-  if exists (select 1 from public.users where id = p_user_id) then
+  if exists (select 1 from ai_receptionist.users where id = p_user_id) then
     raise unique_violation using message = 'user already has a tenant membership';
   end if;
 
@@ -40,7 +40,7 @@ begin
     raise exception 'p_business_hours must be a JSON array';
   end if;
 
-  insert into public.tenants (
+  insert into ai_receptionist.tenants (
     name,
     slug,
     plan,
@@ -65,7 +65,7 @@ begin
   returning id, slug, name, trial_ends_at
   into v_tenant_id, v_tenant_slug, v_tenant_name, v_trial_ends_at;
 
-  insert into public.users (
+  insert into ai_receptionist.users (
     id,
     tenant_id,
     role,
@@ -80,7 +80,7 @@ begin
     nullif(p_config ->> 'phone', '')
   );
 
-  insert into public.tenant_config (
+  insert into ai_receptionist.tenant_config (
     tenant_id,
     studio_name,
     assistant_name,
@@ -125,7 +125,7 @@ begin
     nullif(p_config ->> 'humanEscalationEmail', '')
   );
 
-  insert into public.services (
+  insert into ai_receptionist.services (
     tenant_id,
     name,
     description,
@@ -142,7 +142,7 @@ begin
     coalesce((service ->> 'active')::boolean, true)
   from jsonb_array_elements(p_services) as service;
 
-  insert into public.business_hours (
+  insert into ai_receptionist.business_hours (
     tenant_id,
     weekday,
     opens_at,
@@ -157,7 +157,7 @@ begin
     coalesce((hour ->> 'active')::boolean, true)
   from jsonb_array_elements(p_business_hours) as hour;
 
-  insert into public.audit_log (
+  insert into ai_receptionist.audit_log (
     tenant_id,
     user_id,
     action,
@@ -188,7 +188,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.create_tenant_onboarding(
+revoke execute on function ai_receptionist.create_tenant_onboarding(
   uuid,
   text,
   text,
@@ -198,7 +198,7 @@ revoke execute on function public.create_tenant_onboarding(
   jsonb,
   jsonb
 ) from public, anon, authenticated;
-grant execute on function public.create_tenant_onboarding(
+grant execute on function ai_receptionist.create_tenant_onboarding(
   uuid,
   text,
   text,
