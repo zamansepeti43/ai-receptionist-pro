@@ -17,8 +17,8 @@ export default function LoginPage() {
         </h1>
         <p className="muted">
           {isTurkish
-            ? 'E-postanızı girin; size güvenli bir giriş bağlantısı gönderelim. Şifre hatırlamanız gerekmez.'
-            : 'Enter your email and we’ll send you a secure sign-in link. No password to remember.'}
+            ? 'E-posta adresiniz ve şifrenizle güvenli şekilde giriş yapın.'
+            : 'Sign in securely with your email address and password.'}
         </p>
       </div>
       <LoginForm />
@@ -37,8 +37,8 @@ export default function LoginPage() {
         </p>
         <p className="muted" style={{ fontSize: 'var(--text-xs)' }}>
           {isTurkish
-            ? '“Giriş bağlantısı gönder” seçeneğini kullanarak'
-            : 'By selecting “Send sign-in link” you agree to the'}{' '}
+            ? '“Giriş yap” seçeneğini kullanarak'
+            : 'By selecting “Sign in” you agree to the'}{' '}
           <Link href="/legal/terms" className="btn-link">
             {isTurkish ? 'hizmet koşullarını' : 'terms of service'}
           </Link>{' '}
