@@ -11,7 +11,7 @@ import {
 } from '@/server/auth/sign-up';
 
 describe('SignUpService', () => {
-  it('happy path: creates pending tenant and dispatches magic link', async () => {
+  it('creates a tenant without sending a magic link when called without a password', async () => {
     const repository = new FakeRepo();
     const sender = new FakeMagicSender();
     const magicLink = new MagicLinkService(sender, 'https://app.test/cb');
@@ -32,12 +32,7 @@ describe('SignUpService', () => {
       businessType: 'dental',
     });
     expect(repository.inserts[0]?.slug).toMatch(/^studio-test-[a-f0-9-]{8}$/);
-    expect(sender.calls).toEqual([
-      {
-        email: 'mario@example.it',
-        redirectTo: 'https://app.test/cb',
-      },
-    ]);
+    expect(sender.calls).toEqual([]);
   });
 
   it('rejects when business name is shorter than 2 chars', async () => {
