@@ -1,5 +1,5 @@
 // Fatto da Claude Code l'8 maggio 2026.
-// POST /api/auth/sign-up: crea tenant pending + invia magic link.
+// POST /api/auth/sign-up: crea tenant e account con email e password.
 
 import { type NextRequest } from 'next/server';
 import { z } from 'zod';
@@ -15,6 +15,7 @@ const SignUpBodySchema = z
   .object({
     business_name: z.string().trim().min(2).max(120),
     email: z.string().trim().email().max(254),
+    password: z.string().min(8).max(128),
     vertical: z.enum(['dental', 'beauty', 'fitness', 'professional', 'other']),
   })
   .strict();
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const result = await service.signUp({
       businessName: parsed.business_name,
       email: parsed.email,
+      password: parsed.password,
       vertical: parsed.vertical,
       requestId: context.requestId,
     });
