@@ -12,7 +12,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const { email } = schema.parse(await readJsonBody(request));
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email.toLowerCase(), {
-      redirectTo: new URL('/auth/reset-password', request.url).toString(),
+      redirectTo: new URL('/auth/callback?next=%2Fauth%2Freset-password', request.url).toString(),
     });
     if (error) throw error;
     return { sent: true };
