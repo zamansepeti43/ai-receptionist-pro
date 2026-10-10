@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { FormFeedback } from '@/components/forms/FormFeedback';
 import { useMarketingLocale } from '@/components/marketing/MarketingLocaleProvider';
 
@@ -14,39 +13,64 @@ export function LoginForm() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const data = new FormData(event.currentTarget);
     setState({ status: 'submitting', message: null });
     try {
       const response = await fetch('/api/auth/sign-in', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: data.get('email'), password: data.get('password') }),
       });
-      const payload = await response.json().catch(() => null);
       if (!response.ok) {
-        setState({ status: 'error', message: tr ? 'E-posta veya şifre hatalı. Bilgilerinizi kontrol edin.' : 'Email or password is incorrect. Check your details.' });
+        setState({
+          status: 'error',
+          message: tr
+            ? 'E-posta veya şifre hatalı. Bilgilerinizi kontrol edin.'
+            : 'Email or password is incorrect. Check your details.',
+        });
         return;
       }
       window.location.assign('/dashboard');
     } catch {
-      setState({ status: 'error', message: tr ? 'Bağlantı kurulamadı. Tekrar deneyin.' : 'Connection failed. Please try again.' });
+      setState({
+        status: 'error',
+        message: tr ? 'Bağlantı kurulamadı. Tekrar deneyin.' : 'Connection failed. Please try again.',
+      });
     }
   }
 
   async function resetPassword() {
     const form = document.querySelector<HTMLFormElement>('#login-form');
-    const email = new FormData(form ?? undefined).get('email');
+    if (!form) return;
+    const email = new FormData(form).get('email');
     if (typeof email !== 'string' || !email.trim()) {
-      setState({ status: 'error', message: tr ? 'Önce e-posta adresinizi girin.' : 'Enter your email address first.' });
+      setState({
+        status: 'error',
+        message: tr ? 'Önce e-posta adresinizi girin.' : 'Enter your email address first.',
+      });
       return;
     }
     setState({ status: 'submitting', message: null });
     try {
-      const response = await fetch('/api/auth/reset-password', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
       if (!response.ok) throw new Error('reset_failed');
-      setState({ status: 'success', message: tr ? 'Adres bir hesaba bağlıysa şifre yenileme e-postası gönderildi.' : 'If the address belongs to an account, a password reset email has been sent.' });
+      setState({
+        status: 'success',
+        message: tr
+          ? 'Adres bir hesaba bağlıysa şifre yenileme e-postası gönderildi.'
+          : 'If the address belongs to an account, a password reset email has been sent.',
+      });
     } catch {
-      setState({ status: 'error', message: tr ? 'Şifre yenileme e-postası gönderilemedi. Tekrar deneyin.' : 'Could not send the reset email. Please try again.' });
+      setState({
+        status: 'error',
+        message: tr
+          ? 'Şifre yenileme e-postası gönderilemedi. Tekrar deneyin.'
+          : 'Could not send the reset email. Please try again.',
+      });
     }
   }
 
