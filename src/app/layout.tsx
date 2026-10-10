@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import { Fraunces, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 
@@ -65,10 +66,13 @@ const websiteSchema = {
   inLanguage: ['en-US', 'tr-TR'],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  // Match Next.js-generated inline bootstrap scripts to the nonce enforced by middleware CSP.
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
+
   return (
     <html lang="tr-TR" className={`${inter.variable} ${fraunces.variable}`}>
-      <head>
+      <head nonce={nonce}>
         <link rel="preconnect" href="https://api.anthropic.com" />
         <link rel="dns-prefetch" href="https://api.stripe.com" />
         <link rel="dns-prefetch" href="https://api.elevenlabs.io" />
@@ -79,6 +83,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
