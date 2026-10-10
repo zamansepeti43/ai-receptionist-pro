@@ -27,7 +27,20 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     const parsed = SignUpBodySchema.parse(await readJsonBody(request));
 
-    const service = createSignUpService();
+    let service: ReturnType<typeof createSignUpService>;
+    try {
+      service = createSignUpService();
+    } catch (error) {
+      const env = await import('@/lib/env').then((module) => module.env);
+      const missing = [
+        !env.NEXT_PUBLIC_SUPABASE_URL && 'NEXT_PUBLIC_SUPABASE_URL',
+        !env.SUPABASE_SECRET_KEY && !env.SUPABASE_SERVICE_ROLE_KEY && 'SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY',
+      ].filter(Boolean);
+      if (process.env.NODE_ENV !== 'production' && missing.length > 0) {
+        throw new Error(`Local Supabase configuration is missing: ${missing.join(', ')}`, { cause: error });
+      }
+      throw error;
+    }
     const result = await service.signUp({
       businessName: parsed.business_name,
       email: parsed.email,
