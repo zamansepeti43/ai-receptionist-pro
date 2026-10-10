@@ -1,22 +1,14 @@
 // Fatto da Claude Code l'8 maggio 2026.
 //
-// Sign-up self-service: l'utente sceglie business name + vertical e riceve un
-// magic link. Creiamo un tenant in stato `suspended` (placeholder "pending":
-// non e' ancora stato confermato l'accesso del proprietario) + una RPC
-// magic-link a Supabase. Quando l'utente conferma l'email, l'onboarding flow
-// reso' disponibile da TenantOnboardingService completera' la configurazione.
-//
-// Pattern: factory + DI (repository + magic-link sender). Lo schema tenants
-// esistente non prevede uno stato `pending` esplicito; usiamo `suspended`
-// come rappresentazione operativa "non ancora attivo".
+// Email/password registration: create a suspended tenant, then its owner identity.
+// The tenant remains inactive until the owner completes onboarding.
 
 import { randomUUID } from 'node:crypto';
 
 import { AppError } from '@/lib/errors/app-error';
 import { logger } from '@/lib/logging/logger';
-import { env } from '@/lib/env';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
-import { type MagicLinkSender, MagicLinkService, normalizeEmail } from '@/server/auth/magic-link';
+import { normalizeEmail } from '@/server/auth/magic-link';
 
 export type SignUpVertical = 'dental' | 'beauty' | 'fitness' | 'professional' | 'other';
 
@@ -25,6 +17,7 @@ export type SignUpInput = {
   email: string;
   vertical: SignUpVertical;
   requestId: string;
+  password: string;
 };
 
 export type SignUpResult = {
@@ -41,13 +34,11 @@ export type PendingTenantInsertInput = {
 export interface SignUpRepository {
   findTenantByBillingEmail(email: string): Promise<{ id: string } | null>;
   insertPendingTenant(input: PendingTenantInsertInput): Promise<{ id: string }>;
+  deletePendingTenant(tenantId: string): Promise<void>;
 }
 
 export class SignUpService {
-  constructor(
-    private readonly repository: SignUpRepository,
-    private readonly magicLinkService: MagicLinkService,
-  ) {}
+  constructor(private readonly repository: SignUpRepository) {}
 
   async signUp(input: SignUpInput): Promise<SignUpResult> {
     const businessName = normalizeBusinessName(input.businessName);
@@ -69,22 +60,30 @@ export class SignUpService {
       businessType: input.vertical,
     });
 
-    // Magic link inviato in parallelo: non blocca la response se fallisce
-    // (il tenant resta in stato pending, l'utente puo' richiedere un nuovo link).
-    try {
-      await this.magicLinkService.request({
-        email,
-        requestId: input.requestId,
+    // Create a password-based Supabase identity and attach the tenant/owner claims.
+    // Roll back the tenant if identity creation fails to prevent orphan rows.
+    const admin = createSupabaseAdminClient();
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password: input.password,
+      email_confirm: true,
+      app_metadata: { tenant_id: tenant.id, role: 'owner' },
+      user_metadata: { business_name: businessName, vertical: input.vertical },
+    });
+    if (error || !data.user) {
+      logger.error({ requestId: input.requestId, tenantId: tenant.id, err: error }, 'Password account creation failed');
+      try {
+        await this.repository.deletePendingTenant(tenant.id);
+      } catch (cleanupError) {
+        logger.error(
+          { requestId: input.requestId, tenantId: tenant.id, err: cleanupError },
+          'Failed to roll back tenant after account creation failure',
+        );
+      }
+      throw new AppError('upstream_error', 'Account could not be created. Please try again.', {
+        cause: error,
+        expose: true,
       });
-    } catch (error) {
-      logger.warn(
-        {
-          requestId: input.requestId,
-          tenantId: tenant.id,
-          err: error,
-        },
-        'Sign-up magic link dispatch failed (tenant remains pending)',
-      );
     }
 
     return { tenantId: tenant.id };
@@ -92,7 +91,7 @@ export class SignUpService {
 }
 
 export class SupabaseSignUpRepository implements SignUpRepository {
-  private readonly supabase = createSupabaseAdminClient();
+  constructor(private readonly supabase = createSupabaseAdminClient()) {}
 
   async findTenantByBillingEmail(email: string): Promise<{ id: string } | null> {
     const { data, error } = await this.supabase
@@ -136,24 +135,20 @@ export class SupabaseSignUpRepository implements SignUpRepository {
 
     return { id: String(data.id) };
   }
+
+  async deletePendingTenant(tenantId: string): Promise<void> {
+    const { error } = await this.supabase.from('tenants').delete().eq('id', tenantId);
+    if (error) {
+      throw new AppError('upstream_error', 'Failed to roll back pending tenant', {
+        cause: error,
+        expose: false,
+      });
+    }
+  }
 }
 
 export function createSignUpService(): SignUpService {
-  // Chi arriva dalla registrazione non ha ancora un tenant configurato:
-  // il magic link deve portarlo all'onboarding, non alla dashboard vuota.
-  const redirectTo = `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=%2Fonboarding`;
-  const sender: MagicLinkSender = {
-    async send(input) {
-      const supabase = createSupabaseAdminClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: input.email,
-        options: { emailRedirectTo: input.redirectTo },
-      });
-      return { error: error ?? null };
-    },
-  };
-  const magicLinkService = new MagicLinkService(sender, redirectTo);
-  return new SignUpService(new SupabaseSignUpRepository(), magicLinkService);
+  return new SignUpService(new SupabaseSignUpRepository());
 }
 
 function normalizeBusinessName(value: string): string {

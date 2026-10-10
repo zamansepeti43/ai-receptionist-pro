@@ -17,18 +17,18 @@
 --   gdpr.customer.export.requested    -> Art. 15 customer-level export
 --   gdpr.customer.deletion.executed   -> Art. 17 customer-level cancellazione
 
-alter table public.audit_log
+alter table ai_receptionist.audit_log
   drop constraint if exists audit_log_tenant_id_fkey;
 
-alter table public.audit_log
+alter table ai_receptionist.audit_log
   add constraint audit_log_tenant_id_fkey
-  foreign key (tenant_id) references public.tenants(id) on delete set null;
+  foreign key (tenant_id) references ai_receptionist.tenants(id) on delete set null;
 
-alter table public.audit_log
+alter table ai_receptionist.audit_log
   drop constraint if exists audit_log_user_id_fkey;
 
-alter table public.audit_log
+alter table ai_receptionist.audit_log
   add constraint audit_log_user_id_fkey
-  foreign key (user_id) references public.users(id) on delete set null;
+  foreign key (user_id) references ai_receptionist.users(id) on delete set null;
 
-create index if not exists audit_log_action_idx on public.audit_log(action, created_at desc);
+create index if not exists audit_log_action_idx on ai_receptionist.audit_log(action, created_at desc);

@@ -14,6 +14,7 @@ const FEEDBACK = '#register-form-errors';
 async function fillRegisterForm(page: Page, email: string): Promise<void> {
   await page.getByLabel('Business or practice name', { exact: true }).fill('E2E Business');
   await page.getByLabel('Work email', { exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill('StrongPass123!');
   await page.getByLabel('Industry', { exact: true }).selectOption('dental');
 }
 
@@ -48,6 +49,7 @@ test.describe('Registration', () => {
     expect(request.jsonBody).toEqual({
       business_name: 'E2E Business',
       email: 'e2e-success@example.com',
+      password: 'StrongPass123!',
       vertical: 'dental',
     });
   });
@@ -77,6 +79,7 @@ test.describe('Registration', () => {
     expect(capture.first().jsonBody).toEqual({
       business_name: 'E2E Business',
       email: 'e2e-error@example.com',
+      password: 'StrongPass123!',
       vertical: 'dental',
     });
   });

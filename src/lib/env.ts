@@ -9,6 +9,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().default('AI Receptionist Pro'),
   NEXT_PUBLIC_SUPABASE_URL: optionalUrl.default(''),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional().default(''),
+  SUPABASE_SECRET_KEY: z.string().optional().default(''),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().default(''),
   SUPABASE_DB_URL: z.string().optional().default(''),
   SUPABASE_MEDIA_BUCKET: z.string().default('ambrogio-media'),

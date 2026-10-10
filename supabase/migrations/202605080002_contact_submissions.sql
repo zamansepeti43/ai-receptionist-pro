@@ -12,7 +12,7 @@
 -- RLS: solo service_role puo' leggere/scrivere. Non vengono esposti i
 -- submission ai tenant (privacy: contengono email/PII di prospect).
 
-create table if not exists public.contact_submissions (
+create table if not exists ai_receptionist.contact_submissions (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   email text not null,
@@ -26,17 +26,17 @@ create table if not exists public.contact_submissions (
 );
 
 create index if not exists contact_submissions_created_idx
-  on public.contact_submissions(created_at desc);
+  on ai_receptionist.contact_submissions(created_at desc);
 
 create index if not exists contact_submissions_unprocessed_idx
-  on public.contact_submissions(created_at desc)
+  on ai_receptionist.contact_submissions(created_at desc)
   where processed_at is null;
 
-alter table public.contact_submissions enable row level security;
+alter table ai_receptionist.contact_submissions enable row level security;
 
 -- Nessuna policy per anon/authenticated: tabella accessibile solo via service_role
 -- (server-side da /api/contact e job interni). Postgres nega di default
 -- senza policy quando RLS e' attivo.
-create policy contact_submissions_service_role_all on public.contact_submissions
+create policy contact_submissions_service_role_all on ai_receptionist.contact_submissions
   for all using (auth.role() = 'service_role')
   with check (auth.role() = 'service_role');

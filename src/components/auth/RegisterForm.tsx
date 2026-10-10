@@ -18,8 +18,8 @@ export function RegisterForm() {
   const { state, onSubmit } = useApiForm({
     endpoint: '/api/auth/sign-up',
     successMessage: isTurkish
-      ? 'Hesap oluşturuldu. E-postanıza giriş bağlantısı gönderdik. Kurulumu tamamlamak için bağlantıyı açın.'
-      : 'Account created. We sent you a sign-in link by email. Open it to finish setup.',
+      ? 'Hesabınız oluşturuldu. E-posta ve şifrenizle giriş yapabilirsiniz.'
+      : 'Account created. You can sign in with your email and password.',
   });
   const isSubmitting = state.status === 'submitting';
 
@@ -70,6 +70,26 @@ export function RegisterForm() {
           {isTurkish
             ? 'Bu e-posta, çalışma alanınızın ana hesabı olacaktır.'
             : 'This email will be the primary account for your workspace.'}
+        </p>
+      </div>
+      <div className="field">
+        <label htmlFor="password" className="label">
+          {isTurkish ? 'Şifre' : 'Password'}
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          maxLength={128}
+          className="input"
+          aria-describedby="register-password-helper"
+          disabled={isSubmitting}
+        />
+        <p className="helper" id="register-password-helper">
+          {isTurkish ? 'En az 8 karakter kullanın.' : 'Use at least 8 characters.'}
         </p>
       </div>
       <div className="field">

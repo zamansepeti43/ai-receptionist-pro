@@ -31,7 +31,7 @@ describe('POST /api/auth/sign-up', () => {
     resetRateLimitCachesForTests();
   });
 
-  it('happy path: creates pending tenant and returns tenantId', async () => {
+  it('happy path: creates account and returns tenantId', async () => {
     const { POST } = await import('@/app/api/auth/sign-up/route');
 
     const response = await POST(buildRequest());
@@ -44,6 +44,7 @@ describe('POST /api/auth/sign-up', () => {
       expect.objectContaining({
         businessName: 'Studio Test',
         email: 'mario@example.it',
+        password: 'StrongPass123!',
         vertical: 'dental',
       }),
     );
@@ -57,6 +58,7 @@ describe('POST /api/auth/sign-up', () => {
         bodyOverride: {
           business_name: 'Studio Test',
           email: 'mario@example.it',
+          password: 'StrongPass123!',
           vertical: 'unknown-vertical',
         },
       }),
@@ -90,6 +92,7 @@ function buildRequest({ bodyOverride }: BuildRequestOptions = {}): NextRequest {
   const body = bodyOverride ?? {
     business_name: 'Studio Test',
     email: 'mario@example.it',
+    password: 'StrongPass123!',
     vertical: 'dental',
   };
 

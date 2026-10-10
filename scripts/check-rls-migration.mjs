@@ -16,7 +16,7 @@ const sql = readdirSync(migrationsDir)
  * accorgesse. Un controllo che ignora ciò che non conosce protegge solo il
  * passato.
  */
-const declaredTables = [...sql.matchAll(/create table if not exists public\.(\w+)/g)]
+const declaredTables = [...sql.matchAll(/create table if not exists ai_receptionist\.(\w+)/g)]
   .map((match) => match[1])
   .filter((table, index, all) => all.indexOf(table) === index)
   .sort();
@@ -27,7 +27,7 @@ if (declaredTables.length === 0) {
 }
 
 const missing = declaredTables.filter(
-  (table) => !sql.includes(`alter table public.${table} enable row level security`),
+  (table) => !sql.includes(`alter table ai_receptionist.${table} enable row level security`),
 );
 
 if (missing.length > 0) {
@@ -38,11 +38,11 @@ if (missing.length > 0) {
 const requiredSnippets = [
   "auth.jwt() -> 'app_metadata' ->> 'tenant_id'",
   "auth.jwt() -> 'app_metadata' ->> 'role'",
-  'revoke execute on function public.increment_usage_metrics',
-  'grant execute on function public.increment_usage_metrics',
-  'create or replace function public.match_knowledge_base',
-  'revoke execute on function public.match_knowledge_base',
-  'grant execute on function public.match_knowledge_base',
+  'revoke execute on function ai_receptionist.increment_usage_metrics',
+  'grant execute on function ai_receptionist.increment_usage_metrics',
+  'create or replace function ai_receptionist.match_knowledge_base',
+  'revoke execute on function ai_receptionist.match_knowledge_base',
+  'grant execute on function ai_receptionist.match_knowledge_base',
   'integrations_provider_external_account_unique_idx',
   'integrations_tenant_singleton_provider_unique_idx',
   'auto_reply_enabled boolean not null default false',
@@ -61,21 +61,21 @@ const requiredSnippets = [
   'appointments_tenant_status_scheduled_idx',
   'appointments_no_confirmed_overlap',
   'create extension if not exists "btree_gist"',
-  'revoke execute on function public.claim_whatsapp_outbox_jobs',
-  'grant execute on function public.claim_whatsapp_outbox_jobs',
-  'revoke execute on function public.complete_whatsapp_outbox_job',
-  'grant execute on function public.complete_whatsapp_outbox_job',
-  'revoke execute on function public.fail_whatsapp_outbox_job',
-  'grant execute on function public.fail_whatsapp_outbox_job',
+  'revoke execute on function ai_receptionist.claim_whatsapp_outbox_jobs',
+  'grant execute on function ai_receptionist.claim_whatsapp_outbox_jobs',
+  'revoke execute on function ai_receptionist.complete_whatsapp_outbox_job',
+  'grant execute on function ai_receptionist.complete_whatsapp_outbox_job',
+  'revoke execute on function ai_receptionist.fail_whatsapp_outbox_job',
+  'grant execute on function ai_receptionist.fail_whatsapp_outbox_job',
   'whatsapp_voice_jobs_ready_idx',
-  'revoke execute on function public.claim_whatsapp_voice_jobs',
-  'grant execute on function public.claim_whatsapp_voice_jobs',
-  'create or replace function public.replace_tenant_business_hours',
-  'revoke execute on function public.replace_tenant_business_hours',
-  'grant execute on function public.replace_tenant_business_hours',
-  'create or replace function public.create_tenant_onboarding',
-  'revoke execute on function public.create_tenant_onboarding',
-  'grant execute on function public.create_tenant_onboarding',
+  'revoke execute on function ai_receptionist.claim_whatsapp_voice_jobs',
+  'grant execute on function ai_receptionist.claim_whatsapp_voice_jobs',
+  'create or replace function ai_receptionist.replace_tenant_business_hours',
+  'revoke execute on function ai_receptionist.replace_tenant_business_hours',
+  'grant execute on function ai_receptionist.replace_tenant_business_hours',
+  'create or replace function ai_receptionist.create_tenant_onboarding',
+  'revoke execute on function ai_receptionist.create_tenant_onboarding',
+  'grant execute on function ai_receptionist.create_tenant_onboarding',
   'add column if not exists stripe_customer_id text',
   'add column if not exists stripe_subscription_id text',
   'add column if not exists subscription_status text',

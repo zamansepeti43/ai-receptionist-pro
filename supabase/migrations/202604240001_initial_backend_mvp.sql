@@ -2,7 +2,23 @@ create extension if not exists "pgcrypto";
 create extension if not exists "vector";
 create extension if not exists "btree_gist";
 
-create table if not exists public.tenants (
+-- Isolate AI Receptionist tables and functions from other apps sharing this project.
+create schema if not exists ai_receptionist;
+grant usage on schema ai_receptionist to anon, authenticated, service_role;
+grant all on all tables in schema ai_receptionist to anon, authenticated, service_role;
+grant all on all routines in schema ai_receptionist to anon, authenticated, service_role;
+grant all on all sequences in schema ai_receptionist to anon, authenticated, service_role;
+alter default privileges for role postgres in schema ai_receptionist
+  grant all on tables to anon, authenticated, service_role;
+alter default privileges for role postgres in schema ai_receptionist
+  grant all on routines to anon, authenticated, service_role;
+alter default privileges for role postgres in schema ai_receptionist
+  grant all on sequences to anon, authenticated, service_role;
+alter role authenticator set pgrst.db_schemas = 'public, graphql_public, ai_receptionist';
+notify pgrst, 'reload config';
+
+
+create table if not exists ai_receptionist.tenants (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text unique not null,
@@ -20,9 +36,9 @@ create table if not exists public.tenants (
   deleted_at timestamptz
 );
 
-create table if not exists public.users (
+create table if not exists ai_receptionist.users (
   id uuid primary key references auth.users(id) on delete cascade,
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   role text not null default 'member' check (role in ('owner', 'admin', 'member')),
   full_name text,
   phone text,
@@ -33,9 +49,9 @@ create table if not exists public.users (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.tenant_config (
+create table if not exists ai_receptionist.tenant_config (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null unique references public.tenants(id) on delete cascade,
+  tenant_id uuid not null unique references ai_receptionist.tenants(id) on delete cascade,
   studio_name text not null,
   assistant_name text not null default 'Ambrogio',
   city text,
@@ -59,9 +75,9 @@ create table if not exists public.tenant_config (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.services (
+create table if not exists ai_receptionist.services (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   name text not null,
   description text,
   duration_minutes integer not null default 30 check (duration_minutes > 0),
@@ -71,9 +87,9 @@ create table if not exists public.services (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.business_hours (
+create table if not exists ai_receptionist.business_hours (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   weekday integer not null check (weekday between 0 and 6),
   opens_at time not null,
   closes_at time not null,
@@ -83,9 +99,9 @@ create table if not exists public.business_hours (
   unique (tenant_id, weekday, opens_at, closes_at)
 );
 
-create table if not exists public.conversations (
+create table if not exists ai_receptionist.conversations (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   channel text not null check (channel in ('whatsapp', 'instagram_dm', 'web_chat', 'sms')),
   customer_identifier text not null,
   customer_name text,
@@ -98,10 +114,10 @@ create table if not exists public.conversations (
   unique (tenant_id, channel, customer_identifier)
 );
 
-create table if not exists public.messages (
+create table if not exists ai_receptionist.messages (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
-  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
+  conversation_id uuid not null references ai_receptionist.conversations(id) on delete cascade,
   direction text not null check (direction in ('inbound', 'outbound')),
   sender_type text not null check (sender_type in ('customer', 'ai', 'human', 'system')),
   content text,
@@ -126,11 +142,11 @@ create table if not exists public.messages (
   unique (tenant_id, external_id)
 );
 
-create table if not exists public.appointments (
+create table if not exists ai_receptionist.appointments (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
-  conversation_id uuid references public.conversations(id),
-  service_id uuid references public.services(id),
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
+  conversation_id uuid references ai_receptionist.conversations(id),
+  service_id uuid references ai_receptionist.services(id),
   customer_identifier text not null,
   customer_name text not null,
   customer_phone text,
@@ -154,9 +170,9 @@ create table if not exists public.appointments (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.knowledge_base (
+create table if not exists ai_receptionist.knowledge_base (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   title text not null,
   content text not null,
   category text,
@@ -166,9 +182,9 @@ create table if not exists public.knowledge_base (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.integrations (
+create table if not exists ai_receptionist.integrations (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   provider text not null check (provider in ('whatsapp_360dialog', 'google_calendar', 'cal_com', 'calendly', 'fatture_in_cloud', 'stripe')),
   external_account_id text,
   external_display_id text,
@@ -180,9 +196,9 @@ create table if not exists public.integrations (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.opt_outs (
+create table if not exists ai_receptionist.opt_outs (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   channel text not null check (channel in ('whatsapp', 'instagram_dm', 'web_chat', 'sms')),
   customer_identifier text not null,
   reason text,
@@ -191,9 +207,9 @@ create table if not exists public.opt_outs (
   unique (tenant_id, channel, customer_identifier)
 );
 
-create table if not exists public.usage_metrics (
+create table if not exists ai_receptionist.usage_metrics (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   metric_month date not null,
   conversations_count integer not null default 0 check (conversations_count >= 0),
   messages_count integer not null default 0 check (messages_count >= 0),
@@ -203,9 +219,9 @@ create table if not exists public.usage_metrics (
   unique (tenant_id, metric_month)
 );
 
-create table if not exists public.invoices (
+create table if not exists ai_receptionist.invoices (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   stripe_invoice_id text not null unique,
   fattureincloud_invoice_id text,
   invoice_number text,
@@ -219,23 +235,23 @@ create table if not exists public.invoices (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.ai_prompts (
+create table if not exists ai_receptionist.ai_prompts (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references public.tenants(id) on delete cascade,
+  tenant_id uuid references ai_receptionist.tenants(id) on delete cascade,
   prompt_key text not null,
   version integer not null,
   model text not null,
   prompt_text text not null,
   active boolean not null default false,
-  created_by uuid references public.users(id),
+  created_by uuid references ai_receptionist.users(id),
   created_at timestamptz not null default now(),
   unique (tenant_id, prompt_key, version)
 );
 
-create table if not exists public.voice_events (
+create table if not exists ai_receptionist.voice_events (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
-  message_id uuid references public.messages(id) on delete set null,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
+  message_id uuid references ai_receptionist.messages(id) on delete set null,
   provider text not null default 'elevenlabs',
   direction text not null check (direction in ('stt', 'tts')),
   model text not null,
@@ -248,9 +264,9 @@ create table if not exists public.voice_events (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.webhook_events (
+create table if not exists ai_receptionist.webhook_events (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references public.tenants(id) on delete cascade,
+  tenant_id uuid references ai_receptionist.tenants(id) on delete cascade,
   provider text not null,
   event_type text not null,
   external_id text not null,
@@ -263,10 +279,10 @@ create table if not exists public.webhook_events (
   processed_at timestamptz
 );
 
-create table if not exists public.whatsapp_outbox_jobs (
+create table if not exists ai_receptionist.whatsapp_outbox_jobs (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
-  message_id uuid not null unique references public.messages(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
+  message_id uuid not null unique references ai_receptionist.messages(id) on delete cascade,
   provider text not null default 'whatsapp_360dialog' check (provider in ('whatsapp_360dialog')),
   status text not null default 'pending' check (status in ('pending', 'processing', 'retry', 'sent', 'failed', 'dead_letter')),
   recipient_identifier text not null,
@@ -285,9 +301,9 @@ create table if not exists public.whatsapp_outbox_jobs (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.whatsapp_message_templates (
+create table if not exists ai_receptionist.whatsapp_message_templates (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   provider text not null default 'whatsapp_360dialog' check (provider in ('whatsapp_360dialog')),
   name text not null,
   language_code text not null default 'it',
@@ -303,10 +319,10 @@ create table if not exists public.whatsapp_message_templates (
   unique (tenant_id, provider, name, language_code)
 );
 
-create table if not exists public.whatsapp_voice_jobs (
+create table if not exists ai_receptionist.whatsapp_voice_jobs (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
-  message_id uuid not null unique references public.messages(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
+  message_id uuid not null unique references ai_receptionist.messages(id) on delete cascade,
   provider text not null default 'whatsapp_360dialog' check (provider in ('whatsapp_360dialog')),
   status text not null default 'pending' check (status in ('pending', 'processing', 'retry', 'completed', 'failed', 'dead_letter')),
   media_id text not null,
@@ -326,10 +342,10 @@ create table if not exists public.whatsapp_voice_jobs (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.audit_log (
+create table if not exists ai_receptionist.audit_log (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid references public.tenants(id),
-  user_id uuid references public.users(id),
+  tenant_id uuid references ai_receptionist.tenants(id),
+  user_id uuid references ai_receptionist.users(id),
   action text not null,
   resource_type text,
   resource_id uuid,
@@ -339,9 +355,9 @@ create table if not exists public.audit_log (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.billing_events (
+create table if not exists ai_receptionist.billing_events (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id) on delete cascade,
+  tenant_id uuid not null references ai_receptionist.tenants(id) on delete cascade,
   stripe_customer_id text,
   stripe_subscription_id text,
   event_type text not null,
@@ -351,57 +367,57 @@ create table if not exists public.billing_events (
   created_at timestamptz not null default now()
 );
 
-create index if not exists users_tenant_id_idx on public.users(tenant_id);
-create index if not exists services_tenant_id_idx on public.services(tenant_id);
-create index if not exists business_hours_tenant_id_idx on public.business_hours(tenant_id);
-create index if not exists conversations_tenant_last_message_idx on public.conversations(tenant_id, last_message_at desc);
-create index if not exists messages_conversation_created_idx on public.messages(conversation_id, created_at desc);
+create index if not exists users_tenant_id_idx on ai_receptionist.users(tenant_id);
+create index if not exists services_tenant_id_idx on ai_receptionist.services(tenant_id);
+create index if not exists business_hours_tenant_id_idx on ai_receptionist.business_hours(tenant_id);
+create index if not exists conversations_tenant_last_message_idx on ai_receptionist.conversations(tenant_id, last_message_at desc);
+create index if not exists messages_conversation_created_idx on ai_receptionist.messages(conversation_id, created_at desc);
 create unique index if not exists messages_tenant_provider_message_unique_idx
-  on public.messages(tenant_id, provider_message_id)
+  on ai_receptionist.messages(tenant_id, provider_message_id)
   where provider_message_id is not null;
-create index if not exists appointments_tenant_scheduled_idx on public.appointments(tenant_id, scheduled_at);
+create index if not exists appointments_tenant_scheduled_idx on ai_receptionist.appointments(tenant_id, scheduled_at);
 create index if not exists appointments_tenant_status_scheduled_idx
-  on public.appointments(tenant_id, status, scheduled_at);
+  on ai_receptionist.appointments(tenant_id, status, scheduled_at);
 create index if not exists appointments_reminder_due_idx
-  on public.appointments(status, scheduled_at)
+  on ai_receptionist.appointments(status, scheduled_at)
   where status = 'confirmed'
     and (reminder_24h_queued_at is null or reminder_1h_queued_at is null);
-create index if not exists knowledge_base_tenant_idx on public.knowledge_base(tenant_id);
-create index if not exists integrations_tenant_idx on public.integrations(tenant_id);
+create index if not exists knowledge_base_tenant_idx on ai_receptionist.knowledge_base(tenant_id);
+create index if not exists integrations_tenant_idx on ai_receptionist.integrations(tenant_id);
 create unique index if not exists integrations_provider_external_account_unique_idx
-  on public.integrations(provider, external_account_id)
+  on ai_receptionist.integrations(provider, external_account_id)
   where external_account_id is not null;
 create unique index if not exists integrations_tenant_singleton_provider_unique_idx
-  on public.integrations(tenant_id, provider)
+  on ai_receptionist.integrations(tenant_id, provider)
   where external_account_id is null;
 create index if not exists integrations_provider_external_account_lookup_idx
-  on public.integrations(provider, external_account_id)
+  on ai_receptionist.integrations(provider, external_account_id)
   where external_account_id is not null;
-create index if not exists opt_outs_tenant_idx on public.opt_outs(tenant_id);
-create index if not exists usage_metrics_tenant_month_idx on public.usage_metrics(tenant_id, metric_month);
-create index if not exists invoices_tenant_idx on public.invoices(tenant_id);
-create index if not exists ai_prompts_tenant_key_idx on public.ai_prompts(tenant_id, prompt_key);
-create index if not exists voice_events_tenant_created_idx on public.voice_events(tenant_id, created_at desc);
-create index if not exists webhook_events_tenant_received_idx on public.webhook_events(tenant_id, received_at desc);
-create index if not exists webhook_events_provider_external_idx on public.webhook_events(provider, external_id);
-create index if not exists whatsapp_outbox_jobs_tenant_status_idx on public.whatsapp_outbox_jobs(tenant_id, status);
+create index if not exists opt_outs_tenant_idx on ai_receptionist.opt_outs(tenant_id);
+create index if not exists usage_metrics_tenant_month_idx on ai_receptionist.usage_metrics(tenant_id, metric_month);
+create index if not exists invoices_tenant_idx on ai_receptionist.invoices(tenant_id);
+create index if not exists ai_prompts_tenant_key_idx on ai_receptionist.ai_prompts(tenant_id, prompt_key);
+create index if not exists voice_events_tenant_created_idx on ai_receptionist.voice_events(tenant_id, created_at desc);
+create index if not exists webhook_events_tenant_received_idx on ai_receptionist.webhook_events(tenant_id, received_at desc);
+create index if not exists webhook_events_provider_external_idx on ai_receptionist.webhook_events(provider, external_id);
+create index if not exists whatsapp_outbox_jobs_tenant_status_idx on ai_receptionist.whatsapp_outbox_jobs(tenant_id, status);
 create index if not exists whatsapp_outbox_jobs_ready_idx
-  on public.whatsapp_outbox_jobs(next_attempt_at, created_at)
+  on ai_receptionist.whatsapp_outbox_jobs(next_attempt_at, created_at)
   where status in ('pending', 'retry');
 create index if not exists whatsapp_message_templates_tenant_status_idx
-  on public.whatsapp_message_templates(tenant_id, status, category);
-create index if not exists whatsapp_voice_jobs_tenant_status_idx on public.whatsapp_voice_jobs(tenant_id, status);
+  on ai_receptionist.whatsapp_message_templates(tenant_id, status, category);
+create index if not exists whatsapp_voice_jobs_tenant_status_idx on ai_receptionist.whatsapp_voice_jobs(tenant_id, status);
 create index if not exists whatsapp_voice_jobs_ready_idx
-  on public.whatsapp_voice_jobs(next_attempt_at, created_at)
+  on ai_receptionist.whatsapp_voice_jobs(next_attempt_at, created_at)
   where status in ('pending', 'retry');
-create index if not exists audit_log_tenant_created_idx on public.audit_log(tenant_id, created_at desc);
-create index if not exists billing_events_tenant_idx on public.billing_events(tenant_id);
+create index if not exists audit_log_tenant_created_idx on ai_receptionist.audit_log(tenant_id, created_at desc);
+create index if not exists billing_events_tenant_idx on ai_receptionist.billing_events(tenant_id);
 
 do $$
 begin
   if exists (select 1 from pg_extension where extname = 'vector') then
     create index if not exists knowledge_base_embedding_idx
-      on public.knowledge_base using hnsw (embedding vector_cosine_ops);
+      on ai_receptionist.knowledge_base using hnsw (embedding vector_cosine_ops);
   end if;
 end $$;
 
@@ -411,15 +427,15 @@ begin
     select 1
     from pg_constraint
     where conname = 'appointments_no_confirmed_overlap'
-      and conrelid = 'public.appointments'::regclass
+      and conrelid = 'ai_receptionist.appointments'::regclass
   ) then
-    alter table public.appointments
+    alter table ai_receptionist.appointments
       add constraint appointments_no_confirmed_overlap
       exclude using gist (
         tenant_id with =,
-        tstzrange(
-          scheduled_at,
-          scheduled_at + duration_minutes * interval '1 minute',
+        tsrange(
+          scheduled_at at time zone 'UTC',
+          (scheduled_at at time zone 'UTC') + duration_minutes * interval '1 minute',
           '[)'
         ) with &&
       )
@@ -427,7 +443,7 @@ begin
   end if;
 end $$;
 
-create or replace function public.update_updated_at_column()
+create or replace function ai_receptionist.update_updated_at_column()
 returns trigger
 language plpgsql
 as $$
@@ -437,7 +453,7 @@ begin
 end;
 $$;
 
-create or replace function public.current_tenant_id()
+create or replace function ai_receptionist.current_tenant_id()
 returns uuid
 language sql
 stable
@@ -459,7 +475,7 @@ as $$
   from claim;
 $$;
 
-create or replace function public.current_tenant_role()
+create or replace function ai_receptionist.current_tenant_role()
 returns text
 language sql
 stable
@@ -471,7 +487,7 @@ as $$
   );
 $$;
 
-create or replace function public.increment_usage_metrics(
+create or replace function ai_receptionist.increment_usage_metrics(
   p_tenant_id uuid,
   p_metric_month date,
   p_messages_delta integer default 0,
@@ -481,10 +497,10 @@ create or replace function public.increment_usage_metrics(
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 begin
-  insert into public.usage_metrics (
+  insert into ai_receptionist.usage_metrics (
     tenant_id,
     metric_month,
     messages_count,
@@ -500,19 +516,19 @@ begin
   )
   on conflict (tenant_id, metric_month)
   do update set
-    messages_count = public.usage_metrics.messages_count + greatest(p_messages_delta, 0),
-    conversations_count = public.usage_metrics.conversations_count + greatest(p_conversations_delta, 0),
-    ai_cost_cents = public.usage_metrics.ai_cost_cents + greatest(p_ai_cost_cents_delta, 0),
+    messages_count = ai_receptionist.usage_metrics.messages_count + greatest(p_messages_delta, 0),
+    conversations_count = ai_receptionist.usage_metrics.conversations_count + greatest(p_conversations_delta, 0),
+    ai_cost_cents = ai_receptionist.usage_metrics.ai_cost_cents + greatest(p_ai_cost_cents_delta, 0),
     updated_at = now();
 end;
 $$;
 
-revoke execute on function public.increment_usage_metrics(uuid, date, integer, integer, integer)
+revoke execute on function ai_receptionist.increment_usage_metrics(uuid, date, integer, integer, integer)
   from public, anon, authenticated;
-grant execute on function public.increment_usage_metrics(uuid, date, integer, integer, integer)
+grant execute on function ai_receptionist.increment_usage_metrics(uuid, date, integer, integer, integer)
   to service_role;
 
-create or replace function public.match_knowledge_base(
+create or replace function ai_receptionist.match_knowledge_base(
   p_tenant_id uuid,
   p_query_embedding vector(1536),
   p_match_count integer default 3,
@@ -528,7 +544,7 @@ returns table (
 )
 language sql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
   select
     kb.id,
@@ -537,7 +553,7 @@ as $$
     kb.category,
     1 - (kb.embedding <=> p_query_embedding) as similarity,
     kb.updated_at
-  from public.knowledge_base kb
+  from ai_receptionist.knowledge_base kb
   where kb.tenant_id = p_tenant_id
     and kb.active = true
     and kb.embedding is not null
@@ -546,12 +562,12 @@ as $$
   limit greatest(least(p_match_count, 10), 1);
 $$;
 
-revoke execute on function public.match_knowledge_base(uuid, vector(1536), integer, double precision)
+revoke execute on function ai_receptionist.match_knowledge_base(uuid, vector(1536), integer, double precision)
   from public, anon, authenticated;
-grant execute on function public.match_knowledge_base(uuid, vector(1536), integer, double precision)
+grant execute on function ai_receptionist.match_knowledge_base(uuid, vector(1536), integer, double precision)
   to service_role;
 
-create or replace function public.claim_whatsapp_outbox_jobs(
+create or replace function ai_receptionist.claim_whatsapp_outbox_jobs(
   p_limit integer default 10,
   p_lock_id text default null,
   p_lock_ttl_seconds integer default 300
@@ -568,7 +584,7 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 begin
   return query
@@ -576,12 +592,12 @@ begin
     select
       job.id,
       conversation.last_message_at + interval '24 hours' as customer_service_window_expires_at
-    from public.whatsapp_outbox_jobs job
-    join public.messages message
+    from ai_receptionist.whatsapp_outbox_jobs job
+    join ai_receptionist.messages message
       on message.id = job.message_id
       and message.tenant_id = job.tenant_id
       and message.direction = 'outbound'
-    join public.conversations conversation
+    join ai_receptionist.conversations conversation
       on conversation.id = message.conversation_id
       and conversation.tenant_id = job.tenant_id
     where job.status in ('pending', 'retry')
@@ -594,7 +610,7 @@ begin
     limit greatest(least(p_limit, 50), 1)
     for update of job skip locked
   )
-  update public.whatsapp_outbox_jobs job
+  update ai_receptionist.whatsapp_outbox_jobs job
   set
     status = 'processing',
     locked_at = now(),
@@ -616,12 +632,12 @@ begin
 end;
 $$;
 
-revoke execute on function public.claim_whatsapp_outbox_jobs(integer, text, integer)
+revoke execute on function ai_receptionist.claim_whatsapp_outbox_jobs(integer, text, integer)
   from public, anon, authenticated;
-grant execute on function public.claim_whatsapp_outbox_jobs(integer, text, integer)
+grant execute on function ai_receptionist.claim_whatsapp_outbox_jobs(integer, text, integer)
   to service_role;
 
-create or replace function public.complete_whatsapp_outbox_job(
+create or replace function ai_receptionist.complete_whatsapp_outbox_job(
   p_job_id uuid,
   p_provider_message_id text,
   p_provider_response jsonb,
@@ -630,14 +646,14 @@ create or replace function public.complete_whatsapp_outbox_job(
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 declare
-  v_job public.whatsapp_outbox_jobs%rowtype;
+  v_job ai_receptionist.whatsapp_outbox_jobs%rowtype;
 begin
   select *
   into v_job
-  from public.whatsapp_outbox_jobs
+  from ai_receptionist.whatsapp_outbox_jobs
   where id = p_job_id
   for update;
 
@@ -645,7 +661,7 @@ begin
     raise exception 'whatsapp_outbox_job_not_found';
   end if;
 
-  update public.whatsapp_outbox_jobs
+  update ai_receptionist.whatsapp_outbox_jobs
   set
     status = 'sent',
     provider_message_id = p_provider_message_id,
@@ -663,7 +679,7 @@ begin
     updated_at = now()
   where id = p_job_id;
 
-  update public.messages
+  update ai_receptionist.messages
   set
     status = 'sent',
     provider_message_id = p_provider_message_id,
@@ -675,12 +691,12 @@ begin
 end;
 $$;
 
-revoke execute on function public.complete_whatsapp_outbox_job(uuid, text, jsonb, jsonb)
+revoke execute on function ai_receptionist.complete_whatsapp_outbox_job(uuid, text, jsonb, jsonb)
   from public, anon, authenticated;
-grant execute on function public.complete_whatsapp_outbox_job(uuid, text, jsonb, jsonb)
+grant execute on function ai_receptionist.complete_whatsapp_outbox_job(uuid, text, jsonb, jsonb)
   to service_role;
 
-create or replace function public.fail_whatsapp_outbox_job(
+create or replace function ai_receptionist.fail_whatsapp_outbox_job(
   p_job_id uuid,
   p_status text,
   p_next_attempt_at timestamptz,
@@ -691,10 +707,10 @@ create or replace function public.fail_whatsapp_outbox_job(
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 declare
-  v_job public.whatsapp_outbox_jobs%rowtype;
+  v_job ai_receptionist.whatsapp_outbox_jobs%rowtype;
 begin
   if p_status not in ('retry', 'failed', 'dead_letter') then
     raise exception 'invalid_whatsapp_outbox_failure_status';
@@ -702,7 +718,7 @@ begin
 
   select *
   into v_job
-  from public.whatsapp_outbox_jobs
+  from ai_receptionist.whatsapp_outbox_jobs
   where id = p_job_id
   for update;
 
@@ -710,7 +726,7 @@ begin
     raise exception 'whatsapp_outbox_job_not_found';
   end if;
 
-  update public.whatsapp_outbox_jobs
+  update ai_receptionist.whatsapp_outbox_jobs
   set
     status = p_status,
     next_attempt_at = case
@@ -725,7 +741,7 @@ begin
   where id = p_job_id;
 
   if p_status in ('failed', 'dead_letter') then
-    update public.messages
+    update ai_receptionist.messages
     set
       status = 'failed',
       metadata = coalesce(p_message_metadata, metadata),
@@ -737,12 +753,12 @@ begin
 end;
 $$;
 
-revoke execute on function public.fail_whatsapp_outbox_job(uuid, text, timestamptz, text, text, jsonb)
+revoke execute on function ai_receptionist.fail_whatsapp_outbox_job(uuid, text, timestamptz, text, text, jsonb)
   from public, anon, authenticated;
-grant execute on function public.fail_whatsapp_outbox_job(uuid, text, timestamptz, text, text, jsonb)
+grant execute on function ai_receptionist.fail_whatsapp_outbox_job(uuid, text, timestamptz, text, text, jsonb)
   to service_role;
 
-create or replace function public.claim_whatsapp_voice_jobs(
+create or replace function ai_receptionist.claim_whatsapp_voice_jobs(
   p_limit integer default 10,
   p_lock_id text default null,
   p_lock_ttl_seconds integer default 300
@@ -760,13 +776,13 @@ returns table (
 )
 language plpgsql
 security definer
-set search_path = public
+set search_path = ai_receptionist, public, extensions
 as $$
 begin
   return query
   with candidates as (
     select job.id
-    from public.whatsapp_voice_jobs job
+    from ai_receptionist.whatsapp_voice_jobs job
     where job.status in ('pending', 'retry')
       and job.next_attempt_at <= now()
       and (
@@ -777,7 +793,7 @@ begin
     limit greatest(least(p_limit, 50), 1)
     for update skip locked
   )
-  update public.whatsapp_voice_jobs job
+  update ai_receptionist.whatsapp_voice_jobs job
   set
     status = 'processing',
     locked_at = now(),
@@ -800,9 +816,9 @@ begin
 end;
 $$;
 
-revoke execute on function public.claim_whatsapp_voice_jobs(integer, text, integer)
+revoke execute on function ai_receptionist.claim_whatsapp_voice_jobs(integer, text, integer)
   from public, anon, authenticated;
-grant execute on function public.claim_whatsapp_voice_jobs(integer, text, integer)
+grant execute on function ai_receptionist.claim_whatsapp_voice_jobs(integer, text, integer)
   to service_role;
 
 do $$
@@ -827,117 +843,117 @@ begin
     'whatsapp_voice_jobs'
   ]
   loop
-    execute format('drop trigger if exists set_updated_at on public.%I', table_name);
+    execute format('drop trigger if exists set_updated_at on ai_receptionist.%I', table_name);
     execute format(
-      'create trigger set_updated_at before update on public.%I for each row execute function public.update_updated_at_column()',
+      'create trigger set_updated_at before update on ai_receptionist.%I for each row execute function ai_receptionist.update_updated_at_column()',
       table_name
     );
   end loop;
 end $$;
 
-alter table public.tenants enable row level security;
-alter table public.users enable row level security;
-alter table public.tenant_config enable row level security;
-alter table public.services enable row level security;
-alter table public.business_hours enable row level security;
-alter table public.conversations enable row level security;
-alter table public.messages enable row level security;
-alter table public.appointments enable row level security;
-alter table public.knowledge_base enable row level security;
-alter table public.integrations enable row level security;
-alter table public.opt_outs enable row level security;
-alter table public.usage_metrics enable row level security;
-alter table public.invoices enable row level security;
-alter table public.ai_prompts enable row level security;
-alter table public.voice_events enable row level security;
-alter table public.webhook_events enable row level security;
-alter table public.whatsapp_outbox_jobs enable row level security;
-alter table public.whatsapp_message_templates enable row level security;
-alter table public.whatsapp_voice_jobs enable row level security;
-alter table public.audit_log enable row level security;
-alter table public.billing_events enable row level security;
+alter table ai_receptionist.tenants enable row level security;
+alter table ai_receptionist.users enable row level security;
+alter table ai_receptionist.tenant_config enable row level security;
+alter table ai_receptionist.services enable row level security;
+alter table ai_receptionist.business_hours enable row level security;
+alter table ai_receptionist.conversations enable row level security;
+alter table ai_receptionist.messages enable row level security;
+alter table ai_receptionist.appointments enable row level security;
+alter table ai_receptionist.knowledge_base enable row level security;
+alter table ai_receptionist.integrations enable row level security;
+alter table ai_receptionist.opt_outs enable row level security;
+alter table ai_receptionist.usage_metrics enable row level security;
+alter table ai_receptionist.invoices enable row level security;
+alter table ai_receptionist.ai_prompts enable row level security;
+alter table ai_receptionist.voice_events enable row level security;
+alter table ai_receptionist.webhook_events enable row level security;
+alter table ai_receptionist.whatsapp_outbox_jobs enable row level security;
+alter table ai_receptionist.whatsapp_message_templates enable row level security;
+alter table ai_receptionist.whatsapp_voice_jobs enable row level security;
+alter table ai_receptionist.audit_log enable row level security;
+alter table ai_receptionist.billing_events enable row level security;
 
-create policy tenants_select_own on public.tenants
-  for select using (id = public.current_tenant_id());
+create policy tenants_select_own on ai_receptionist.tenants
+  for select using (id = ai_receptionist.current_tenant_id());
 
-create policy tenants_owner_update_own on public.tenants
-  for update using (id = public.current_tenant_id() and public.current_tenant_role() = 'owner')
-  with check (id = public.current_tenant_id() and public.current_tenant_role() = 'owner');
+create policy tenants_owner_update_own on ai_receptionist.tenants
+  for update using (id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() = 'owner')
+  with check (id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() = 'owner');
 
-create policy users_tenant_select on public.users
-  for select using (tenant_id = public.current_tenant_id());
+create policy users_tenant_select on ai_receptionist.users
+  for select using (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy users_admin_write on public.users
-  for all using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'))
-  with check (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy users_admin_write on ai_receptionist.users
+  for all using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'))
+  with check (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy tenant_config_tenant_all on public.tenant_config
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy tenant_config_tenant_all on ai_receptionist.tenant_config
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy services_tenant_all on public.services
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy services_tenant_all on ai_receptionist.services
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy business_hours_tenant_all on public.business_hours
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy business_hours_tenant_all on ai_receptionist.business_hours
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy conversations_tenant_all on public.conversations
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy conversations_tenant_all on ai_receptionist.conversations
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy messages_tenant_all on public.messages
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy messages_tenant_all on ai_receptionist.messages
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy appointments_tenant_all on public.appointments
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy appointments_tenant_all on ai_receptionist.appointments
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy knowledge_base_tenant_all on public.knowledge_base
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy knowledge_base_tenant_all on ai_receptionist.knowledge_base
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy integrations_tenant_all on public.integrations
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy integrations_tenant_all on ai_receptionist.integrations
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy opt_outs_tenant_all on public.opt_outs
-  for all using (tenant_id = public.current_tenant_id())
-  with check (tenant_id = public.current_tenant_id());
+create policy opt_outs_tenant_all on ai_receptionist.opt_outs
+  for all using (tenant_id = ai_receptionist.current_tenant_id())
+  with check (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy usage_metrics_tenant_select on public.usage_metrics
-  for select using (tenant_id = public.current_tenant_id());
+create policy usage_metrics_tenant_select on ai_receptionist.usage_metrics
+  for select using (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy invoices_tenant_select on public.invoices
-  for select using (tenant_id = public.current_tenant_id());
+create policy invoices_tenant_select on ai_receptionist.invoices
+  for select using (tenant_id = ai_receptionist.current_tenant_id());
 
-create policy ai_prompts_tenant_select on public.ai_prompts
-  for select using (tenant_id is null or tenant_id = public.current_tenant_id());
+create policy ai_prompts_tenant_select on ai_receptionist.ai_prompts
+  for select using (tenant_id is null or tenant_id = ai_receptionist.current_tenant_id());
 
-create policy ai_prompts_admin_write on public.ai_prompts
-  for all using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'))
-  with check (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy ai_prompts_admin_write on ai_receptionist.ai_prompts
+  for all using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'))
+  with check (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy voice_events_admin_select on public.voice_events
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy voice_events_admin_select on ai_receptionist.voice_events
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy webhook_events_admin_select on public.webhook_events
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy webhook_events_admin_select on ai_receptionist.webhook_events
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy whatsapp_outbox_jobs_admin_select on public.whatsapp_outbox_jobs
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy whatsapp_outbox_jobs_admin_select on ai_receptionist.whatsapp_outbox_jobs
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy whatsapp_message_templates_admin_all on public.whatsapp_message_templates
-  for all using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'))
-  with check (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy whatsapp_message_templates_admin_all on ai_receptionist.whatsapp_message_templates
+  for all using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'))
+  with check (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy whatsapp_voice_jobs_admin_select on public.whatsapp_voice_jobs
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy whatsapp_voice_jobs_admin_select on ai_receptionist.whatsapp_voice_jobs
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy audit_log_admin_select on public.audit_log
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() in ('owner', 'admin'));
+create policy audit_log_admin_select on ai_receptionist.audit_log
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() in ('owner', 'admin'));
 
-create policy billing_events_owner_select on public.billing_events
-  for select using (tenant_id = public.current_tenant_id() and public.current_tenant_role() = 'owner');
+create policy billing_events_owner_select on ai_receptionist.billing_events
+  for select using (tenant_id = ai_receptionist.current_tenant_id() and ai_receptionist.current_tenant_role() = 'owner');

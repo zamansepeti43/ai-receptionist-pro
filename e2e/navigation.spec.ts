@@ -49,7 +49,9 @@ test.describe('Landing and primary navigation', () => {
     await gotoOk(page, '/');
     await header.getByRole('link', { name: 'Sign in' }).click();
     await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByRole('button', { name: 'Send sign-in link' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
+    await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   });
 
   test('logo returns to home from an internal page', async ({ page }) => {
