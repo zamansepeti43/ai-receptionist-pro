@@ -67,7 +67,7 @@ const websiteSchema = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  // Match Next.js-generated inline bootstrap scripts to the nonce enforced by middleware CSP.
+  // Read the nonce injected by middleware so Next.js can authorize inline scripts under CSP.
   const nonce = (await headers()).get('x-nonce') ?? undefined;
 
   return (
