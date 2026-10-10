@@ -53,7 +53,6 @@ export class SignUpService {
       throw new AppError('conflict', 'A tenant with this email already exists');
     }
 
-    const admin = createSupabaseAdminClient();
     const tenant = await this.repository.insertPendingTenant({
       name: businessName,
       slug: makeSlug(businessName),
@@ -63,6 +62,7 @@ export class SignUpService {
 
     // Create a password-based Supabase identity and attach the tenant/owner claims.
     // Roll back the tenant if identity creation fails to prevent orphan rows.
+    const admin = createSupabaseAdminClient();
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password: input.password,
